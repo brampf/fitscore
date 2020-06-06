@@ -6,9 +6,35 @@ import XCTest
 final class WriterTests: XCTestCase {
     
     static var allTests = [
+        ("testPadding", testPadding),
         ("testWriteHeaderBlock", testWriteHeaderBlock),
+        ("testWriteSimple", testWriteSimple),
+        ("testWriteComment", testWriteComment),
+        ("testWriteBitpix", testWriteBitpix),
 ]
  
+    func testPadding() {
+        
+        var prefix = "Hello World"
+        prefix.m_padPrefix(toSize: 22, char: "~")
+        var suffix = "Hello World"
+        suffix.m_padSuffix(toSize: 22, char: "~")
+        
+        XCTAssertEqual(prefix.count, 22)
+        XCTAssertEqual(prefix, "~~~~~~~~~~~Hello World")
+        XCTAssertEqual(suffix.count, 22)
+        XCTAssertEqual(suffix, "Hello World~~~~~~~~~~~")
+        
+        prefix.m_padPrefix(toSize: 6, char: "#")
+        suffix.m_padSuffix(toSize: 6, char: "#")
+        
+        XCTAssertEqual(prefix.count, 6)
+        XCTAssertEqual(prefix, "~~~~~~")
+        XCTAssertEqual(suffix.count, 6)
+        XCTAssertEqual(suffix, "~~~~~~")
+        
+    }
+    
     func testWriteHeaderBlock() {
         
         let block = HeaderBlock(keyword: "WALDI", value: .STRING("Hello World"), comment: "Test")

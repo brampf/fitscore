@@ -8,6 +8,18 @@ final class ParserTests: XCTestCase {
     
     static var allTests = [
         ("testReadSimple", testReadSimple),
+        ("testReadBitpix", testReadBitpix),
+        ("testReadNaxis", testReadNaxis),
+        ("testReadNaxisN", testReadNaxisN),
+        ("testReadExtend", testReadExtend),
+        ("testReadComment", testReadComment),
+        ("testReadDate", testReadDate),
+        ("testReadHDU", testReadHDU),
+        ("testReadTDISP", testReadTDISP),
+        ("testReadTFORM", testReadTFORM),
+        ("testReadTFIELD", testReadTFIELD),
+        ("testReadBFORM", testReadBFORM),
+        ("testReadBFIELD", testReadBFIELD),
     ]
     
     func testReadSimple() {

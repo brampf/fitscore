@@ -8,6 +8,10 @@ final class FitsTests: XCTestCase {
 
     static var allTests = [
         ("testReadFile", testReadFile),
+        ("testReadImage", testReadImage),
+        ("testReadTable", testReadTable),
+        ("testReadBintable", testReadBintable)
+        
     ]
     
     func testReadFile() {
@@ -20,6 +24,13 @@ final class FitsTests: XCTestCase {
         let fits = try! FitsFile.read(from: &data)
 
         XCTAssertNotNil(fits)
+        
+        XCTAssertEqual(fits.prime.simple, true)
+        XCTAssertEqual(fits.prime.bitpix, BITPIX_ENUM.UINT8)
+        XCTAssertEqual(fits.prime.naxis, 3)
+        XCTAssertEqual(fits.prime.naxis(1), 480)
+        XCTAssertEqual(fits.prime.naxis(2), 360)
+        XCTAssertEqual(fits.prime.naxis(3), 3)
     }
     
     func testReadImage() {
@@ -116,28 +127,6 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(hdu.table[5].values[3], TFIELD.A(val: "SECONDS"))
         XCTAssertEqual(hdu.table[5].values[4], TFIELD.A(val: "SECONDS"))
         XCTAssertEqual(hdu.table[5].values[5], TFIELD.A(val: "SECONDS"))
-    }
-    
-    func testPadding() {
-        
-        var prefix = "Hello World"
-            prefix.m_padPrefix(toSize: 22, char: "~")
-        var suffix = "Hello World"
-        suffix.m_padSuffix(toSize: 22, char: "~")
-        
-        XCTAssertEqual(prefix.count, 22)
-        XCTAssertEqual(prefix, "~~~~~~~~~~~Hello World")
-        XCTAssertEqual(suffix.count, 22)
-        XCTAssertEqual(suffix, "Hello World~~~~~~~~~~~")
-        
-        prefix.m_padPrefix(toSize: 6, char: "#")
-        suffix.m_padSuffix(toSize: 6, char: "#")
-        
-        XCTAssertEqual(prefix.count, 6)
-        XCTAssertEqual(prefix, "~~~~~~")
-        XCTAssertEqual(suffix.count, 6)
-        XCTAssertEqual(suffix, "~~~~~~")
-        
     }
     
     func testReadBintable() {
