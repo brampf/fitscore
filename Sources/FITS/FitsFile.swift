@@ -1,0 +1,131 @@
+/*
+ 
+ Copyright (c) <2020>
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ 
+ */
+
+import Foundation
+
+/**
+ Represenation of data in the FITS file format up to Version 4.0
+ https://fits.gsfc.nasa.gov/fits_standard.html
+ 
+ */
+public final class FitsFile {
+    
+    public internal(set) var prime : PrimaryHDU
+    public var HDUs : [AnyHDU] = []
+    
+    init(prime: PrimaryHDU) {
+        self.prime = prime
+    }
+}
+
+extension FitsFile : CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+
+        return "\(prime.debugDescription)\n\(HDUs.reduce(into: "", { $0.append($1.debugDescription) }))"
+    }
+}
+
+//MARK:- Reader
+extension FitsFile : Reader {
+    
+    public static func read(from  url: URL, onError: ((Error) -> Void)?, onCompletion: (FitsFile) -> Void) {
+        
+        guard var data = try? Data(contentsOf: url) else {
+            return
+        }
+        do{
+            let file = try read(from: &data)
+            onCompletion(file)
+        } catch{
+            onError?(error)
+        }
+    }
+    
+    public static func read(from data: inout Data) throws -> FitsFile {
+      
+        return try FitsFile(with: &data)
+    }
+    
+    public convenience init(with data: inout Data) throws {
+        
+        let prime = try PrimaryHDU(with: &data)
+        
+        self.init(prime: prime)
+        
+        guard let block = String(data: data.subdata(in: 0..<CARD_LENGTH), encoding: .ascii) else {
+            // this is not supposed to happen
+            throw FitsFail.malformattedHDU
+        }
+        let card = HeaderBlock.parse(form: block)
+        
+        
+        while data.count > 0 {
+            var newHDU : AnyHDU
+            guard card.isXtension else {
+                // also not supposed to happen
+                throw FitsFail.malformattedHDU
+            }
+            
+            if card.value?.description.contains("IMAGE   ") ?? false {
+                newHDU = try ImageHDU(with: &data)
+            } else if card.value?.description.contains("TABLE   ") ?? false {
+                newHDU = try TableHDU(with: &data)
+            } else if card.value?.description.contains("BINTABLE") ?? false {
+                newHDU = try BintableHDU(with: &data)
+            } else {
+                newHDU = try AnyHDU(with: &data)
+            }
+            self.HDUs.append(newHDU)
+        }
+    }
+}
+
+
+//MARK:- Writer
+extension FitsFile : Writer {
+    
+    public func write(to url: URL, onError: ((Error) -> Void)?, onCompleation: () -> Void) {
+        
+        do {
+            var data = Data()
+            try self.write(to: &data)
+            
+            try data.write(to: url)
+            
+        } catch {
+            onError?(error)
+        }
+            
+    }
+    
+    func write(to: inout Data) throws {
+        
+        try self.prime.write(to: &to)
+        try self.HDUs.forEach { hdu in
+            try hdu.write(to: &to)
+        }
+
+    }
+}
