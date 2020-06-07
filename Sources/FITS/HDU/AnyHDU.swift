@@ -22,19 +22,19 @@
  
  */
 
-
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible{
-    
-    var headerUnit : [HeaderBlock] {get}
-    var dataUnit : Data? {get}
-}
-
-open class AnyHDU : HDU, Reader{
+/**
+    A header data unit according to the FITS format specification.
+ */
+open class AnyHDU : HDU, Reader, CustomStringConvertible {
     
     public internal(set) var  headerUnit: [HeaderBlock] = []
     public internal(set) var dataUnit: Data?
+    
+    public init() {
+        //
+    }
     
     /// Number of vectors storedin this HDU
     public var naxis : Int? {
@@ -42,12 +42,8 @@ open class AnyHDU : HDU, Reader{
     }
     
     ///
-    public var bitpix: BITPIX_ENUM? {
-        if let bp : Int = self.lookup(HDUKeyword.BITPIX){
-            return BITPIX_ENUM(rawValue: bp)
-        } else {
-            return nil
-        }
+    public var bitpix: BITPIX? {
+        return self.lookup(HDUKeyword.BITPIX)
     }
     
     public func naxis(_ dimension: Naxis) -> Int? {
@@ -70,34 +66,16 @@ open class AnyHDU : HDU, Reader{
         }
     }
     
-    /*
-    public func setHeader<VAL : HDUValue>(_ keyword: HDUKeyword, value: VAL) {
+    /// sets value and comment for `HDUKeyworld`
+    public func set(_ keyword: HDUKeyword, value: HDUValue?, comment: String?) {
         
-        guard var block = headerUnit.first(where: {$0.keyword == keyword}) else {
-            return
-        }
-        
-        block.value = value
-    }*/
-    
-    public func lookup<VAL>(_ keyword: HDUKeyword) -> VAL? {
-        if let value = headerUnit.first(where: {$0.keyword == keyword})?.value {
-            switch value {
-            case .BOOLEAN(let val): return val as? VAL
-            case .INTEGER(let val): return val as? VAL
-            case .STRING(let val): return val as? VAL
-            case .FLOAT(let val): return val as? VAL
-            case .COMPLEX(let val): return val as? VAL
-            case .DATE(let val): return val as? VAL
-                
-            case .BITPIX(let val): return val as? VAL
-            case .TFORM(let val): return val as? VAL
-            case .TDISP(let val): return val as? VAL
-            case .BFORM(let val): return val as? VAL
-            case .BDISP(let val): return val as? VAL
-            }
+        if var block = headerUnit.first(where: {$0.keyword == keyword}) {
+            // modify existing header if present
+            block.value = value
+            block.comment = comment
         } else {
-            return nil
+            // add keyworld otherwise
+            headerUnit.append(HeaderBlock(keyword: keyword, value: value, comment: comment))
         }
     }
     
@@ -139,6 +117,7 @@ open class AnyHDU : HDU, Reader{
             
             let card = data.subdata(in: index..<CARD_LENGTH+index)
             if let string = String(data: card, encoding: .ascii){
+
                 // read the card
                 let header = HeaderBlock.parse(form: string)
                 // store the card
@@ -195,30 +174,24 @@ extension AnyHDU : Writer {
     
     public func write(to: inout Data) throws {
         
+        try? HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(true), comment: "SIMPLY FITS").write(to: &to)
+        
         self.headerUnit.forEach { block in
             try? block.write(to: &to)
         }
+        
+        try? HeaderBlock(keyword: HDUKeyword.END).write(to: &to)
+        
+        let paddedHeaderSize = self.pad(value: to.count,to: CARD_LENGTH*BLOCK_LENGTH)
+        self.pad(data: &to, toSize: paddedHeaderSize)
+        
         if let unit = dataUnit {
             to.append(unit)
         }
-    }
-}
-
-extension HDU where Self: CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
         
-        var result = headerUnit.reduce(into: "") { result, block in
-            result.append(contentsOf: block.description)
-            result.append("\n")
-        }
-        result.append("-------------------------------------------\n")
-        result.append("\(dataUnit.debugDescription)\n")
-        result.append("-------------------------------------------\n")
-        
-        return result
+        let paddedDataSize = self.pad(value: to.count,to: CARD_LENGTH*BLOCK_LENGTH)
+        self.pad(data: &to, toSize: paddedDataSize)
     }
-    
 }
 
 extension AnyHDU : Hashable {

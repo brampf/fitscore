@@ -37,7 +37,7 @@ public enum HDUValue : Equatable, Hashable, CustomStringConvertible {
     case DATE(Date)
     
     // special types
-    case BITPIX(BITPIX_ENUM)
+    case BITPIX(BITPIX)
     case TFORM(TFORM)
     case TDISP(TDISP)
     case BFORM(BFORM)
@@ -50,7 +50,7 @@ public enum HDUValue : Equatable, Hashable, CustomStringConvertible {
         
         switch toType {
         case .BITPIX:
-            if let raw = Int(trimmed), let bitpix = BITPIX_ENUM(rawValue: raw) {
+            if let raw = Int(trimmed), let bitpix = FITS.BITPIX(rawValue: raw) {
                 return .BITPIX(bitpix)
             }
         case .TFORM:

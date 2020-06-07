@@ -156,7 +156,7 @@ public struct ProxyCollection<Value> : RandomAccessCollection, Identifiable, Has
     }
 }
 
-extension TableHDU : CustomStringConvertible {
+extension TableHDU  {
     
     public var description: String {
         return "TABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"

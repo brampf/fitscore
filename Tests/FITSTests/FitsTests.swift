@@ -26,7 +26,7 @@ final class FitsTests: XCTestCase {
         XCTAssertNotNil(fits)
         
         XCTAssertEqual(fits.prime.simple, true)
-        XCTAssertEqual(fits.prime.bitpix, BITPIX_ENUM.UINT8)
+        XCTAssertEqual(fits.prime.bitpix, BITPIX.UINT8)
         XCTAssertEqual(fits.prime.naxis, 3)
         XCTAssertEqual(fits.prime.naxis(1), 480)
         XCTAssertEqual(fits.prime.naxis(2), 360)
@@ -49,7 +49,7 @@ final class FitsTests: XCTestCase {
             print(header.raw)
         }
         
-        XCTAssertEqual(hdu.bitpix, BITPIX_ENUM.INT16)
+        XCTAssertEqual(hdu.bitpix, BITPIX.INT16)
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 512)
         XCTAssertEqual(hdu.naxis(1), 512)
@@ -73,7 +73,7 @@ final class FitsTests: XCTestCase {
             print(header.description)
         }
         
-        XCTAssertEqual(hdu.bitpix, BITPIX_ENUM.UINT8)
+        XCTAssertEqual(hdu.bitpix, BITPIX.UINT8)
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 99)
         XCTAssertEqual(hdu.naxis(2), 7)
@@ -145,7 +145,7 @@ final class FitsTests: XCTestCase {
             //print(header.raw)
         }
         
-        XCTAssertEqual(hdu.bitpix, BITPIX_ENUM.UINT8)
+        XCTAssertEqual(hdu.bitpix, BITPIX.UINT8)
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 11535)
         XCTAssertEqual(hdu.naxis(2), 1)

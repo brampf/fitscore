@@ -105,7 +105,7 @@ final class ParserTests: XCTestCase {
         
         XCTAssertEqual(hdu.headerUnit.count, 16)
         XCTAssertNotNil(hdu.dataUnit)
-        XCTAssertEqual(hdu.bitpix, BITPIX_ENUM.UINT8)
+        XCTAssertEqual(hdu.bitpix, BITPIX.UINT8)
         XCTAssertEqual(hdu.naxis, 3)
         XCTAssertEqual(hdu.naxis(1), 480)
         XCTAssertEqual(hdu.naxis(2), 360)

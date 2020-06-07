@@ -24,7 +24,7 @@
 
 import Foundation
 
-public final class PrimaryHDU : AnyHDU {
+public final class PrimaryHDU : AnyImageHDU {
     
     public var simple : Bool {
         return self.lookup(HDUKeyword.SIMPLE) ?? false
@@ -51,28 +51,6 @@ extension PrimaryHDU {
         result.append("-------------------------------------------\n")
         
         return result
-    }
-    
-}
-
-
-
-open class AnyImageHDU : AnyHDU {
- 
-    public func set<ByteFormat: BITPIX>(width: Int, height: Int, vectors: [ByteFormat]...){
-        
-        self.dataUnit = Data()
-        vectors.forEach { vector in
-            let data = vector.withUnsafeBytes { ptr in
-                Data(buffer: ptr.bindMemory(to: ByteFormat.self))
-            }
-            self.dataUnit?.append(data)
-        }
-        
-    }
-    
-    public func add<ByteFormat: BITPIX>(vector: [ByteFormat]) {
-        
     }
     
 }

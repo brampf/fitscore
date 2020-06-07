@@ -30,8 +30,8 @@ import Foundation
 public struct HeaderBlock {
     
     public private(set) var keyword : HDUKeyword
-    public private(set) var value : HDUValue?
-    public private(set) var comment : String?
+    public var value : HDUValue?
+    public var comment : String?
     
     #if DEBUG
     public var raw : String? = nil
@@ -119,6 +119,8 @@ extension HeaderBlock {
             // default behavior : split value and comment
             if isString {
                 block.value = .STRING(value)
+            } else if keyword == HDUKeyword.BITPIX {
+                block.value = HDUValue.parse(value, toType: HDUValue.BITPIX(BITPIX.FLOAT32))
             } else {
                 block.value = HDUValue.parse(value)
             }

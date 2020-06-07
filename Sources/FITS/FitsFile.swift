@@ -34,7 +34,7 @@ public final class FitsFile {
     public internal(set) var prime : PrimaryHDU
     public var HDUs : [AnyHDU] = []
     
-    init(prime: PrimaryHDU) {
+    public init(prime: PrimaryHDU) {
         self.prime = prime
     }
 }
