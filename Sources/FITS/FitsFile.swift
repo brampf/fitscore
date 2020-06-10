@@ -37,6 +37,24 @@ public final class FitsFile {
     public init(prime: PrimaryHDU) {
         self.prime = prime
     }
+    
+    public func validate(onMessage:( (String) -> Void)?) {
+        
+        let validHDUs = self.HDUs.reduce(into: true) { result, hdu in
+            result = result && hdu.validate(onMessage: onMessage)
+        }
+        let validPrime = prime.validate(onMessage: onMessage)
+        
+        prime.headerUnit.removeAll { $0.keyword == HDUKeyword.SIMPLE}
+        if validPrime && validHDUs {
+            onMessage?("Validation successful")
+            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(true), comment: "Validated by FITSCore"), at: 0)
+        } else {
+            onMessage?("Validation failed!")
+            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(false), comment: "Validated by FITSCore"), at: 0)
+        }
+        
+    }
 }
 
 extension FitsFile : CustomDebugStringConvertible {
@@ -120,7 +138,9 @@ extension FitsFile : Writer {
             
     }
     
-    func write(to: inout Data) throws {
+    public func write(to: inout Data) throws {
+        
+        self.validate(onMessage: nil)
         
         try self.prime.write(to: &to)
         try self.HDUs.forEach { hdu in

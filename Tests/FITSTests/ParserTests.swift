@@ -37,7 +37,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.BITPIX)
-        XCTAssertEqual(block.value, HDUValue.INTEGER(8))
+        XCTAssertEqual(block.value, HDUValue.BITPIX(.UINT8))
         XCTAssertEqual(block.comment, "number of bits per data pixel")
     }
     

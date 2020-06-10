@@ -66,6 +66,41 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         }
     }
     
+    public func validate(onMessage:((String) -> Void)? = nil) -> Bool {
+
+        defer {
+            // always move the end to the end
+            self.headerUnit.removeAll { $0.keyword == HDUKeyword.END }
+            headerUnit.append(HeaderBlock(keyword: HDUKeyword.END))
+        }
+        
+        let size = self.dataUnit?.count ?? 0
+        
+        guard size == dataSize else  {
+            onMessage?("Data contains \(size) bytes but supposed to be \(dataSize)")
+            return false
+        }
+        
+        guard let dimensions = self.naxis else {
+            onMessage?("Missing NAXIS header")
+            return false
+        }
+        
+        for dimension in 1..<dimensions {
+            guard self.naxis(dimension) != nil else {
+                onMessage?("Missing naxis \(dimension)")
+                return false
+            }
+        }
+        
+        guard self.bitpix != nil else {
+            onMessage?("Missing BITPIX header") 
+            return false
+        }
+        
+        return true
+    }
+    
     /// sets value and comment for `HDUKeyworld`
     public func set(_ keyword: HDUKeyword, value: HDUValue?, comment: String?) {
         
@@ -79,12 +114,6 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         }
     }
     
-    final internal func pad(value: Int, to: Int) -> Int {
-        
-        let factor : Double = Double(value) / Double(to)
-        return to * Int(factor.rounded(.up))
-    }
-    
     //MARK:- Reader
     
     required public init(with data: inout Data) throws {
@@ -95,16 +124,16 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         
         #if DEBUG
-        print("Expected: \(self.dataSize); Padded: \(self.pad(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
+        print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
         
         self.readData(data: &data)
         
-        let padded = pad(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)
-        if padded == data.count {
+        let paddy = padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)
+        if paddy == data.count {
             data = Data()
         } else {
-            data = data.advanced(by: padded)
+            data = data.advanced(by: paddy)
         }
     }
     
@@ -146,51 +175,33 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
 //MARK:- Writer
 extension AnyHDU : Writer {
     
-    public func write() -> Data {
-        
-        let headerSize = self.headerUnit.count * CARD_LENGTH
-        let dataSize = self.dataSize
-        
-        let paddedHeaderSize = self.pad(value: headerSize,to: CARD_LENGTH*BLOCK_LENGTH)
-        let paddedDataSize = self.pad(value: dataSize,to: CARD_LENGTH*BLOCK_LENGTH)
-        
-        var data = Data(capacity: paddedHeaderSize+paddedDataSize)
-        let headerBlanks = Data(repeating: 0, count: paddedHeaderSize-headerSize)
-        let dataBlanks = Data(repeating: 0, count: paddedDataSize-dataSize)
-        
-        self.headerUnit.forEach { block in
-            try? block.write(to: &data)
-        }
-        data.append(headerBlanks)
-        if let unit = dataUnit {
-            data.append(unit)
-        }
-        data.append(dataBlanks)
-        
-        print("\(data.count) -> \(data.count % 2880)")
-        
-        return data
-    }
-    
     public func write(to: inout Data) throws {
-        
-        try? HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(true), comment: "SIMPLY FITS").write(to: &to)
-        
+
         self.headerUnit.forEach { block in
             try? block.write(to: &to)
         }
-        
-        try? HeaderBlock(keyword: HDUKeyword.END).write(to: &to)
-        
-        let paddedHeaderSize = self.pad(value: to.count,to: CARD_LENGTH*BLOCK_LENGTH)
-        self.pad(data: &to, toSize: paddedHeaderSize)
+         
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
         
         if let unit = dataUnit {
             to.append(unit)
         }
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
+    }
+    
+    func padded(value: Int, to: Int) -> Int {
         
-        let paddedDataSize = self.pad(value: to.count,to: CARD_LENGTH*BLOCK_LENGTH)
-        self.pad(data: &to, toSize: paddedDataSize)
+        let factor : Double = Double(value) / Double(to)
+        return to * Int(factor.rounded(.up))
+    }
+    
+    final internal func pad(_ dat: inout Data, by: Int) {
+        
+        while dat.count % by != 0 {
+            dat.append(0)
+        }
     }
 }
 

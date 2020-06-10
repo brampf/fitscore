@@ -107,46 +107,83 @@ public protocol DataLayout : Equatable {
     static var bytes : Int {get}
     static var bits : Int {get}
     static var bitpix : BITPIX {get}
+    
+    static var max : Self {get}
+    static var min : Self {get}
+    var littleEndian : Self {get}
+    var bigEndian : Self {get}
 }
 
-typealias BITPIX_8 = UInt8
+public typealias BITPIX_8 = UInt8
 extension BITPIX_8 : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 8
     public static var bitpix: BITPIX = .UINT8
 }
 
-typealias BITPIX_16 = Int16
+public typealias BITPIX_16 = Int16
 extension BITPIX_16 : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 16
     public static var bitpix: BITPIX = .INT16
 }
 
-typealias BITPIX_32 = Int32
+public typealias BITPIX_32 = Int32
 extension BITPIX_32 : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 32
     public static var bitpix: BITPIX = .INT32
 }
 
-typealias BITPIX_64 = Int64
+public typealias BITPIX_64 = Int64
 extension BITPIX_64 : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 64
     public static var bitpix: BITPIX = .INT64
 }
 
-typealias BITPIX_F = Float
+public typealias BITPIX_F = Float
 extension BITPIX_F : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 32
     public static var bitpix: BITPIX = .FLOAT32
+    
+    public static var max : BITPIX_F {
+        return Float.greatestFiniteMagnitude
+    }
+    
+    public static var min : BITPIX_F {
+        return Float.zero
+    }
+    
+    public var littleEndian : BITPIX_F {
+        return Float(bitPattern: self.bitPattern.littleEndian)
+    }
+    
+    public var bigEndian : BITPIX_F {
+        return Float(bitPattern: self.bitPattern.bigEndian)
+    }
 }
 
-typealias BITPIX_D = Double
+public typealias BITPIX_D = Double
 extension BITPIX_D : DataLayout {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 64
     public static var bitpix: BITPIX = .FLOAT64
+    
+    public static var max : BITPIX_D {
+        return Double.greatestFiniteMagnitude
+    }
+    
+    public static var min : BITPIX_D {
+        return Double.zero
+    }
+    
+    public var littleEndian : BITPIX_D {
+        return Double(bitPattern: self.bitPattern.littleEndian)
+    }
+    
+    public var bigEndian : BITPIX_D {
+        return Double(bitPattern: self.bitPattern.bigEndian)
+    }
 }

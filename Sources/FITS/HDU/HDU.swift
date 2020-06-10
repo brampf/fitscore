@@ -30,7 +30,7 @@ public protocol HDU : CustomDebugStringConvertible{
     var headerUnit : [HeaderBlock] {get}
     var dataUnit : Data? {get}
     
-    
+    func validate(onMessage:( (String) -> Void)?) -> Bool
 }
 
 extension HDU where Self: CustomDebugStringConvertible {

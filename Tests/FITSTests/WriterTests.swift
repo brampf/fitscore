@@ -83,4 +83,171 @@ final class WriterTests: XCTestCase {
         print(String(data: data, encoding: .ascii) ?? "")
     }
     
+    func testSample8() {
+        
+        let sample8 = Sample().rgb(BITPIX_8.self)
+        sample8.validate(){ message in
+            print(message)
+        }
+        
+        sample8.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample8.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample8.prime.simple, true)
+        XCTAssertEqual(sample8.prime.naxis, 3)
+        XCTAssertEqual(sample8.prime.naxis(1), 300)
+        XCTAssertEqual(sample8.prime.naxis(2), 300)
+        XCTAssertEqual(sample8.prime.naxis(3), 3)
+        XCTAssertEqual(sample8.prime.bitpix, BITPIX.UINT8)
+        XCTAssertEqual(sample8.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.UINT8.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample8.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 273600)
+    }
+    
+    func testSample16() {
+        
+        let sample = Sample().rgb(BITPIX_16.self)
+        sample.validate(){ message in
+            print(message)
+        }
+        
+        sample.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.naxis, 3)
+        XCTAssertEqual(sample.prime.naxis(1), 300)
+        XCTAssertEqual(sample.prime.naxis(2), 300)
+        XCTAssertEqual(sample.prime.naxis(3), 3)
+        XCTAssertEqual(sample.prime.bitpix, BITPIX.INT16)
+        XCTAssertEqual(sample.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.INT16.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 544320)
+    }
+    
+    func testSample32() {
+        
+        let sample = Sample().rgb(BITPIX_32.self)
+        sample.validate(){ message in
+            print(message)
+        }
+        
+        sample.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.naxis, 3)
+        XCTAssertEqual(sample.prime.naxis(1), 300)
+        XCTAssertEqual(sample.prime.naxis(2), 300)
+        XCTAssertEqual(sample.prime.naxis(3), 3)
+        XCTAssertEqual(sample.prime.bitpix, BITPIX.INT32)
+        XCTAssertEqual(sample.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.INT32.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 1082880)
+    }
+    
+    func testSample64() {
+        
+        let sample = Sample().rgb(BITPIX_64.self)
+        sample.validate(){ message in
+            print(message)
+        }
+        
+        sample.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.naxis, 3)
+        XCTAssertEqual(sample.prime.naxis(1), 300)
+        XCTAssertEqual(sample.prime.naxis(2), 300)
+        XCTAssertEqual(sample.prime.naxis(3), 3)
+        XCTAssertEqual(sample.prime.bitpix, BITPIX.INT64)
+        XCTAssertEqual(sample.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.INT64.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 2162880)
+    }
+    
+    func testSampleF() {
+        
+        let sample = Sample().rgb(BITPIX_F.self)
+        sample.validate(){ message in
+            print(message)
+        }
+        
+        sample.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.naxis, 3)
+        XCTAssertEqual(sample.prime.naxis(1), 300)
+        XCTAssertEqual(sample.prime.naxis(2), 300)
+        XCTAssertEqual(sample.prime.naxis(3), 3)
+        XCTAssertEqual(sample.prime.bitpix, BITPIX.FLOAT32)
+        XCTAssertEqual(sample.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.FLOAT32.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 1082880)
+    }
+    
+    func testSampleD() {
+        
+        let sample = Sample().rgb(BITPIX_D.self)
+        sample.validate(){ message in
+            print(message)
+        }
+        
+        sample.prime.headerUnit.forEach { block in
+            print(block.description)
+        }
+        
+        XCTAssertEqual(sample.prime.headerUnit.count, 8)
+        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.naxis, 3)
+        XCTAssertEqual(sample.prime.naxis(1), 300)
+        XCTAssertEqual(sample.prime.naxis(2), 300)
+        XCTAssertEqual(sample.prime.naxis(3), 3)
+        XCTAssertEqual(sample.prime.bitpix, BITPIX.FLOAT64)
+        XCTAssertEqual(sample.prime.dataUnit?.count, 300 * 300 * 3 * BITPIX.FLOAT64.size)
+        
+        var data = Data()
+        XCTAssertNoThrow(try sample.write(to: &data))
+        
+        self.add(XCTAttachment(data: data))
+        
+        XCTAssertEqual(data.count, 2162880)
+    }
 }
