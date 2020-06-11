@@ -37,26 +37,32 @@ public struct HeaderBlock {
     public var raw : String? = nil
     #endif
 
+    /// Containts the `HDUKeyworld.END`
     var isEnd : Bool {
         return keyword == HDUKeyword.END
     }
     
+    /// Containts the `HDUKeyworld.SIMPLE`
     public var isSimple : Bool {
         return keyword == HDUKeyword.SIMPLE && value == .BOOLEAN(true)
     }
     
+    /// Containts the `HDUKeyworld.COMMENT`
     public var isComment : Bool {
         return keyword == HDUKeyword.COMMENT
     }
     
+    /// Containts no `HDUKeyworld`
     public var isEmpty : Bool {
         return keyword.isEmpty && value == nil && comment?.isEmpty ?? true
     }
     
+    /// Containts only a comment but neither a keyword nor a value
     public var isHeadline : Bool {
         return keyword.isEmpty && value == nil && comment != nil
     }
     
+    /// Containts the `HDUKeyworld.XTENSION`
     public var isXtension : Bool {
         return keyword == HDUKeyword.XTENSION
     }
@@ -83,7 +89,7 @@ extension HeaderBlock : CustomStringConvertible {
     }
 }
 
-
+//MARK: - Reader
 extension HeaderBlock {
     
     public static func parse(form raw: String) -> HeaderBlock {
@@ -133,6 +139,8 @@ extension HeaderBlock {
     
 }
 
+
+//MARK:- Writer
 extension HeaderBlock : Writer{
     
     public func write(to: inout Data) throws {

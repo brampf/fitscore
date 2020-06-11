@@ -26,13 +26,21 @@ import Foundation
 
 public enum FitsFail : LocalizedError {
     
+    /// Insufficent permsission to access data
     case missingPermssions
-    case parserError
-    case validationError
     
+    /// parser failed
+    case parserFailed(String)
+    
+    /// file not conforming to standard
     case malformattedFile
+    
+    /// HDU not conforming to standard
     case malformattedHDU
+    
+    /// header not conforming to standard
     case malformattedHeader
     
+    /// validation failed
     case validationFailed(String)
 }

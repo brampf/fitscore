@@ -24,6 +24,11 @@
 
 import Foundation
 
+/**
+  THE TFIELD data structure as specified for the Bintable extensions
+ 
+ The TFORMn keywords must be present for all values n = 1, ..., TFIELDS and for no other values of n. The value field of this indexed keyword shall contain a char- acter string of the form rTa. The repeat count r is the ASCII representation of a non-negative integer specifying the number of elements in Field n. The default value of r is 1; the repeat count need not be present if it has the default value. A zero el- ement count, indicating an empty field, is permitted. The data type T specifies the data type of the contents of Field n. Only the data types in Table 18 are permitted. The format codes must be specified in upper case. For fields of type P or Q, the only per- mitted repeat counts are 0 and 1. The additional characters a are optional and are not further defined in this Standard. Table 18 lists the number of bytes each data type occupies in a table row. The first field of a row is numbered 1.
+ */
 open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
     
     
@@ -141,6 +146,9 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         return BFIELD.ERR
     }
     
+    /**
+     Logical
+     */
     final public class L : BFIELD {
         var val: Bool?
         
@@ -155,6 +163,8 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+            case .L:
+                return val ? "T" : "F"
             default:
                 return TFIELD.ERR
             }
@@ -209,6 +219,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         override public func format(_ disp: BDISP) -> String? {
             
             guard let val = self.val else {
+                /// - ToDo: format `val`
                 return nil
             }
             
@@ -242,6 +253,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -271,6 +283,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -300,6 +313,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -360,6 +374,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -448,6 +463,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -478,6 +494,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }
@@ -507,6 +524,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             }
             
             switch disp {
+                /// - ToDo: format `val`
             default:
                 return TFIELD.ERR
             }

@@ -26,6 +26,12 @@ import Foundation
 
 public typealias HDUKeyword = String
 
+
+/**
+ Reserved Keywords
+ 
+ Descriptions according to FITS Standard Document:  https://fits.gsfc.nasa.gov/fits_standard.html
+ */
 public extension HDUKeyword {
     
     /**
@@ -155,6 +161,10 @@ public extension HDUKeyword {
     /// This keyword should be used to describe the history of steps and procedures associated with the process- ing of the associated data.
     static let HISTORY = "HISTORY"
     
+    //MARK:- Random Groups keywords
+    
+    /// The value field shall contain the logical con- stant T. The value T associated with this keyword implies that random-groups records are present.
+    static let GROUPS = "GROUPS"
     
     //MARK:- Extension keywords
     /**

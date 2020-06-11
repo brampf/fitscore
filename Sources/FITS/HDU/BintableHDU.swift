@@ -35,7 +35,7 @@ public final class BintableHDU : AnyHDU {
         self.buildTable()
     }
     
-    func buildTable() {
+    internal func buildTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
         // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.

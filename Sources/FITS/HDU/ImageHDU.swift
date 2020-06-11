@@ -24,7 +24,7 @@
 
 import Foundation
 
-public final class ImageHDU : AnyHDU {
+public final class ImageHDU : AnyImageHDU {
 
 
 }

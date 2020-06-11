@@ -24,6 +24,9 @@
 
 import Foundation
 
+/**
+ Typed value strucutes for HeaderBlocks
+ */
 public enum HDUValue : Equatable, Hashable, CustomStringConvertible {
     
     // explicit specified types

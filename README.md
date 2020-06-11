@@ -60,7 +60,14 @@ then simply add the `FITS` import to your target
 
 ## Documentation
 
-### Usage
+* [Introduction](DOCU_INTRO.md)
+* [Working with Files](DOCU_FILES.md)
+* [Working with HDUs](DOCU_HDUS.md)
+* [Working with Tables](DOCU_TABLES.md)
+
+
+
+### TL;DR
 
 #### Reading FITS Files
 ```swift

@@ -26,8 +26,14 @@ import Foundation
 
 public final class PrimaryHDU : AnyImageHDU {
     
-    public var simple : Bool {
+    /// Valid FITS file
+    public var isSimple : Bool {
         return self.lookup(HDUKeyword.SIMPLE) ?? false
+    }
+    
+    /// Containts the Random Groups data
+    public var hasGroups : Bool? {
+        return self.lookup(HDUKeyword.GROUPS)
     }
     
 }
@@ -38,7 +44,7 @@ extension PrimaryHDU {
 
         var result = ""
         result.append("-PRIME-------------------------------------\n")
-        result.append("SIMPLE: \(simple)\n")
+        result.append("SIMPLE: \(isSimple)\n")
         result.append("BITPIX: \(bitpix.debugDescription)\n")
         if naxis ?? 0 > 1 {
             result.append("NAXIS: \(naxis ?? 0)\n")
