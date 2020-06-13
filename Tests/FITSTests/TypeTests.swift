@@ -1,5 +1,4 @@
 
-
 import XCTest
 @testable import FITS
 
@@ -33,4 +32,5 @@ final class TypeTests: XCTestCase {
         XCTAssertEqual(tf_1, tf_3)
         
     }
+    
 }

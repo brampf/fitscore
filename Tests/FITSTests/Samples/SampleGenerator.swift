@@ -15,7 +15,7 @@ public struct Sample {
         case blue = 2
     }
     
-    func rgb<D: DataLayout>(_ bitpix : D.Type) -> FitsFile {
+    func rgb<D: FITSByte>(_ bitpix : D.Type) -> FitsFile {
         
         let red : [D] = imageData(.red)
         let green : [D] = imageData(.green)
@@ -28,7 +28,7 @@ public struct Sample {
         return FitsFile(prime: prime)
     }
     
-    func imageData<F: DataLayout>(_ channel: Channel) -> [F] {
+    func imageData<F: FITSByte>(_ channel: Channel) -> [F] {
         
         let min = F.min.bigEndian
         let max = F.max.bigEndian

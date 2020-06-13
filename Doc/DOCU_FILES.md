@@ -1,5 +1,5 @@
 
-Quicklinks : [Introducion](DOCU_INTRO.md) | [Files](DOCU_FILES.md) | [Files](DOCU_HDUS.md) | [Tables](DOCU_TABLES.md)
+Quicklinks : [Introduction](DOCU_INTRO.md) | [Files](DOCU_FILES.md) | [HDUs](DOCU_HDUS.md) | [Bytes](DOCU_BYTES.md) | [Tables](DOCU_TABLES.md)
 
 # Working with Files
 
@@ -51,4 +51,4 @@ Note that FITS files are read and wirtten along the document tree in sequential 
     * `HDU1`
     * ...
 
-Each of these elements can be read or written individually via the [FITSReader](../Source/FITS/IO/FITSReader.swift) and [FITSWriter](../Source/FITS/IO/FITSWriter.swift) interfaces
+Each of these elements can be read or written individually via the [FITSReader](../Sources/FITS/IO/FITSReader.swift) and [FITSWriter](../Sources/FITS/IO/FITSWriter.swift) interfaces

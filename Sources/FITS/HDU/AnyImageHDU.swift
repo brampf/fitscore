@@ -32,7 +32,7 @@ open class AnyImageHDU : AnyHDU {
     /**
      Sets the content of the data unit to the data from the vectors via memory copy
      */
-    public func set<ByteFormat: DataLayout>(width: Int, height: Int, vectors: [ByteFormat]...){
+    public func set<ByteFormat: FITSByte>(width: Int, height: Int, vectors: [ByteFormat]...){
         
         self.set(HDUKeyword.BITPIX, value: .BITPIX(ByteFormat.bitpix), comment: "\(ByteFormat.bitpix) Bit")
         self.set(HDUKeyword.NAXIS, value: .INTEGER(3), comment: "Two dimensional picture")
@@ -66,7 +66,7 @@ open class AnyImageHDU : AnyHDU {
     /**
      Appends the data from the  vector to the data unit  via memory copy
      */
-    public func add<ByteFormat: DataLayout>(vector: [ByteFormat]) throws {
+    public func add<ByteFormat: FITSByte>(vector: [ByteFormat]) throws {
         
         guard self.bitpix == ByteFormat.bitpix else {
             throw FitsFail.validationFailed("BITPIX \(ByteFormat.bitpix) incompatible with \(self.bitpix.debugDescription)")
@@ -99,7 +99,7 @@ extension AnyImageHDU {
     /**
      Sets the content of the data unit to the data at the given pointer
      */
-    public func set<ByteFormat: DataLayout>(width: Int, height: Int, ptr: UnsafeBufferPointer<ByteFormat>){
+    public func set<ByteFormat: FITSByte>(width: Int, height: Int, ptr: UnsafeBufferPointer<ByteFormat>){
         
         if var data = self.dataUnit {
             data.append(ptr)

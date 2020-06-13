@@ -3,7 +3,6 @@ import XCTest
 @testable import FITS
 
 
-
 final class FitsTests: XCTestCase {
 
     static var allTests = [
@@ -25,7 +24,7 @@ final class FitsTests: XCTestCase {
 
         XCTAssertNotNil(fits)
         
-        XCTAssertEqual(fits.prime.simple, true)
+        XCTAssertEqual(fits.prime.isSimple, true)
         XCTAssertEqual(fits.prime.bitpix, BITPIX.UINT8)
         XCTAssertEqual(fits.prime.naxis, 3)
         XCTAssertEqual(fits.prime.naxis(1), 480)

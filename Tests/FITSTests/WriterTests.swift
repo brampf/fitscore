@@ -85,7 +85,7 @@ final class WriterTests: XCTestCase {
     
     func testSample8() {
         
-        let sample8 = Sample().rgb(BITPIX_8.self)
+        let sample8 = Sample().rgb(FITSByte_8.self)
         sample8.validate(){ message in
             print(message)
         }
@@ -95,7 +95,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample8.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample8.prime.simple, true)
+        XCTAssertEqual(sample8.prime.isSimple, true)
         XCTAssertEqual(sample8.prime.naxis, 3)
         XCTAssertEqual(sample8.prime.naxis(1), 300)
         XCTAssertEqual(sample8.prime.naxis(2), 300)
@@ -113,7 +113,7 @@ final class WriterTests: XCTestCase {
     
     func testSample16() {
         
-        let sample = Sample().rgb(BITPIX_16.self)
+        let sample = Sample().rgb(FITSByte_16.self)
         sample.validate(){ message in
             print(message)
         }
@@ -123,7 +123,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.isSimple, true)
         XCTAssertEqual(sample.prime.naxis, 3)
         XCTAssertEqual(sample.prime.naxis(1), 300)
         XCTAssertEqual(sample.prime.naxis(2), 300)
@@ -141,7 +141,7 @@ final class WriterTests: XCTestCase {
     
     func testSample32() {
         
-        let sample = Sample().rgb(BITPIX_32.self)
+        let sample = Sample().rgb(FITSByte_32.self)
         sample.validate(){ message in
             print(message)
         }
@@ -151,7 +151,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.isSimple, true)
         XCTAssertEqual(sample.prime.naxis, 3)
         XCTAssertEqual(sample.prime.naxis(1), 300)
         XCTAssertEqual(sample.prime.naxis(2), 300)
@@ -169,7 +169,7 @@ final class WriterTests: XCTestCase {
     
     func testSample64() {
         
-        let sample = Sample().rgb(BITPIX_64.self)
+        let sample = Sample().rgb(FITSByte_64.self)
         sample.validate(){ message in
             print(message)
         }
@@ -179,7 +179,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.isSimple, true)
         XCTAssertEqual(sample.prime.naxis, 3)
         XCTAssertEqual(sample.prime.naxis(1), 300)
         XCTAssertEqual(sample.prime.naxis(2), 300)
@@ -197,7 +197,7 @@ final class WriterTests: XCTestCase {
     
     func testSampleF() {
         
-        let sample = Sample().rgb(BITPIX_F.self)
+        let sample = Sample().rgb(FITSByte_F.self)
         sample.validate(){ message in
             print(message)
         }
@@ -207,7 +207,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.isSimple, true)
         XCTAssertEqual(sample.prime.naxis, 3)
         XCTAssertEqual(sample.prime.naxis(1), 300)
         XCTAssertEqual(sample.prime.naxis(2), 300)
@@ -225,7 +225,7 @@ final class WriterTests: XCTestCase {
     
     func testSampleD() {
         
-        let sample = Sample().rgb(BITPIX_D.self)
+        let sample = Sample().rgb(FITSByte_D.self)
         sample.validate(){ message in
             print(message)
         }
@@ -235,7 +235,7 @@ final class WriterTests: XCTestCase {
         }
         
         XCTAssertEqual(sample.prime.headerUnit.count, 8)
-        XCTAssertEqual(sample.prime.simple, true)
+        XCTAssertEqual(sample.prime.isSimple, true)
         XCTAssertEqual(sample.prime.naxis, 3)
         XCTAssertEqual(sample.prime.naxis(1), 300)
         XCTAssertEqual(sample.prime.naxis(2), 300)
