@@ -44,7 +44,7 @@ public struct HeaderBlock {
     
     /// Containts the `HDUKeyworld.SIMPLE`
     public var isSimple : Bool {
-        return keyword == HDUKeyword.SIMPLE && value == .BOOLEAN(true)
+        return keyword == HDUKeyword.SIMPLE && value as? Bool == true
     }
     
     /// Containts the `HDUKeyworld.COMMENT`
@@ -72,7 +72,11 @@ extension HeaderBlock : Hashable {
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(keyword)
-        hasher.combine(value)
+        hasher.combine(value?.hashable)
+    }
+    
+    public static func ==(lhs : Self, rhs : Self) -> Bool {
+        return lhs.keyword == rhs.keyword && lhs.value?.hashable == rhs.value?.hashable && lhs.comment == rhs.comment
     }
 }
 
@@ -124,11 +128,9 @@ extension HeaderBlock {
         default :
             // default behavior : split value and comment
             if isString {
-                block.value = .STRING(value)
-            } else if keyword == HDUKeyword.BITPIX {
-                block.value = HDUValue.parse(value, toType: HDUValue.BITPIX(BITPIX.FLOAT32))
+                block.value = value.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'"))
             } else {
-                block.value = HDUValue.parse(value)
+                block.value = AnyHDUValue.parse(value,for: keyword) as? HDUValue
             }
             block.comment = comment.trimmingCharacters(in: CharacterSet.whitespaces.union(.init(arrayLiteral: "/")))
         }

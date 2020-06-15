@@ -48,9 +48,12 @@ public final class PrimaryHDU : AnyImageHDU {
         }
     }
     
+    required init() {
+        super.init()
+        //fatalError("init() has not been implemented")
+    }
     
     func readGroups(from data: inout Data) throws {
-        
         
         guard
             let axis = self.naxis,

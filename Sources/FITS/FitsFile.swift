@@ -48,10 +48,10 @@ public final class FitsFile {
         prime.headerUnit.removeAll { $0.keyword == HDUKeyword.SIMPLE}
         if validPrime && validHDUs {
             onMessage?("Validation successful")
-            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(true), comment: "Validated by FITSCore"), at: 0)
+            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: true, comment: "Validated by FITSCore"), at: 0)
         } else {
             onMessage?("Validation failed!")
-            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(false), comment: "Validated by FITSCore"), at: 0)
+            prime.headerUnit.insert(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: false, comment: "Validated by FITSCore"), at: 0)
         }
         
     }

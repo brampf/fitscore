@@ -29,16 +29,34 @@ import Foundation
  */
 open class AnyImageHDU : AnyHDU {
     
+    public convenience init<ByteFormat: FITSByte>(width: Int, height: Int, vectors: [ByteFormat]...){
+        self.init()
+        
+        self.set(HDUKeyword.BITPIX, value: ByteFormat.bitpix, comment: "\(ByteFormat.bitpix) Bit")
+        self.set(HDUKeyword.NAXIS, value: 3, comment: "Two dimensional picture")
+        self.set("NAXIS\(1)", value: width, comment: "Width")
+        self.set("NAXIS\(2)", value: height, comment: "Height")
+        self.set("NAXIS\(3)", value: vectors.count, comment: "Channels")
+        
+        self.dataUnit = Data()
+        vectors.forEach { vector in
+            let data = vector.withUnsafeBytes { ptr in
+                Data(buffer: ptr.bindMemory(to: ByteFormat.self))
+            }
+            self.dataUnit?.append(data)
+        }
+    }
+    
     /**
      Sets the content of the data unit to the data from the vectors via memory copy
      */
     public func set<ByteFormat: FITSByte>(width: Int, height: Int, vectors: [ByteFormat]...){
         
-        self.set(HDUKeyword.BITPIX, value: .BITPIX(ByteFormat.bitpix), comment: "\(ByteFormat.bitpix) Bit")
-        self.set(HDUKeyword.NAXIS, value: .INTEGER(3), comment: "Two dimensional picture")
-        self.set("NAXIS\(1)", value: .INTEGER(width), comment: "Width")
-        self.set("NAXIS\(2)", value: .INTEGER(height), comment: "Height")
-        self.set("NAXIS\(3)", value: .INTEGER(vectors.count), comment: "Channels")
+        self.set(HDUKeyword.BITPIX, value: ByteFormat.bitpix, comment: "\(ByteFormat.bitpix) Bit")
+        self.set(HDUKeyword.NAXIS, value: 3, comment: "Two dimensional picture")
+        self.set("NAXIS\(1)", value: width, comment: "Width")
+        self.set("NAXIS\(2)", value: height, comment: "Height")
+        self.set("NAXIS\(3)", value: vectors.count, comment: "Channels")
         
         self.dataUnit = Data()
         vectors.forEach { vector in
@@ -54,11 +72,11 @@ open class AnyImageHDU : AnyHDU {
      */
     public func set(width: Int, height: Int, layers: Int, dataLayout: BITPIX, data: Data){
         
-        self.set(HDUKeyword.BITPIX, value: .BITPIX(dataLayout), comment: "\(dataLayout) Bit")
-        self.set(HDUKeyword.NAXIS, value: .INTEGER(3), comment: "Two dimensional picture")
-        self.set("NAXIS\(1)", value: .INTEGER(width), comment: "Width")
-        self.set("NAXIS\(2)", value: .INTEGER(height), comment: "Height")
-        self.set("NAXIS\(3)", value: .INTEGER(layers), comment: "Channels")
+        self.set(HDUKeyword.BITPIX, value: dataLayout, comment: "\(dataLayout) Bit")
+        self.set(HDUKeyword.NAXIS, value: 3, comment: "Two dimensional picture")
+        self.set("NAXIS\(1)", value: width, comment: "Width")
+        self.set("NAXIS\(2)", value: height, comment: "Height")
+        self.set("NAXIS\(3)", value: layers, comment: "Channels")
         
         self.dataUnit = data
     }
@@ -77,7 +95,7 @@ open class AnyImageHDU : AnyHDU {
         }
         
         let channels = self.naxis(3) ?? 0
-        self.set("NAXIS\(3)", value: .INTEGER(channels + 1), comment: nil)
+        self.set("NAXIS\(3)", value: channels + 1, comment: nil)
         
         if var data = self.dataUnit {
             // append to data unit

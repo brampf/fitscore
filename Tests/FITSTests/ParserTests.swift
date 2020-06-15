@@ -26,7 +26,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.SIMPLE)
-        XCTAssertEqual(block.value, HDUValue.BOOLEAN(true))
+        XCTAssertTrue(block.value == true)
         XCTAssertEqual(block.comment, "file does conform to FITS standard")
         XCTAssertTrue(block.isSimple)
     }
@@ -36,7 +36,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.BITPIX)
-        XCTAssertEqual(block.value, HDUValue.BITPIX(.UINT8))
+        XCTAssertTrue(block.value == BITPIX.UINT8)
         XCTAssertEqual(block.comment, "number of bits per data pixel")
     }
     
@@ -45,7 +45,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.NAXIS)
-        XCTAssertEqual(block.value, HDUValue.INTEGER(3))
+        XCTAssertTrue(block.value == 3)
         XCTAssertEqual(block.comment, "number of data axes")
     }
     
@@ -54,14 +54,14 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.NAXIS+"1")
-        XCTAssertEqual(block.value, HDUValue.INTEGER(480))
+        XCTAssertTrue(block.value == 480)
         XCTAssertEqual(block.comment, "length of data axis 1")
         
         let text2 = "NAXIS1  =                89688 / length of first data axis                      "
         let block2 = HeaderBlock.parse(form: text2)
         
         XCTAssertEqual(block2.keyword, HDUKeyword.NAXIS+"1")
-        XCTAssertEqual(block2.value, HDUValue.INTEGER(89688))
+        XCTAssertTrue(block2.value == 89688)
         XCTAssertEqual(block2.comment, "length of first data axis")
     }
     
@@ -70,7 +70,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, "EXTEND")
-        XCTAssertEqual(block.value, HDUValue.BOOLEAN(true))
+        XCTAssertTrue(block.value == true)
         XCTAssertEqual(block.comment, "FITS dataset may contain extensions")
     }
     
@@ -80,7 +80,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.COMMENT)
-        XCTAssertEqual(block.value, nil)
+        XCTAssertTrue(block.value == nil)
         XCTAssertEqual(block.comment, "FITS (Flexible Image Transport System) format is defined in 'Astronomy")
         XCTAssertTrue(block.isComment)
     }
@@ -90,8 +90,17 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.DATE)
-        XCTAssertEqual(block.value, HDUValue.STRING("2020-05-21T09:33:13"))
+        XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value)")
         XCTAssertEqual(block.comment, "UTC date that FITS file was created")
+    }
+    
+    func testReadAny()  {
+        let text = "ANY     = 'Some Random Wording  ' / And acomment as well                           "
+        let block = HeaderBlock.parse(form: text)
+        
+        XCTAssertEqual(block.keyword, "ANY")
+        XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value)")
+        XCTAssertEqual(block.comment, "And acomment as well")
     }
     
     func testReadHDU() {

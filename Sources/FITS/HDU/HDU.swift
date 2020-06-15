@@ -70,20 +70,7 @@ extension HDU {
     /// fetches concrete value for specific `HDUKeyworld`
     public func lookup<VAL>(_ keyword: HDUKeyword) -> VAL? {
         if let value = headerUnit.first(where: {$0.keyword == keyword})?.value {
-            switch value {
-            case .BOOLEAN(let val): return val as? VAL
-            case .INTEGER(let val): return val as? VAL
-            case .STRING(let val): return val as? VAL
-            case .FLOAT(let val): return val as? VAL
-            case .COMPLEX(let val): return val as? VAL
-            case .DATE(let val): return val as? VAL
-                
-            case .BITPIX(let val): return val as? VAL
-            case .TFORM(let val): return val as? VAL
-            case .TDISP(let val): return val as? VAL
-            case .BFORM(let val): return val as? VAL
-            case .BDISP(let val): return val as? VAL
-            }
+            return value as? VAL
         } else {
             print("\(keyword) not found")
             return nil

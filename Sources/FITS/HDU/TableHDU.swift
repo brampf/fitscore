@@ -28,12 +28,17 @@ import Foundation
 public final class TableHDU : AnyHDU {
     public typealias ValueType = TFIELD
     
-    public internal(set) var table : [Field] = []
+    public internal(set) var table : [TField] = []
     
     public required init(with data: inout Data) throws {
         try super.init(with: &data)
         
         self.buildTable()
+    }
+    
+    required init() {
+        super.init()
+        //fatalError("init() has not been implemented")
     }
     
     func buildTable() {
@@ -52,7 +57,7 @@ public final class TableHDU : AnyHDU {
             let rawTDISP : String = self.lookup("TDISP\(col+1)") ?? ""
             
             if let tform = TFORM.parse(rawTFORM), let tdisp = TDISP.parse(rawTDISP) {
-                let field = Field(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
+                let field = TField(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 table.append(field)
                 format[col]  = (rawTBCOL,tform.length)
             }
@@ -109,7 +114,7 @@ public final class TableHDU : AnyHDU {
     
 }
 
-public class Field : Identifiable {
+public class TField : Identifiable {
     public let id = UUID()
     
     public var TDISP : TDISP

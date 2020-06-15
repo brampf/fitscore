@@ -27,84 +27,210 @@ import Foundation
 /**
  Typed value strucutes for HeaderBlocks
  */
-public enum HDUValue : Equatable, Hashable, CustomStringConvertible {
+public protocol HDUValue : CustomStringConvertible {
     
-    // explicit specified types
-    case INTEGER(Int)
-    case FLOAT(Float)
-    case COMPLEX(FITSComplex)
-    case STRING(String)
-    case BOOLEAN(Bool)
-    
-    // implicit specified types
-    case DATE(Date)
-    
-    // special types
-    case BITPIX(BITPIX)
-    case TFORM(TFORM)
-    case TDISP(TDISP)
-    case BFORM(BFORM)
-    case BDISP(BDISP)
-    
-    public static func parse(_ string: String, toType: HDUValue? = nil) -> HDUValue?{
+    var hashable : AnyHashable { get }
+}
 
+struct AnyHDUValue {
+    
+    public static func parse(_ string: String, for keyword: HDUKeyword) -> Any? {
+        
         let trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces)
         
-        
-        switch toType {
-        case .BITPIX:
-            if let raw = Int(trimmed), let bitpix = FITS.BITPIX(rawValue: raw) {
-                return .BITPIX(bitpix)
+        switch keyword {
+        case HDUKeyword.BITPIX:
+            if let raw = Int(trimmed) {
+                return FITS.BITPIX(rawValue: raw)
             }
-        case .TFORM:
-            if let tform = FITS.TFORM.parse(trimmed) {
-                return .TFORM(tform)
+        case HDUKeyword.DATE:
+            let plainString = trimmed.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'"))
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            if let date = dateFormatter.date(from: plainString ) {
+                return date
+            } else {
+                return plainString
             }
-        case .TDISP:
-            if let tdisp = FITS.TDISP.parse(trimmed) {
-                return .TDISP(tdisp)
-            }
-        case .BFORM:
-            if let tform = FITS.BFORM.parse(trimmed) {
-                return .BFORM(tform)
-            }
-        case .BDISP:
-            if let tdisp = FITS.BDISP.parse(trimmed) {
-                return .BDISP(tdisp)
-            }
+        case "TFORM":
+            return FITS.TFORM.parse(trimmed)
+        case "BFORM":
+            return FITS.BFORM.parse(trimmed)
+        case "TDISP":
+            return FITS.TDISP.parse(trimmed)
+        case "BDISP":
+            return FITS.BDISP.parse(trimmed)
         default:
             // autodetect explicit specified types
-            if trimmed == "T" { return .BOOLEAN(true)}
-            if trimmed == "F" { return .BOOLEAN(false)}
-            if let integer = Int(trimmed) { return .INTEGER(integer)}
-            if let float = Float(trimmed) { return .FLOAT(float)}
-            if trimmed.starts(with: "'") {return .STRING(trimmed.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'")))}
+            if trimmed == "T" { return true}
+            if trimmed == "F" { return false}
+            if let integer = Int(trimmed) { return integer}
+            if let float = Float(trimmed) { return float}
+            if trimmed.starts(with: "'") {return trimmed.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'"))}
             
             let split = trimmed.split(separator: " ")
             if split.count == 2, let real = Double(split[0]), let imaginary = Double(split[1]){
-                return .COMPLEX(FITSComplex(real, imaginary))
+                return FITSComplex(real, imaginary)
             }
         }
-
+        
         //not found
         return nil
     }
     
-    public var description: String {
-        switch self {
-        case .BOOLEAN(let value): return value ? "T" : "F"
-        case .STRING(let value): return "'\(value)'"
-        case .FLOAT(let value): return "\(value)"
-        case .INTEGER(let value): return "\(value)"
-        case .COMPLEX(let value): return "\(value)"
-            
-        case .DATE(let value): return "\(value)"
-            
-        case .BITPIX(let value): return "\(value.rawValue)"
-        case .TFORM(let value): return "\(value)"
-        case .TDISP(let value): return "\(value)"
-        case .BFORM(let value): return "\(value)"
-        case .BDISP(let value): return "\(value)"
+}
+
+extension HDUValue {
+    
+    public static func ==(lhs: HDUValue?, rhs: Self) -> Bool {
+        if let left = lhs {
+            return left.hashable == rhs.hashable
+        } else {
+            return false
         }
+    }
+    
+    public static func ==(lhs: Self, rhs: HDUValue?) -> Bool {
+        if let right = rhs {
+            return lhs.hashable == right.hashable
+        } else {
+            return false
+        }
+    }
+    
+    public static func ==<T: HDUValue>(lhs: HDUValue, rhs: T?) -> Bool {
+        guard type(of: lhs) == T.self else { return false }
+        return lhs.hashable == rhs.hashable
+    }
+    
+    public static func ==<T: HDUValue>(lhs: T?, rhs: HDUValue) -> Bool {
+        guard T.self == type(of: rhs) else { return false }
+        return lhs.hashable == rhs.hashable
+    }
+
+    public static func ==(lhs: HDUValue, rhs: HDUValue) -> Bool {
+        guard type(of: lhs) == type(of: rhs) else { return false }
+        return lhs.hashable == rhs.hashable
+    }
+
+    public static func !=(lhs: HDUValue, rhs: HDUValue) -> Bool {
+        guard type(of: lhs) == type(of: rhs) else { return false }
+        return lhs.hashable != rhs.hashable
+    }
+}
+
+extension HDUValue where Self : Hashable {
+    
+    public func hash(hasher: inout Hasher){
+        hasher.combine(self)
+    }
+    
+    public var hashable : AnyHashable {
+        AnyHashable(self)
+    }
+}
+
+extension HDUValue where Self : Equatable {
+    
+
+
+}
+
+extension String : HDUValue {
+    
+    public var description: String {
+        return "'\(self)'"
+    }
+}
+
+extension Bool : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        return self ? "T" : "F"
+    }
+}
+
+extension Float : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension Int : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension FITSComplex : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension BITPIX : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self.rawValue)"
+    }
+}
+
+extension Date : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+    
+}
+
+extension BFORM : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension TFORM : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension BDISP : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension TDISP : HDUValue {
+    public typealias Base = Self
+    
+    public var description: String {
+        "\(self)"
+    }
+}
+
+extension Optional : HDUValue, CustomStringConvertible where Wrapped : HDUValue {
+    
+    public var hashable: AnyHashable {
+        AnyHashable("%%NIL%%")
+    }
+    
+    public var description: String {
+        return ""
     }
 }

@@ -32,7 +32,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     public internal(set) var  headerUnit: [HeaderBlock] = []
     public internal(set) var dataUnit: Data?
     
-    public init() {
+    public required init() {
         //
     }
     
@@ -102,7 +102,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     }
     
     /// sets value and comment for `HDUKeyworld`
-    public func set(_ keyword: HDUKeyword, value: HDUValue?, comment: String?) {
+    public func set<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String?) {
         
         if var block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
@@ -111,6 +111,19 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         } else {
             // add keyworld otherwise
             headerUnit.append(HeaderBlock(keyword: keyword, value: value, comment: comment))
+        }
+    }
+    
+    /// sets value and comment for `HDUKeyworld`
+    public func set(_ keyword: HDUKeyword, comment: String?) {
+        
+        if var block = headerUnit.first(where: {$0.keyword == keyword}) {
+            // modify existing header if present
+            block.value = nil
+            block.comment = comment
+        } else {
+            // add keyworld otherwise
+            headerUnit.append(HeaderBlock(keyword: keyword, value: nil, comment: comment))
         }
     }
     

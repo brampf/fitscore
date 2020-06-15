@@ -37,7 +37,7 @@ final class WriterTests: XCTestCase {
     
     func testWriteHeaderBlock() {
         
-        let block = HeaderBlock(keyword: "WALDI", value: .STRING("Hello World"), comment: "Test")
+        let block = HeaderBlock(keyword: "WALDI", value: "Hello World", comment: "Test")
         
         var data = Data()
         try? block.write(to: &data)
@@ -49,7 +49,7 @@ final class WriterTests: XCTestCase {
     
     func testWriteSimple() {
         
-        let block = HeaderBlock(keyword: HDUKeyword.SIMPLE, value: .BOOLEAN(true), comment: "This is simple")
+        let block = HeaderBlock(keyword: HDUKeyword.SIMPLE, value: true, comment: "This is simple")
         
         var data = Data()
         try? block.write(to: &data)
@@ -73,7 +73,7 @@ final class WriterTests: XCTestCase {
     
     func testWriteBitpix() {
         
-        let block = HeaderBlock(keyword: HDUKeyword.BITPIX, value: .INTEGER(8), comment: "Standard 8-bit image")
+        let block = HeaderBlock(keyword: HDUKeyword.BITPIX, value: 8, comment: "Standard 8-bit image")
         
         var data = Data()
         try? block.write(to: &data)

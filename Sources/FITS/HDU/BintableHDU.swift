@@ -35,6 +35,11 @@ public final class BintableHDU : AnyHDU {
         self.buildTable()
     }
     
+    required init() {
+        super.init()
+        //fatalError("init() has not been implemented")
+    }
+    
     internal func buildTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
@@ -88,6 +93,12 @@ public final class BintableHDU : AnyHDU {
             data = Data()
         }
     }
+    
+    public func field(_ row: Int,_ column: Int) -> (disp: BDISP?, field: BFIELD){
+        
+        return (disp: table[column].TDISP, field: table[column].values[row])
+        
+    }
 }
 
 public class BField : Identifiable {
@@ -108,4 +119,33 @@ public class BField : Identifiable {
     }
     
     public var values : [BFIELD] = []
+}
+
+
+
+
+extension BintableHDU  {
+    
+    public var description: String {
+        return "BINTABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"
+    }
+    
+    public var debugDescription: String {
+        
+        var result = ""
+        result.append("-BINTABLE----------------------------------\n")
+        result.append("BITPIX: \(bitpix.debugDescription)\n")
+        if naxis ?? 0 > 1 {
+            result.append("NAXIS: \(naxis ?? 0)\n")
+            for i in 1...naxis! {
+                result.append("NAXIS\(i): \(naxis(i) ?? 0)\n")
+            }
+        }
+        result.append("TFIELDS: \(self.lookup(HDUKeyword.TFIELDS) ?? 0)")
+        result.append("-------------------------------------------\n")
+        result.append("\(dataUnit.debugDescription)\n")
+        result.append("-------------------------------------------\n")
+        
+        return result
+    }
 }
