@@ -36,6 +36,54 @@ public final class PrimaryHDU : AnyImageHDU {
         return self.lookup(HDUKeyword.GROUPS)
     }
     
+    public var hasExtensions : Bool? {
+        return self.lookup(HDUKeyword.EXTEND)
+    }
+    
+    public required init(with data: inout Data) throws {
+        try super.init(with: &data)
+        
+        if self.lookup(HDUKeyword.GROUPS) == true {
+            try readGroups(from: &data)
+        }
+    }
+    
+    
+    func readGroups(from data: inout Data) throws {
+        
+        
+        guard
+            let axis = self.naxis,
+            let gcount : Int = self.lookup(HDUKeyword.GCOUNT),
+            let pcount : Int = self.lookup(HDUKeyword.PCOUNT),
+            let bitpix = self.bitpix
+            else {
+                print("Empty group, nothing to do")
+                return
+        }
+        
+        var size = 1
+        for naxis in 2...axis {
+            size *= (self.naxis(naxis) ?? 1)
+        }
+        print(size)
+        size += pcount
+        size *= gcount
+        size *= bitpix.size
+        
+        print("Group Size \(size)")
+        
+        /// just move the parser for now
+        /// - TODO: read the group
+        
+        let paddy = padded(value: size,to: CARD_LENGTH*BLOCK_LENGTH)
+        if paddy == data.count {
+            data = Data()
+        } else {
+            data = data.advanced(by: paddy)
+        }
+    }
+    
 }
 
 extension PrimaryHDU {

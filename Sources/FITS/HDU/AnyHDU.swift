@@ -116,6 +116,14 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     
     //MARK:- Reader
     
+    
+    /**
+     Initializes the element form the data provided
+     
+     - Parameter data: sequential data to read from
+     
+     - Throws: `FitsFail` unrecoverable errror
+     */
     required public init(with data: inout Data) throws {
         
         while readHeader(data: &data) {

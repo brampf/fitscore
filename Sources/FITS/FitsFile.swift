@@ -74,7 +74,7 @@ extension FitsFile : Reader {
             return
         }
         do{
-            let file = try read(from: &data)
+            let file = try FitsFile(with: &data)
             onCompletion(file)
         } catch{
             onError?(error)
@@ -86,23 +86,42 @@ extension FitsFile : Reader {
         return try FitsFile(with: &data)
     }
     
+    /**
+    Parses a FITS file by sequencially reading the data provided.
+     
+     - Parameter data: the data sequence to read from
+     - Parameter onError: (Optional) callback for error logging
+     
+     - Throws: `FitsFail` for unrecoverable errors during reaidng of the file
+     */
     public convenience init(with data: inout Data) throws {
         
         let prime = try PrimaryHDU(with: &data)
         
         self.init(prime: prime)
+
+        if prime.hasExtensions == true {
+            print("File has extensions")
+            
+            try readExtensions(from: &data)
+        }
+    }
+    
+    func readExtensions(from data: inout Data) throws {
         
         guard let block = String(data: data.subdata(in: 0..<CARD_LENGTH), encoding: .ascii) else {
             // this is not supposed to happen
             throw FitsFail.malformattedHDU
         }
-        let card = HeaderBlock.parse(form: block)
         
+        // read the next card and check for extension
+        let card = HeaderBlock.parse(form: block)
         
         while data.count > 0 {
             var newHDU : AnyHDU
-            guard card.isXtension else {
+            if !card.isXtension {
                 // also not supposed to happen
+                print("Missing extension keyword")
                 throw FitsFail.malformattedHDU
             }
             
@@ -117,9 +136,10 @@ extension FitsFile : Reader {
             }
             self.HDUs.append(newHDU)
         }
+        
     }
+    
 }
-
 
 //MARK:- Writer
 extension FitsFile : Writer {

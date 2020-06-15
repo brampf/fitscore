@@ -167,6 +167,12 @@ public extension HDUKeyword {
     static let GROUPS = "GROUPS"
     
     //MARK:- Extension keywords
+  
+    /**
+     The value field shall contain a logical value indicating whether the FITS file is allowed to contain conforming extensions following the primary HDU. This keyword may only appear in the primary header and must not appear in an ex- tension header. If the value field is T then there may be conform- ing extensions in the FITS file following the primary HDU. This keyword is only advisory, so its presence with a value T does not require that the FITS file contains extensions, nor does the absence of this keyword necessarily imply that the file does not contain extensions. Earlier versions of this Standard stated that the EXTEND keyword must be present in the primary header if the file contained extensions, but this is no longer required
+     */
+    static let EXTEND = "EXTEND"
+    
     /**
      The value field shall contain a character string giving the name of the extension type.
      

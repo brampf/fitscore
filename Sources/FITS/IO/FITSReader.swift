@@ -28,6 +28,10 @@ protocol Reader {
     
     /**
      Initializes the element form the data provided
+     
+     - Parameter data: sequential data to read from
+
+     - Throws: `FitsFail` unrecoverable errror
      */
     init(with data: inout Data) throws
 }
