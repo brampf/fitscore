@@ -29,7 +29,7 @@ import Foundation
  
  The TFORMn keywords must be present for all values n = 1, ..., TFIELDS and for no other values of n. The value field of this indexed keyword shall contain a char- acter string of the form rTa. The repeat count r is the ASCII representation of a non-negative integer specifying the number of elements in Field n. The default value of r is 1; the repeat count need not be present if it has the default value. A zero el- ement count, indicating an empty field, is permitted. The data type T specifies the data type of the contents of Field n. Only the data types in Table 18 are permitted. The format codes must be specified in upper case. For fields of type P or Q, the only per- mitted repeat counts are 0 and 1. The additional characters a are optional and are not further defined in this Standard. Table 18 lists the number of bytes each data type occupies in a table row. The first field of a row is numbered 1.
  */
-open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
+open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
     
     
     public static func == (lhs: BFIELD, rhs: BFIELD) -> Bool {
@@ -46,8 +46,12 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
     var raw : String?
     #endif
     
+    public var description: String {
+        return  "BFIELD"
+    }
+    
     public var debugDescription: String {
-        return "BFIELD"
+        return String(describing: self)
     }
     
     public static func parse(data: Data?, type: BFORM) -> BFIELD {
@@ -178,6 +182,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("L")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class X : BFIELD {
@@ -206,6 +214,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("X")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -237,6 +249,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("B")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class I : BFIELD {
@@ -266,6 +282,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("I")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -297,6 +317,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("J")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class K : BFIELD {
@@ -326,6 +350,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("K")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -358,6 +386,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("A")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class E : BFIELD {
@@ -388,6 +420,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("E")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class D : BFIELD {
@@ -416,6 +452,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("D")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -446,6 +486,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("C")
             hasher.combine(val?.0)
             hasher.combine(val?.1)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -478,6 +522,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine(val?.0)
             hasher.combine(val?.1)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class P : BFIELD {
@@ -508,6 +556,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("P")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class Q : BFIELD {
@@ -537,6 +589,10 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("Q")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
 }

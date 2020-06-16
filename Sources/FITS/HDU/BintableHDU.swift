@@ -53,14 +53,15 @@ public final class BintableHDU : AnyHDU {
         
         // pre-fetch field properties
         for col in 0..<fieldCount {
-            let rawTDISP : String? = self.lookup("TDISP\(col+1)")
+            let rawTDISP : String = self.lookup("TDISP\(col+1)") ?? ""
             let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
             let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
             let rawTFORM : String = self.lookup("TFORM\(col+1)") ?? ""
             let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
             if let tform = BFORM.parse(rawTFORM) {
-                let field = BField(TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
+                let tdisp = BDISP.parse(rawTDISP)
+                let field = BField(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 
                 
                 table.append(field)
@@ -112,7 +113,8 @@ public class BField : Identifiable {
     public var TZERO : Float?
     public var TDIM : Character?
     
-    init(TFORM: BFORM, TUNIT: String?, TTYPE: String?){
+    init(TDISP: BDISP?, TFORM: BFORM, TUNIT: String?, TTYPE: String?){
+        self.TDISP = TDISP
         self.TFORM = TFORM
         self.TUNIT = TUNIT
         self.TTYPE = TTYPE

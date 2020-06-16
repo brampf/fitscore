@@ -56,7 +56,8 @@ public final class TableHDU : AnyHDU {
             let rawTFORM : String = self.lookup("TFORM\(col+1)") ?? ""
             let rawTDISP : String = self.lookup("TDISP\(col+1)") ?? ""
             
-            if let tform = TFORM.parse(rawTFORM), let tdisp = TDISP.parse(rawTDISP) {
+            if let tform = TFORM.parse(rawTFORM) {
+                let tdisp = TDISP.parse(rawTDISP)
                 let field = TField(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 table.append(field)
                 format[col]  = (rawTBCOL,tform.length)
@@ -117,12 +118,12 @@ public final class TableHDU : AnyHDU {
 public class TField : Identifiable {
     public let id = UUID()
     
-    public var TDISP : TDISP
+    public var TDISP : TDISP?
     public var TFORM : TFORM
     public var TUNIT : String?
     public var TTYPE : String?
     
-    init(TDISP: TDISP, TFORM: TFORM, TUNIT: String?, TTYPE: String?){
+    init(TDISP: TDISP?, TFORM: TFORM, TUNIT: String?, TTYPE: String?){
         self.TDISP = TDISP
         self.TFORM = TFORM
         self.TUNIT = TUNIT

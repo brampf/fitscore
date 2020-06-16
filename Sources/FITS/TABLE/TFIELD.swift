@@ -24,7 +24,7 @@
 
 import Foundation
 
-open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
+open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
     
     
     public static func == (lhs: TFIELD, rhs: TFIELD) -> Bool {
@@ -41,8 +41,12 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
     var raw : String?
     #endif
     
+    public var description: String {
+        return  "TFIELD"
+    }
+    
     public var debugDescription: String {
-        return "TFIELD"
+        return String(describing: self)
     }
     
     public static func parse(string: String?, type: TFORM) -> TFIELD {
@@ -98,6 +102,10 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("A")
             hasher.combine(val)
         }
+        
+        public override var description: String{
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class I : TFIELD {
@@ -135,6 +143,10 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("I")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class F : TFIELD {
@@ -166,6 +178,10 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("F")
             hasher.combine(val)
         }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
     }
     
     final public class E : TFIELD {
@@ -191,6 +207,10 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("E")
             hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -218,8 +238,13 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible {
             hasher.combine("D")
             hasher.combine(val)
         }
+        
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+        
     }
-    
 }
 
 extension TFIELD : Writer {
