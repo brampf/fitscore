@@ -115,7 +115,7 @@ extension FitsFile : Reader {
         }
         
         // read the next card and check for extension
-        let card = HeaderBlock.parse(form: block)
+        let card = HeaderBlock.parse(form: block, context: AnyHDU.self)
         
         while data.count > 0 {
             var newHDU : AnyHDU

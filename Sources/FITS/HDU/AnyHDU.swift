@@ -33,21 +33,39 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     public internal(set) var dataUnit: Data?
     
     public required init() {
-        //
+        // initilize keyword wrapper
+        self.initializeWrapper()
     }
     
-    /// Number of vectors storedin this HDU
-    public var naxis : Int? {
-        return self.lookup(HDUKeyword.NAXIS)
-    }
+    /// The value field shall contain an integer rang- ing from 1 to 999, representing one more than the number of axes in each data array.
+    @Keyword(HDUKeyword.NAXIS) public var naxis : Int?
     
-    ///
-    public var bitpix: BITPIX? {
-        return self.lookup(HDUKeyword.BITPIX)
-    }
+    @Keyword(HDUKeyword.BITPIX) public var bitpix : BITPIX?
+    
+    /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
+    @Keyword(HDUKeyword.PCOUNT) public var pcount : Int?
+    
+    /// This keyword shall be used, along with the BZERO keyword, to linearly scale the array pixel values (i.e., the actual values stored in the FITS file) to transform them into the physical values that they represent
+    @Keyword(HDUKeyword.BSCALE) public var bscale : Float? = 1.0
+    
+    /// This keyword shall be used, along with the BSCALE keyword, to linearly scale the array pixel values (i.e., the actual values stored in the FITS file) to transform them into the physical values that they represent
+    @Keyword(HDUKeyword.BZERO) public var bzero : Float? = 0.0
+    
+    /// The value field shall contain a character string describing the physical units in which the quantities in the ar- ray, after application of BSCALE and BZERO, are expressed.
+    @Keyword(HDUKeyword.BUNIT) public var bunit : String?
     
     public func naxis(_ dimension: Naxis) -> Int? {
         return self.lookup("NAXIS\(dimension)")
+    }
+    
+    /// initilaize the keyword wrapper
+    internal func initializeWrapper() {
+        self._naxis.initialize(self)
+        self._bitpix.initialize(self)
+        self._pcount.initialize(self)
+        self._bscale.initialize(self)
+        self._bzero.initialize(self)
+        self._bunit.initialize(self)
     }
     
     var dataSize : Int {
@@ -102,7 +120,9 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     }
     
     /// sets value and comment for `HDUKeyworld`
-    public func set<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String?) {
+    public func header<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String?) {
+        
+        print("SET> \(keyword): \(value.description)")
         
         if var block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
@@ -115,7 +135,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     }
     
     /// sets value and comment for `HDUKeyworld`
-    public func set(_ keyword: HDUKeyword, comment: String?) {
+    public func header(_ keyword: HDUKeyword, comment: String?) {
         
         if var block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
@@ -139,6 +159,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
      */
     required public init(with data: inout Data) throws {
         
+        // read header block
         while readHeader(data: &data) {
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
@@ -148,6 +169,10 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
         
+        // initilize the wrappers
+        self.initializeWrapper()
+        
+        // read the data block
         self.readData(data: &data)
         
         let paddy = padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)
@@ -169,7 +194,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
             if let string = String(data: card, encoding: .ascii){
 
                 // read the card
-                let header = HeaderBlock.parse(form: string)
+                let header = HeaderBlock.parse(form: string, context: Self.self)
                 // store the card
                 self.headerUnit.append(header)
                 
@@ -181,6 +206,9 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
                 print("Unable to read header")
                 // throw FitsFail.malformattedHeader
             }
+        }
+        if data.count == 2880 {
+            return false
         }
         // whole block read
         return true

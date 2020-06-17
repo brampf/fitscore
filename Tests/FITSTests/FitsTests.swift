@@ -45,7 +45,7 @@ final class FitsTests: XCTestCase {
         
         for header in hdu.headerUnit {
             print(header.description)
-            print(header.raw)
+            //print(header.raw)
         }
         
         XCTAssertEqual(hdu.bitpix, BITPIX.INT16)

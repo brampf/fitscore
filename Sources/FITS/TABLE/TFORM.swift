@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum TFORM : Hashable {
+public enum TFORM : FORM {
     
     /// Character
     case A(w: Int)
@@ -42,7 +42,8 @@ public enum TFORM : Hashable {
     case D(w: Int, d: Int)
     
     public static  func parse(_ string: String) -> TFORM? {
-        var trimmed = string.trimmingCharacters(in: .whitespaces)
+        
+        var trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
         guard !trimmed.isEmpty else {
             return nil
         }
@@ -90,6 +91,21 @@ public enum TFORM : Hashable {
             return width
         case .D(let width, _):
             return width
+        }
+    }
+    
+    public var FITSString : String {
+        switch self {
+        case .A(let width):
+            return "A\(width)"
+        case .I(let width):
+            return "I\(width)"
+        case .F(let width, let digits):
+            return "F\(width).\(digits)"
+        case .E(let width, let digits):
+            return "E\(width).\(digits)"
+        case .D(let width, let digits):
+            return "D\(width).\(digits)"
         }
     }
 }

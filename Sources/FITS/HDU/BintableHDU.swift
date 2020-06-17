@@ -24,10 +24,7 @@
 
 import Foundation
 
-public final class BintableHDU : AnyHDU {
-    public typealias ValueType = BField
-    
-    public internal(set) var table : [BField] = []
+public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     public required init(with data: inout Data) throws {
         try super.init(with: &data)
@@ -53,18 +50,15 @@ public final class BintableHDU : AnyHDU {
         
         // pre-fetch field properties
         for col in 0..<fieldCount {
-            let rawTDISP : String = self.lookup("TDISP\(col+1)") ?? ""
+            let rawTDISP : BDISP? = self.lookup("TDISP\(col+1)")
             let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
             let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
-            let rawTFORM : String = self.lookup("TFORM\(col+1)") ?? ""
+            let rawTFORM : BFORM? = self.lookup("TFORM\(col+1)")
             let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
-            if let tform = BFORM.parse(rawTFORM) {
-                let tdisp = BDISP.parse(rawTDISP)
-                let field = BField(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
-                
-                
-                table.append(field)
+            if let tform = rawTFORM {
+                self.table.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (offset,tform.length)
                 offset = offset + tform.length
             }
@@ -82,8 +76,13 @@ public final class BintableHDU : AnyHDU {
                 if let tfrom  = format[columnIndex] {
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
-                    let value = BFIELD.parse(data: val, type: column.TFORM)
-                    column.values.append(value)
+                    if let tform = column.TFORM {
+                        let value = BFIELD.parse(data: val, type: tform)
+                        column.values.append(value)
+                        #if DEBUG
+                        value.raw = val
+                        #endif
+                    }
                 }
             
             }
@@ -94,36 +93,8 @@ public final class BintableHDU : AnyHDU {
             data = Data()
         }
     }
-    
-    public func field(_ row: Int,_ column: Int) -> (disp: BDISP?, field: BFIELD){
-        
-        return (disp: table[column].TDISP, field: table[column].values[row])
-        
-    }
+
 }
-
-public class BField : Identifiable {
-    public let id = UUID()
-    
-    public var TDISP : BDISP?
-    public var TFORM : BFORM
-    public var TUNIT : String?
-    public var TTYPE : String?
-    public var TSCAL : Float?
-    public var TZERO : Float?
-    public var TDIM : Character?
-    
-    init(TDISP: BDISP?, TFORM: BFORM, TUNIT: String?, TTYPE: String?){
-        self.TDISP = TDISP
-        self.TFORM = TFORM
-        self.TUNIT = TUNIT
-        self.TTYPE = TTYPE
-    }
-    
-    public var values : [BFIELD] = []
-}
-
-
 
 
 extension BintableHDU  {

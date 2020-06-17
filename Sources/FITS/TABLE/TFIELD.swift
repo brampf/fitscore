@@ -24,7 +24,10 @@
 
 import Foundation
 
-open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
+open class TFIELD : FIELD {    
+    public typealias TDISP = FITS.TDISP
+    public typealias TFORM = FITS.TFORM
+    
     
     
     public static func == (lhs: TFIELD, rhs: TFIELD) -> Bool {
@@ -69,7 +72,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
         }
     }
     
-    public func format(_ disp: TDISP) -> String? {
+    public func format(_ disp: TDISP?) -> String? {
         return TFIELD.ERR
     }
     
@@ -80,7 +83,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             self.val = val
         }
         
-        override public func format(_ disp: TDISP) -> String? {
+        override public func format(_ disp: TDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -90,7 +93,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             case .A(let w):
                 return String(val.prefix(w))
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -115,7 +118,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             self.val = val
         }
         
-        override public func format(_ disp: TDISP) -> String? {
+        override public func format(_ disp: TDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -131,7 +134,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             case .Z( _, let m):
                 return String(val, radix: 16).padPrefix(minSize: m ?? 0, char: "0")
             default:
-                return "ERR"
+                return self.description
             }
         }
         
@@ -156,7 +159,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             self.val = val
         }
         
-        override public func format(_ disp: TDISP) -> String? {
+        override public func format(_ disp: TDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -166,7 +169,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             case .F( _, let d):
                 return String(format: "%f.\(d)", val)
             default:
-                return "ERR"
+                return self.description
             }
         }
         
@@ -191,7 +194,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             self.val = val
         }
         
-        override public func format(_ disp: TDISP) -> String? {
+        override public func format(_ disp: TDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -221,7 +224,7 @@ open class TFIELD : Hashable, Equatable, CustomDebugStringConvertible, CustomStr
             self.val = val
         }
         
-        override public func format(_ disp: TDISP) -> String? {
+        override public func format(_ disp: TDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil

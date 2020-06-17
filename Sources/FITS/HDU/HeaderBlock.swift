@@ -27,13 +27,25 @@ import Foundation
 /**
  A card image  keyworld record according to http://archive.stsci.edu/fits/users_guide/node19.html
  */
-public struct HeaderBlock {
+public final class HeaderBlock {
     
     public private(set) var keyword : HDUKeyword
     public var value : HDUValue?
     public var comment : String?
     
+    init(keyword: HDUKeyword, value: HDUValue? = nil, comment: String? = nil){
+        self.keyword = keyword
+        self.value = value
+        self.comment = comment
+    }
+    
     #if DEBUG
+    init(keyword: HDUKeyword, value: HDUValue? = nil, comment: String? = nil, raw: String? = nil){
+        self.keyword = keyword
+        self.value = value
+        self.comment = comment
+    }
+    
     public var raw : String? = nil
     #endif
 
@@ -75,7 +87,7 @@ extension HeaderBlock : Hashable {
         hasher.combine(value?.hashable)
     }
     
-    public static func ==(lhs : Self, rhs : Self) -> Bool {
+    public static func ==(lhs : HeaderBlock, rhs : HeaderBlock) -> Bool {
         return lhs.keyword == rhs.keyword && lhs.value?.hashable == rhs.value?.hashable && lhs.comment == rhs.comment
     }
 }
@@ -93,10 +105,12 @@ extension HeaderBlock : CustomStringConvertible {
     }
 }
 
+typealias Context = HDU.Type
+
 //MARK: - Reader
 extension HeaderBlock {
     
-    public static func parse(form raw: String) -> HeaderBlock {
+    static func parse(form raw: String, context: Context? = nil) -> HeaderBlock {
         
         let keyword = raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces)
         
@@ -128,17 +142,15 @@ extension HeaderBlock {
         default :
             // default behavior : split value and comment
             if isString {
-                block.value = value.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'"))
+                block.value = value.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'").union(CharacterSet.whitespaces))
             } else {
-                block.value = AnyHDUValue.parse(value,for: keyword) as? HDUValue
+                block.value = AnyHDUValue.parse(value,for: keyword, context: context) as? HDUValue
             }
             block.comment = comment.trimmingCharacters(in: CharacterSet.whitespaces.union(.init(arrayLiteral: "/")))
         }
         
         return block
     }
-    
-    
 }
 
 

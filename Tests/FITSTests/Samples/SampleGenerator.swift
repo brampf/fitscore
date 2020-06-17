@@ -22,7 +22,7 @@ public struct Sample {
         let blue : [D] = imageData(.blue)
         
         let prime = PrimaryHDU(width: 300, height: 300, vectors: red, green, blue)
-        prime.set(HDUKeyword.COMMENT, comment: "FITSKit \(D.bitpix) SAMPLE")
+        prime.header(HDUKeyword.COMMENT, comment: "FITSKit \(D.bitpix) SAMPLE")
         
         return FitsFile(prime: prime)
     }

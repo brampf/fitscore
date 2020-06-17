@@ -102,7 +102,7 @@ final class ParserTests: XCTestCase {
         XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value)")
         XCTAssertEqual(block.comment, "And acomment as well")
     }
-    
+
     func testReadHDU() {
         var data = Data(base64Encoded: SiriLSample)!
 

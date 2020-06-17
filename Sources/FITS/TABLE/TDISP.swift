@@ -29,7 +29,7 @@ import Foundation
  
  w is the width in characters of displayed values, m is the minimum number of digits displayed, d is the number of digits to right of decimal, and e is number of digits in exponent. The .m and Ee fields are optional.
  */
-public enum TDISP : Hashable {
+public enum TDISP : DISP {
     
     /// Character
     case A(w: Int)
@@ -65,7 +65,7 @@ public enum TDISP : Hashable {
     case D(w: Int, d: Int, e: Int?)
     
     public static  func parse(_ string: String) -> TDISP? {
-        var trimmed = string.trimmingCharacters(in: .whitespaces)
+        var trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
         guard !trimmed.isEmpty else {
             return nil
         }
@@ -117,6 +117,33 @@ public enum TDISP : Hashable {
             return TDISP.D(w: Int(w) ?? 0, d: Int(md) ?? 0, e: Int(e))
         default:
             return nil
+        }
+    }
+    
+    var FITSString : String {
+        switch self {
+        case .A(let w):
+            return "A\(w)"
+        case .I(let w, let m):
+            return "I\(w)" + ((m != nil) ? ".\(m!)" : "")
+        case .B(let w, let m):
+            return "B\(w)" + ((m != nil) ? ".\(m!)" : "")
+        case .O(let w, let m):
+            return "O\(w)" + ((m != nil) ? ".\(m!)" : "")
+        case .Z(let w, let m):
+            return "Z\(w)" + ((m != nil) ? ".\(m!)" : "")
+        case .F(let w, let d):
+            return "F\(w).\(d)"
+        case .E(let w, let d, let e):
+            return "E\(w).\(d)" + ((e != nil) ? "e\(e!)" : "")
+        case .ES(let w, let d):
+            return "ES\(w).\(d)"
+        case .EN(let w, let d):
+            return "EN\(w).\(d)"
+        case .G(let w, let d, let e):
+            return "G\(w).\(d)" + ((e != nil) ? "e\(e!)" : "")
+        case .D(let w, let d, let e):
+            return "D\(w).\(d)" + ((e != nil) ? "e\(e!)" : "")
         }
     }
 }

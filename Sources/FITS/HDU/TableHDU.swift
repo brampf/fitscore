@@ -25,20 +25,26 @@
 
 import Foundation
 
-public final class TableHDU : AnyHDU {
-    public typealias ValueType = TFIELD
-    
-    public internal(set) var table : [TField] = []
+public final class TableHDU : AnyTableHDU<TFIELD> {
     
     public required init(with data: inout Data) throws {
         try super.init(with: &data)
+        
+        self.initializeWrapper()
         
         self.buildTable()
     }
     
     required init() {
         super.init()
-        //fatalError("init() has not been implemented")
+        // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.XTENSION, value: "TABLE", comment: nil))
+        // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.NAXIS, value: 2, comment: "Two dimensional table"))
+        // The value field shall contain the integer 0
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: nil))
+        // The value field shall contain the integer 1; the data blocks contain a single table.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: nil))
     }
     
     func buildTable() {
@@ -53,13 +59,12 @@ public final class TableHDU : AnyHDU {
             let rawTBCOL : Int = self.lookup("TBCOL\(col+1)") ?? 0
             let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
             let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
-            let rawTFORM : String = self.lookup("TFORM\(col+1)") ?? ""
-            let rawTDISP : String = self.lookup("TDISP\(col+1)") ?? ""
+            let rawTFORM : TFORM? = self.lookup("TFORM\(col+1)")
+            let rawTDISP : TDISP? = self.lookup("TDISP\(col+1)")
             
-            if let tform = TFORM.parse(rawTFORM) {
-                let tdisp = TDISP.parse(rawTDISP)
-                let field = TField(TDISP: tdisp, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
-                table.append(field)
+            if let tform = rawTFORM {
+                self.table.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (rawTBCOL,tform.length)
             }
         }
@@ -82,11 +87,13 @@ public final class TableHDU : AnyHDU {
                     let val = row.subdata(in: tfrom.0-1..<tfrom.0+tfrom.1-1)
                     var string = String(data: val, encoding: .ascii) ?? ""
                     string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let value = TFIELD.parse(string: string, type: column.TFORM)
-                    #if DEBUG
-                    value.raw = string
-                    #endif
-                    column.values.append(value)
+                    if let tform = column.TFORM {
+                        let value = TFIELD.parse(string: string, type: tform)
+                        #if DEBUG
+                        value.raw = string
+                        #endif
+                        column.values.append(value)
+                    }
                 }
             }
             if data.count > rowLength {
@@ -97,69 +104,6 @@ public final class TableHDU : AnyHDU {
         }
     }
     
-    func row(_ index: Int) -> ProxyCollection<ValueType> {
-        return ProxyCollection(id: index, end: {
-            self.naxis(1) ?? 0
-        }) { column in
-            self.table[column].values[index]
-        }
-    }
-    
-    public var rows : ProxyCollection<ProxyCollection<ValueType>> {
-        return ProxyCollection(id: UUID(), end: {
-            self.naxis(2) ?? 0
-        }) { row in
-            self.row(row)
-        }
-    }
-    
-}
-
-public class TField : Identifiable {
-    public let id = UUID()
-    
-    public var TDISP : TDISP?
-    public var TFORM : TFORM
-    public var TUNIT : String?
-    public var TTYPE : String?
-    
-    init(TDISP: TDISP?, TFORM: TFORM, TUNIT: String?, TTYPE: String?){
-        self.TDISP = TDISP
-        self.TFORM = TFORM
-        self.TUNIT = TUNIT
-        self.TTYPE = TTYPE
-    }
-    
-    public var values : [TFIELD] = []
-}
-
-public struct ProxyCollection<Value> : RandomAccessCollection, Identifiable, Hashable {
-    
-    public typealias Element = Value
-    public typealias Index = Int
-    
-    public var id: AnyHashable
-    
-    var end : () -> Int
-    var value : (Int) -> Value
-    
-    public subscript(position: Int) -> Value {
-        return value(position)
-    }
-    
-    public var startIndex: Int = 0
-    
-    public var endIndex: Int {
-        return end()
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    public static func == (lhs: ProxyCollection<Value>, rhs: ProxyCollection<Value>) -> Bool {
-        return rhs.id == lhs.id
-    }
 }
 
 extension TableHDU  {

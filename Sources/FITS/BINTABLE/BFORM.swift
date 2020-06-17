@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum BFORM : Hashable {
+public enum BFORM : FORM {
     
     case L(r: Int)
     case X(r: Int)
@@ -42,7 +42,7 @@ public enum BFORM : Hashable {
     
     public static  func parse(_ string: String) -> Self? {
         
-        let trimmed = string.trimmingCharacters(in: .whitespaces)
+        let trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
         
         var prefix = ""
         var type = ""
@@ -124,5 +124,36 @@ public enum BFORM : Hashable {
             return r*16
         }
         
+    }
+    
+    public var FITSString : String {
+        switch self {
+        case .L(let r):
+            return "L\(r)"
+        case .X(let r):
+            return "X\(r)"
+        case .B(let r):
+            return "B\(r)"
+        case .I(let r):
+            return "I\(r)"
+        case .J(let r):
+            return "J\(r)"
+        case .K(let r):
+            return "K\(r)"
+        case .A(let r):
+            return "A\(r)"
+        case .E(let r):
+            return "E\(r)"
+        case .D(let r):
+            return "D\(r)"
+        case .C(let r):
+            return "C\(r)"
+        case .M(let r):
+            return "M\(r)"
+        case .P(let r):
+            return "P\(r)"
+        case .Q(let r):
+            return "Q\(r)"
+        }
     }
 }

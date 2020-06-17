@@ -34,7 +34,7 @@ public protocol HDUValue : CustomStringConvertible {
 
 struct AnyHDUValue {
     
-    public static func parse(_ string: String, for keyword: HDUKeyword) -> Any? {
+    public static func parse(_ string: String, for keyword: HDUKeyword, context: Context?) -> Any? {
         
         let trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces)
         
@@ -52,14 +52,18 @@ struct AnyHDUValue {
             } else {
                 return plainString
             }
-        case "TFORM":
-            return FITS.TFORM.parse(trimmed)
-        case "BFORM":
-            return FITS.BFORM.parse(trimmed)
-        case "TDISP":
-            return FITS.TDISP.parse(trimmed)
-        case "BDISP":
-            return FITS.BDISP.parse(trimmed)
+        case _ where keyword.starts(with: "TFORM"):
+            if context is BintableHDU.Type {
+                return FITS.BFORM.parse(trimmed)
+            } else {
+                return FITS.TFORM.parse(trimmed)
+            }
+        case _ where keyword.starts(with: "TDISP"):
+            if context is BintableHDU.Type {
+                return FITS.BDISP.parse(trimmed)
+            } else {
+                return FITS.TDISP.parse(trimmed)
+            }
         default:
             // autodetect explicit specified types
             if trimmed == "T" { return true}
@@ -100,12 +104,20 @@ extension HDUValue {
     
     public static func ==<T: HDUValue>(lhs: HDUValue, rhs: T?) -> Bool {
         guard type(of: lhs) == T.self else { return false }
-        return lhs.hashable == rhs.hashable
+        if let right = rhs {
+            return lhs.hashable == right.hashable
+        } else {
+            return false
+        }
     }
     
     public static func ==<T: HDUValue>(lhs: T?, rhs: HDUValue) -> Bool {
         guard T.self == type(of: rhs) else { return false }
-        return lhs.hashable == rhs.hashable
+        if let left = lhs {
+            return left.hashable == rhs.hashable
+        } else {
+            return false
+        }
     }
 
     public static func ==(lhs: HDUValue, rhs: HDUValue) -> Bool {
@@ -144,7 +156,6 @@ extension String : HDUValue {
 }
 
 extension Bool : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         return self ? "T" : "F"
@@ -152,7 +163,6 @@ extension Bool : HDUValue {
 }
 
 extension Float : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         "\(self)"
@@ -160,7 +170,6 @@ extension Float : HDUValue {
 }
 
 extension Int : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         "\(self)"
@@ -168,7 +177,6 @@ extension Int : HDUValue {
 }
 
 extension FITSComplex : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         "\(self)"
@@ -176,7 +184,6 @@ extension FITSComplex : HDUValue {
 }
 
 extension BITPIX : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         "\(self.rawValue)"
@@ -184,7 +191,6 @@ extension BITPIX : HDUValue {
 }
 
 extension Date : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
         "\(self)"
@@ -193,44 +199,29 @@ extension Date : HDUValue {
 }
 
 extension BFORM : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
-        "\(self)"
+        "\(self.FITSString)"
     }
 }
 
 extension TFORM : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
-        "\(self)"
+        "\(self.FITSString)"
     }
 }
 
 extension BDISP : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
-        "\(self)"
+        "\(self.FITSString)"
     }
 }
 
 extension TDISP : HDUValue {
-    public typealias Base = Self
     
     public var description: String {
-        "\(self)"
-    }
-}
-
-extension Optional : HDUValue, CustomStringConvertible where Wrapped : HDUValue {
-    
-    public var hashable: AnyHashable {
-        AnyHashable("%%NIL%%")
-    }
-    
-    public var description: String {
-        return ""
+        "\(self.FITSString)"
     }
 }

@@ -29,8 +29,10 @@ import Foundation
  
  The TFORMn keywords must be present for all values n = 1, ..., TFIELDS and for no other values of n. The value field of this indexed keyword shall contain a char- acter string of the form rTa. The repeat count r is the ASCII representation of a non-negative integer specifying the number of elements in Field n. The default value of r is 1; the repeat count need not be present if it has the default value. A zero el- ement count, indicating an empty field, is permitted. The data type T specifies the data type of the contents of Field n. Only the data types in Table 18 are permitted. The format codes must be specified in upper case. For fields of type P or Q, the only per- mitted repeat counts are 0 and 1. The additional characters a are optional and are not further defined in this Standard. Table 18 lists the number of bytes each data type occupies in a table row. The first field of a row is numbered 1.
  */
-open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStringConvertible {
+open class BFIELD: FIELD {
     
+    public typealias TDISP = BDISP
+    public typealias TFORM = BFORM
     
     public static func == (lhs: BFIELD, rhs: BFIELD) -> Bool {
         return lhs.hashValue == rhs.hashValue
@@ -43,7 +45,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
     static let ERR = "ERR"
     
     #if DEBUG
-    var raw : String?
+    var raw : Data?
     #endif
     
     public var description: String {
@@ -61,7 +63,8 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
         switch type {
         case .L:
             if let data = data, !data.isEmpty {
-                let string = String(data: data, encoding: .ascii)
+                var string = String(data: data, encoding: .ascii)
+                string = string?.trimmingCharacters(in: .whitespacesAndNewlines)
                 if string == "T" {
                     return BFIELD.L(val: true)
                 } else if string == "F" {
@@ -143,10 +146,9 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
         case .Q:
             return BFIELD.Q(val: nil)
         }
-        
     }
     
-    public func format(_ disp: BDISP) -> String? {
+    public func format(_ using: BDISP?) -> String? {
         return BFIELD.ERR
     }
     
@@ -160,7 +162,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -170,7 +172,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             case .L:
                 return val ? "T" : "F"
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -195,7 +197,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -203,7 +205,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             
             switch disp {
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -228,7 +230,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 /// - ToDo: format `val`
@@ -237,7 +239,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             
             switch disp {
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -262,7 +264,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -271,7 +273,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -296,7 +298,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -305,7 +307,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -330,7 +332,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -339,7 +341,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -364,7 +366,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -374,7 +376,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             case .A(let w):
                 return String(val.prefix(w))
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -399,7 +401,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -408,7 +410,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -433,7 +435,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -441,7 +443,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             
             switch disp {
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -466,7 +468,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -474,7 +476,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             
             switch disp {
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -500,7 +502,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -509,7 +511,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -535,7 +537,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -544,7 +546,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         
@@ -569,7 +571,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             self.val = val
         }
         
-        override public func format(_ disp: BDISP) -> String? {
+        override public func format(_ disp: BDISP?) -> String? {
             
             guard let val = self.val else {
                 return nil
@@ -578,7 +580,7 @@ open class BFIELD: Hashable, Equatable, CustomDebugStringConvertible, CustomStri
             switch disp {
                 /// - ToDo: format `val`
             default:
-                return TFIELD.ERR
+                return self.description
             }
         }
         

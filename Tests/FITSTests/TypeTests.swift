@@ -33,4 +33,38 @@ final class TypeTests: XCTestCase {
         
     }
     
+    func testKeyword() {
+        
+        let hdu = DemoHDU()
+        hdu.test = "Hello World"
+        hdu.form = .I(w: 3)
+        
+        XCTAssertEqual(hdu.headerUnit.count, 2)
+        XCTAssertEqual(hdu.headerUnit.first?.keyword, "TEST")
+        XCTAssertTrue(hdu.headerUnit.first?.value == "Hello World", "Value: \(hdu.headerUnit.first?.value)")
+        
+    
+        
+        
+        print(hdu.headerUnit)
+    }
+    
+}
+
+class DemoHDU : AnyHDU {
+    
+    @Keyword("TEST") var test : String?
+    
+    @Keyword("TFORM") var form : TFORM?
+    
+    required init() {
+        super.init()
+        self._test.initialize(self)
+        self._form.initialize(self)
+    }
+    
+    required init(with data: inout Data) throws {
+        fatalError("init(with:) has not been implemented")
+    }
+    
 }
