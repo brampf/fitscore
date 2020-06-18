@@ -32,7 +32,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         
         self.initializeWrapper()
         
-        self.buildTable()
+        self.readTable()
     }
     
     required init() {
@@ -47,7 +47,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: nil))
     }
     
-    func buildTable() {
+    func readTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
         
@@ -63,7 +63,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             let rawTDISP : TDISP? = self.lookup("TDISP\(col+1)")
             
             if let tform = rawTFORM {
-                self.table.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
                 //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (rawTBCOL,tform.length)
             }
@@ -80,8 +80,8 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         
         for _ in 0..<rows {
             let row = data.subdata(in: 0..<rowLength)
-            for columnIndex in 0..<table.count {
-                let column = table[columnIndex]
+            for columnIndex in 0..<columns.count {
+                let column = columns[columnIndex]
                 if let tfrom  = format[columnIndex] {
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0-1..<tfrom.0+tfrom.1-1)
@@ -103,7 +103,6 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             }
         }
     }
-    
 }
 
 extension TableHDU  {

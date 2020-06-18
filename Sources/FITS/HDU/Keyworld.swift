@@ -51,6 +51,7 @@ public class Keyword<Value : HDUValue> : Initializable{
             } else {
                 hdu?.headerUnit.append(HeaderBlock(keyword: keyword, value: newValue, comment: comment))
             }
+            hdu?.modified = true
         }
     }
     

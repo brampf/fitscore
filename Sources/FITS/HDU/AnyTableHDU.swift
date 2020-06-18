@@ -24,12 +24,11 @@
 
 import Foundation
 
+open class AnyTableHDU<F: FIELD> : AnyHDU, Table  {
+    public typealias Field = F
+    
+    public internal(set) var columns: [TableColumn<Field>] = []
 
-open class AnyTableHDU<Field> : AnyHDU where Field: FIELD  {
-    public typealias Column = TableColumn<Field>
-    
-    public internal(set) var table : [Column] = []
-    
     @Keyword(HDUKeyword.TFIELDS) public var tfields : Int?
     
     public required init() {
@@ -49,140 +48,47 @@ open class AnyTableHDU<Field> : AnyHDU where Field: FIELD  {
         super.initializeWrapper()
         self._tfields.initialize(self)
     }
+}
+
+// MARK:- Table structures
+extension AnyTableHDU {
+    public typealias Column = TableColumn<Field>
+    public typealias Row = TableRow<Field>
     
-    func row(_ index: Int) -> ProxyCollection<Field> {
-        return ProxyCollection(id: index, end: {
-            self.tfields ?? 0
-        }) { column in
-            self.table[column].values[index]
+    public var rows : [Row] {
+        var arr = [TableRow<Field>]()
+        for row in 0..<(self.naxis(2) ?? 0) {
+            arr.append(TableRow<Field>(self, row))
         }
+        return arr
     }
     
-    public var rows : ProxyCollection<ProxyCollection<Field>> {
-        return ProxyCollection(id: UUID(), end: {
-            self.naxis(2) ?? 0
-        }) { row in
-            self.row(row)
-        }
-    }
-    
+    /// adds a new column to the table
     public func addColumn(index: Int? = nil, TFORM: Field.TFORM, TDISP: Field.TDISP? = nil, TUNIT: String? = nil, TTYPE: String? = nil, _ fields: Field...) -> Column {
-    
-        let column = Column(self, (index ?? table.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, fields: fields)
         
+        let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, fields: fields)
+    
         if let index = index {
-            self.table.insert(column, at: index)
+            self.columns.insert(column, at: index)
         } else{
-            self.table.append(column)
+            self.columns.append(column)
         }
         
         // fix header
-        let fields = self.table.count
+        let fields = self.columns.count
         
         self.header("TFIELDS", value: fields, comment: "Number of fields per row")
-        self.header("NAXIS1", value: self.table.reduce(into: 0, { m, col in
+        self.header("NAXIS1", value: self.columns.reduce(into: 0, { m, col in
             m += col.TFORM?.length ?? 0
         }), comment: "Characters per row")
-        self.header("NAXIS2", value: self.table.reduce(into: 0, { m, col in
+        self.header("NAXIS2", value: self.columns.reduce(into: 0, { m, col in
             m = max(m,col.values.count)
         }), comment: "Number of rows")
         
         return column
     }
-}
-
-// MARK:- Table Structure
-public struct ProxyCollection<Value> : RandomAccessCollection, Identifiable, Hashable {
     
-    public typealias Element = Value
-    public typealias Index = Int
-    
-    public var id: AnyHashable
-    
-    var end : () -> Int
-    var value : (Int) -> Value
-    
-    public subscript(position: Int) -> Value {
-        return value(position)
+    public func removeColum(index: Int) {
+        self.columns.remove(at: index)
     }
-    
-    public var startIndex: Int = 0
-    
-    public var endIndex: Int {
-        return end()
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    public static func == (lhs: ProxyCollection<Value>, rhs: ProxyCollection<Value>) -> Bool {
-        return rhs.id == lhs.id
-    }
-}
-
-
-public class TableColumn<Field> : Identifiable where Field: FIELD  {
-    
-    public var id = UUID()
-    
-    // Raw data layout for this value
-    @Keyword("TFORM") public var TFORM: Field.TFORM?
-    
-    // Data display style
-    @Keyword("TDISP") public var TDISP: Field.TDISP?
-    @Keyword("TUNIT") public var TUNIT: String?
-    @Keyword("TTYPE") public var TTYPE: String?
-    
-    //private var hdu : AnyTableHDU<Field>
-    
-    public var values : [Field] = []
-    
-    /// Internal initializer which does not override the header values
-    init(_ hdu: AnyTableHDU<Field>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String?){
-        
-        //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
-        self._TFORM = Keyword<Field.TFORM>("TFORM\(col)", hdu)
-        self._TDISP = Keyword<Field.TDISP>("TDISP\(col)", hdu)
-        self._TUNIT = Keyword<String>("TUNIT\(col)", hdu)
-        self._TTYPE = Keyword<String>( "TTYPE\(col)", hdu)
-    }
-    
-    init(_ hdu: AnyTableHDU<Field>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String?, fields: [Field] ){
-        
-        //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
-        self._TFORM = Keyword<Field.TFORM>(wrappedValue: TFORM, "TFORM\(col)", hdu)
-        self._TDISP = Keyword<Field.TDISP>(wrappedValue: TDISP, "TDISP\(col)", hdu)
-        self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", hdu)
-        self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", hdu)
-        
-        self.values = fields
-    }
-}
-
-
-//MARK:- Table Data Types
-public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConvertible {
-    associatedtype TDISP : DISP
-    associatedtype TFORM : FORM
-    
-    func format(_ using: TDISP?) -> String?
-    
-}
-
-public protocol DISP : Hashable, HDUValue {
-    
-}
-
-public protocol FORM : Hashable, HDUValue {
-    
-    var length : Int {get}
-}
-
-public protocol UNIT {
-    
-}
-
-public protocol TTYPE {
-    
 }

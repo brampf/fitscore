@@ -57,7 +57,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
             if let tform = rawTFORM {
-                self.table.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
                 //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (offset,tform.length)
                 offset = offset + tform.length
@@ -71,8 +71,8 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         
         for _ in 0..<rows {
             let row = data.subdata(in: 0..<rowLength)
-            for columnIndex in 0..<table.count {
-                let column = table[columnIndex]
+            for columnIndex in 0..<columns.count {
+                let column = columns[columnIndex]
                 if let tfrom  = format[columnIndex] {
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)

@@ -24,11 +24,10 @@
 
 import Foundation
 
-open class TFIELD : FIELD {    
+open class TFIELD : FIELD {
+    
     public typealias TDISP = FITS.TDISP
     public typealias TFORM = FITS.TFORM
-    
-    
     
     public static func == (lhs: TFIELD, rhs: TFIELD) -> Bool {
         return lhs.hashValue == rhs.hashValue
@@ -72,11 +71,16 @@ open class TFIELD : FIELD {
         }
     }
     
+    public var form: TFORM {
+        fatalError("Not Implemented on supertype")
+    }
+    
     public func format(_ disp: TDISP?) -> String? {
         return TFIELD.ERR
     }
     
     final public class A : TFIELD {
+        
         var val: String?
         
         init(val: String?){
@@ -95,6 +99,10 @@ open class TFIELD : FIELD {
             default:
                 return self.description
             }
+        }
+        
+        public override var form: TFORM {
+            TFORM.A(w: val?.count ?? 0)
         }
         
         override public var debugDescription: String {
@@ -138,6 +146,11 @@ open class TFIELD : FIELD {
             }
         }
         
+        public override var form: TFORM {
+            let string = String(format: "%d", val ?? 0)
+            return TFORM.I(w: string.count)
+        }
+        
         override public var debugDescription: String {
             return "TFIELD.I(\(val?.description ?? "-/-"))"
         }
@@ -173,6 +186,11 @@ open class TFIELD : FIELD {
             }
         }
         
+        public override var form: TFORM {
+            let string = String(format: "%f",val ?? 0)
+            return TFORM.F(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
+        }
+        
         override public var debugDescription: String {
             return "TFIELD.F(\(val?.description ?? "-/-"))"
         }
@@ -200,7 +218,17 @@ open class TFIELD : FIELD {
                 return nil
             }
             
-            return String(val)
+            switch disp {
+            case .E( _, let d, let e):
+                return String(format: "%e.\(d)", val)
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            let string = String(format: "%e",val ?? 0)
+            return TFORM.E(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
         }
         
         override public var debugDescription: String {
@@ -230,7 +258,17 @@ open class TFIELD : FIELD {
                 return nil
             }
             
-            return String(val)
+            switch disp {
+            case .D( _, let d, let e):
+                return String(format: "%e.\(d)", val)
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            let string = String(format: "%e",val ?? 0)
+            return TFORM.D(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
         }
         
         override public var debugDescription: String {

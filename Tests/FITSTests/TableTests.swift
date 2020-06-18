@@ -5,6 +5,29 @@ import XCTest
 
 final class TableTests: XCTestCase {
 
+    static var allTests = [
+        ("testTField",testTField)
+    ]
+    
+    func testTField() {
+        
+        let a = TFIELD.A(val: "Hello World")
+        let i = TFIELD.I(val: 23)
+        let f = TFIELD.F(val: 42.48)
+        let e = TFIELD.E(val: -6.11104586446241e-01)
+        let d = TFIELD.D(val: 4.99471371062592860e+08)
+        
+        XCTAssertEqual(a.form, TFORM.A(w: 11))
+        XCTAssertEqual(i.form, TFORM.I(w: 2))
+        XCTAssertEqual(String(format: "%f", f.val ??  0), "42.480000")
+        XCTAssertEqual(f.form, TFORM.F(w: 9, d: 6))
+        XCTAssertEqual(String(format: "%e", e.val ??  0), "-6.111046e-01")
+        XCTAssertEqual(e.form, TFORM.E(w: 13, d: 10))
+        XCTAssertEqual(String(format: "%e", d.val ??  0), "4.994714e+08")
+        XCTAssertEqual(d.form, TFORM.D(w: 12, d: 10))
+        
+    }
+    
     
     func testReadTable() {
         
@@ -17,14 +40,10 @@ final class TableTests: XCTestCase {
             return
         }
         
-        for header in hdu.headerUnit {
-            //print("\(header.keyword.padding(toLength: 9, withPad: " ", startingAt: 0)) = \(header.value?.description ?? "nil") : \(header.value.self.debugDescription)")
-           //print(header.raw ?? "")
-        }
-        
+        XCTAssertEqual(hdu.modified, false)
         XCTAssertEqual(hdu.lookup("TFORM1"), TFORM.E(w: 15, d: 7))
-        XCTAssertEqual(hdu.table.count, hdu.tfields)
-        XCTAssertEqual(hdu.table.first?.values.count, hdu.naxis(2))
+        XCTAssertEqual(hdu.columns.count, hdu.tfields)
+        XCTAssertEqual(hdu.columns.first?.values.count, hdu.naxis(2))
         
         for _ in 0..<(hdu.tfields ?? 0) {
             let dat = hdu.dataUnit!.subdata(in: 0..<(hdu.naxis(1) ?? 0))
@@ -45,30 +64,73 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.lookup("NAXIS1"),  4)
         XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
         
-        let col2 = hdu.addColumn(TFORM: TFORM.I(w: 8), TDISP: TDISP.I(w: 4, m: 6), .I(val: 4123),.I(val: 1234),.I(val: 8977),.I(val: 5434))
+        let _ = hdu.addColumn(TFORM: TFORM.I(w: 8), TDISP: TDISP.I(w: 4, m: 6), .I(val: 4123),.I(val: 1234),.I(val: 8977),.I(val: 5434))
         
-        XCTAssertEqual(hdu.table.count, 2)
-        XCTAssertEqual(hdu.table[0].values.count, 4)
-        XCTAssertEqual(hdu.table[1].values.count, 4)
+        XCTAssertEqual(hdu.columns.count, 2)
+        XCTAssertEqual(hdu.columns[0].values.count, 4)
+        XCTAssertEqual(hdu.columns[1].values.count, 4)
         XCTAssertEqual(col1.TFORM, TFORM.A(w: 4))
         XCTAssertEqual(hdu.lookup("TFORM1"), TFORM.A(w: 4))
         XCTAssertEqual(hdu.lookup("TFIELDS"),  2)
         XCTAssertEqual(hdu.lookup("NAXIS1"),  12)
         XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
 
+        
         _ = hdu.validate()
         
         hdu.headerUnit.forEach { block in
             print(block)
         }
         
-        plotTable(hdu)
+        //plotTable(hdu)
         
     }
     
+    func testModifyTable(){
+        
+        let hdu = TableHDU()
+        
+        let col1 = hdu.addColumn(TFORM: TFORM.I(w: 3), TTYPE: "Numbers", TFIELD.I(val: 3),TFIELD.I(val: 3),TFIELD.I(val: 3))
+        let col2 = hdu.addColumn(TFORM: TFORM.A(w: 12), TTYPE: "Text", TFIELD.A(val: "Hello"),TFIELD.A(val: "World"),TFIELD.A(val: "AGAIN"))
+        let row1 = hdu.rows[0]
+        let row3 = hdu.rows[2]
+        
+        // possible
+        col1[2] = TFIELD.I(val: 2)
+        // not possible
+        col2[1] = TFIELD.I(val: 4)
+        
+        // not possible
+        row1[1] = TFIELD.I(val: 42)
+        // possible
+        row3[1] = TFIELD.A(val: "REDACTED!")
+        
+        self.plotTable(hdu)
+        
+        XCTAssertEqual(hdu.columns[0].values[0], TFIELD.I(val: 3))
+        XCTAssertEqual(hdu.columns[0].values[1], TFIELD.I(val: 3))
+        XCTAssertEqual(hdu.columns[0].values[2], TFIELD.I(val: 2))
+        
+        XCTAssertEqual(hdu.columns[1].values[0], TFIELD.A(val: "Hello"))
+        XCTAssertEqual(hdu.columns[1].values[1], TFIELD.A(val: "World"))
+        XCTAssertEqual(hdu.columns[1].values[2], TFIELD.A(val: "REDACTED!"))
+    }
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //MARK:-
+    
     func plotTable<Field: FIELD>(_ hdu: AnyTableHDU<Field>){
         
-        let maxCellWidth = hdu.table.reduce(into: 0){ m, col in
+        let maxCellWidth = hdu.columns.reduce(into: 0){ m, col in
             m = max(m, max(col.TFORM?.length ?? 0, col.TTYPE?.count ?? 0))
         }
         let dashWidth = (4 + maxCellWidth) * (hdu.tfields ?? 0)
@@ -78,7 +140,7 @@ final class TableTests: XCTestCase {
         print(dashes)
         var out = ""
         for col in 0..<(hdu.tfields ?? 0) {
-            let ttype = hdu.table[col].TTYPE ?? "N/A"
+            let ttype = hdu.columns[col].TTYPE ?? "N/A"
             if col == 0 {
                 out.append("|")
             }
@@ -91,8 +153,8 @@ final class TableTests: XCTestCase {
         for row in 0..<(hdu.naxis(2) ?? 0) {
             var out = ""
             for col in 0..<(hdu.tfields ?? 0) {
-                let disp = hdu.table[col].TDISP
-                let field = hdu.table[col].values[row]
+                let disp = hdu.columns[col].TDISP
+                let field = hdu.columns[col].values[row]
                 let value = field.format(disp) ?? ""
                 if col == 0 {
                     out.append("|")

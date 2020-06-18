@@ -94,6 +94,22 @@ public enum TFORM : FORM {
         }
     }
     
+    public var fieldType : TFIELD.Type {
+        
+        switch self {
+        case .A:
+            return TFIELD.A.self
+        case .I:
+            return TFIELD.I.self
+        case .F:
+            return TFIELD.F.self
+        case .E:
+            return TFIELD.E.self
+        case .D:
+            return TFIELD.D.self
+        }
+    }
+    
     public var FITSString : String {
         switch self {
         case .A(let width):

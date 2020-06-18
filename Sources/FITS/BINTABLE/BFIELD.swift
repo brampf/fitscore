@@ -148,6 +148,10 @@ open class BFIELD: FIELD {
         }
     }
     
+    public var form: TFORM {
+        fatalError("Not implemented")
+    }
+    
     public func format(_ using: BDISP?) -> String? {
         return BFIELD.ERR
     }

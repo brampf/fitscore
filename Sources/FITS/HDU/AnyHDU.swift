@@ -32,6 +32,8 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     public internal(set) var  headerUnit: [HeaderBlock] = []
     public internal(set) var dataUnit: Data?
     
+    public internal(set) var modified : Bool = false
+    
     public required init() {
         // initilize keyword wrapper
         self.initializeWrapper()
@@ -132,6 +134,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
             // add keyworld otherwise
             headerUnit.append(HeaderBlock(keyword: keyword, value: value, comment: comment))
         }
+        self.modified = true
     }
     
     /// sets value and comment for `HDUKeyworld`
@@ -145,6 +148,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
             // add keyworld otherwise
             headerUnit.append(HeaderBlock(keyword: keyword, value: nil, comment: comment))
         }
+        self.modified = true
     }
     
     //MARK:- Reader

@@ -25,7 +25,7 @@
 import Foundation
 
 public enum BFORM : FORM {
-    
+
     case L(r: Int)
     case X(r: Int)
     case B(r: Int)
@@ -89,6 +89,39 @@ public enum BFORM : FORM {
         default:
             return nil
         }
+    }
+    
+    public var fieldType: BFIELD.Type {
+        
+        switch self {
+        case .L:
+            return BFIELD.L.self
+        case .X:
+            return BFIELD.X.self
+        case .B:
+            return BFIELD.B.self
+        case .I:
+            return BFIELD.I.self
+        case .J:
+            return BFIELD.J.self
+        case .K:
+            return BFIELD.K.self
+        case .A:
+            return BFIELD.A.self
+        case .E:
+            return BFIELD.E.self
+        case .D:
+            return BFIELD.D.self
+        case .C:
+            return BFIELD.C.self
+        case .M:
+            return BFIELD.M.self
+        case .P:
+            return BFIELD.P.self
+        case .Q:
+            return BFIELD.Q.self
+        }
+        
     }
     
     
