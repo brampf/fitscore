@@ -93,23 +93,23 @@ extension String {
         }
     }
     
-    func padPrefix(toSize: Int, char: Character) -> LosslessStringConvertible {
+    func padPrefix(toSize: Int, char: Character) -> String {
         
         let space = toSize - self.count
         if space > 0 {
             return String(repeating: char, count: space)+self
         } else {
-            return self.prefix(toSize)
+            return String(prefix(toSize))
         }
     }
     
-    func padSuffix(toSize: Int, char: Character) -> LosslessStringConvertible {
+    func padSuffix(toSize: Int, char: Character) -> String {
         
         let space = toSize - self.count
         if space > 0 {
             return self+String(repeating: char, count: space)
         } else {
-            return self.suffix(toSize)
+            return String(suffix(toSize))
         }
     }
     

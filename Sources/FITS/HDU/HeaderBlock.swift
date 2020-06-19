@@ -174,7 +174,7 @@ extension HeaderBlock : Writer{
                 out += "= "
             }
         }
-        out += self.value?.description ?? ""
+        out += self.value?.toString ?? ""
         if let comment = self.comment {
             if !isEmpty && !isComment && !isEnd {
             out += " / "

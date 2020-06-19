@@ -102,9 +102,9 @@ extension FitsFile : Reader {
 
         if prime.hasExtensions == true {
             print("File has extensions")
-            
-            try readExtensions(from: &data)
+
         }
+        try readExtensions(from: &data)
     }
     
     func readExtensions(from data: inout Data) throws {

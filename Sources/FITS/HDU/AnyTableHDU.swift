@@ -48,6 +48,7 @@ open class AnyTableHDU<F: FIELD> : AnyHDU, Table  {
         super.initializeWrapper()
         self._tfields.initialize(self)
     }
+    
 }
 
 // MARK:- Table structures

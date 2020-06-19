@@ -50,7 +50,7 @@ final class WriterTests: XCTestCase {
     func testWriteSimple() {
         
         let block = HeaderBlock(keyword: HDUKeyword.SIMPLE, value: true, comment: "This is simple")
-        
+
         var data = Data()
         try? block.write(to: &data)
         

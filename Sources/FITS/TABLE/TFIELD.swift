@@ -43,6 +43,10 @@ open class TFIELD : FIELD {
     var raw : String?
     #endif
     
+    public func write(_ form: TFORM) -> String {
+        return ""
+    }
+    
     public var description: String {
         return  "TFIELD"
     }
@@ -105,6 +109,15 @@ open class TFIELD : FIELD {
             TFORM.A(w: val?.count ?? 0)
         }
         
+        override public func write(_ form: TFORM) -> String {
+            switch form {
+            case .A(let w):
+                return (val ?? "").padPrefix(toSize: w, char: " ")
+            default:
+                return ""
+            }
+        }
+        
         override public var debugDescription: String {
             return "TFIELD.A(\(val?.description ?? "-/-"))"
         }
@@ -151,6 +164,15 @@ open class TFIELD : FIELD {
             return TFORM.I(w: string.count)
         }
         
+        override public func write(_ form: TFORM) -> String {
+            switch form {
+            case .I(let w):
+                return String(format: "%\(w)d", val ?? 0)
+            default:
+                return ""
+            }
+        }
+        
         override public var debugDescription: String {
             return "TFIELD.I(\(val?.description ?? "-/-"))"
         }
@@ -179,8 +201,8 @@ open class TFIELD : FIELD {
             }
             
             switch disp {
-            case .F( _, let d):
-                return String(format: "%f.\(d)", val)
+            case .F(let w, let d):
+                return String(format: "%\(w).\(d)f", val ?? 0)
             default:
                 return self.description
             }
@@ -189,6 +211,15 @@ open class TFIELD : FIELD {
         public override var form: TFORM {
             let string = String(format: "%f",val ?? 0)
             return TFORM.F(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
+        }
+        
+        override public func write(_ form: TFORM) -> String {
+            switch form {
+            case .F(let w, let d):
+               return String(format: "%\(w).\(d)f", val ?? 0)
+            default:
+                return ""
+            }
         }
         
         override public var debugDescription: String {
@@ -219,8 +250,8 @@ open class TFIELD : FIELD {
             }
             
             switch disp {
-            case .E( _, let d, let e):
-                return String(format: "%e.\(d)", val)
+            case .E(let w, let d, let _):
+                return String(format: "%\(w).\(d)e", val ?? 0)
             default:
                 return self.description
             }
@@ -229,6 +260,15 @@ open class TFIELD : FIELD {
         public override var form: TFORM {
             let string = String(format: "%e",val ?? 0)
             return TFORM.E(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
+        }
+        
+        override public func write(_ form: TFORM) -> String {
+            switch form {
+            case .E(let w, let d):
+                return String(format: "%\(w).\(d)e", val ?? 0)
+            default:
+                return ""
+            }
         }
         
         override public var debugDescription: String {
@@ -259,8 +299,8 @@ open class TFIELD : FIELD {
             }
             
             switch disp {
-            case .D( _, let d, let e):
-                return String(format: "%e.\(d)", val)
+            case .D(let w, let d, let _):
+                return String(format: "%\(w).\(d)e", val ?? 0)
             default:
                 return self.description
             }
@@ -269,6 +309,15 @@ open class TFIELD : FIELD {
         public override var form: TFORM {
             let string = String(format: "%e",val ?? 0)
             return TFORM.D(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
+        }
+        
+        override public func write(_ form: TFORM) -> String {
+            switch form {
+            case .D(let w, let d):
+                return String(format: "%\(w).\(d)e", val ?? 0)
+            default:
+                return ""
+            }
         }
         
         override public var debugDescription: String {

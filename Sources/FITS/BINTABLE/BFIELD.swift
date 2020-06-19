@@ -156,6 +156,10 @@ open class BFIELD: FIELD {
         return BFIELD.ERR
     }
     
+    public func write(_ form: BFORM) -> String {
+        ""
+    }
+    
     /**
      Logical
      */

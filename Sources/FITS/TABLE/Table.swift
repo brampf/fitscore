@@ -41,6 +41,7 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
     @Keyword("TDISP") public var TDISP: Field.TDISP?
     @Keyword("TUNIT") public var TUNIT: String?
     @Keyword("TTYPE") public var TTYPE: String?
+    @Keyword("TBCOL") public var TBCOL: Int?
     
     //private var hdu : AnyTableHDU<Field>
     
@@ -54,6 +55,7 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
         self._TDISP = Keyword<Field.TDISP>("TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>("TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>( "TTYPE\(col)", hdu)
+        self._TTYPE = Keyword<String>( "TBCOL\(col)", hdu)
     }
     
     init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String?, fields: [Field]) where F.TFORM == Field.TFORM  {
@@ -63,6 +65,7 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
         self._TDISP = Keyword<Field.TDISP>(wrappedValue: TDISP, "TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", hdu)
+        self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TBCOL\(col)", hdu)
         
         self.values = fields
     }
@@ -115,6 +118,10 @@ public class TableRow<Field> : Identifiable where Field: FIELD {
         }
     }
     
+    func tform(_ col: Int) -> Field.TFORM? {
+        return table.columns[col].TFORM
+    }
+    
 }
 
 extension TableRow : CustomDebugStringConvertible {
@@ -130,6 +137,7 @@ public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConv
     associatedtype TFORM : FORM
     
     func format(_ using: TDISP?) -> String?
+    func write(_ form: TFORM) -> String 
     
     var form : TFORM {get}
     

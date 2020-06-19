@@ -27,21 +27,17 @@ import Foundation
 public final class PrimaryHDU : AnyImageHDU {
     
     /// Valid FITS file
-    public var isSimple : Bool {
-        return self.lookup(HDUKeyword.SIMPLE) ?? false
-    }
+    @Keyword(HDUKeyword.SIMPLE) public var isSimple : Bool? = false
     
     /// Containts the Random Groups data
-    public var hasGroups : Bool? {
-        return self.lookup(HDUKeyword.GROUPS)
-    }
+    @Keyword(HDUKeyword.GROUPS) public var hasGroups: Bool?
     
-    public var hasExtensions : Bool? {
-        return self.lookup(HDUKeyword.EXTEND)
-    }
+    @Keyword(HDUKeyword.EXTEND) public var hasExtensions: Bool?
     
     public required init(with data: inout Data) throws {
         try super.init(with: &data)
+        
+        self.initializeWrapper()
         
         if self.lookup(HDUKeyword.GROUPS) == true {
             try readGroups(from: &data)
@@ -51,6 +47,15 @@ public final class PrimaryHDU : AnyImageHDU {
     required init() {
         super.init()
         //fatalError("init() has not been implemented")
+        self.initializeWrapper()
+    }
+    
+    override func initializeWrapper() {
+        super.initializeWrapper()
+        
+        self._isSimple.initialize(self)
+        self._hasGroups.initialize(self)
+        self._hasExtensions.initialize(self)
     }
     
     func readGroups(from data: inout Data) throws {

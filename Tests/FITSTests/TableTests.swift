@@ -116,7 +116,46 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.columns[1].values[2], TFIELD.A(val: "REDACTED!"))
     }
     
+    func testWriteTable() {
+        
+        let hdu = TableHDU()
+        let _ = hdu.addColumn(TFORM: TFORM.I(w: 3), TDISP: TDISP.I(w: 5, m: 3), TTYPE: "Numbers", TFIELD.I(val: 3),TFIELD.I(val: 333),TFIELD.I(val: 3))
+        let _ = hdu.addColumn(TFORM: TFORM.A(w: 12), TDISP: TDISP.A(w: 10),  TTYPE: "Text", TFIELD.A(val: "Hello"),TFIELD.A(val: "World"),TFIELD.A(val: "AGAIN"))
+        let _ = hdu.addColumn(TFORM: TFORM.E(w: 20, d: 4), TDISP: TDISP.E(w: 24, d: 4, e: 2), TTYPE: "Exponentials", TFIELD.E(val: 20392.232234),TFIELD.E(val: 3939.333222),TFIELD.E(val: 9393.2232342342342))
+        
+        self.plotTable(hdu)
+        
+        for row in hdu.rows {
+            var out = ""
+            for index in 0..<row.values.count{
+                let field = row[index]
+                let form = row.tform(index)!
+                out.append(field.write(form))
+            }
+            print(out)
+        }
+        
+        let prime = PrimaryHDU()
 
+        prime.set(width: 300, height: 300, vectors: [FITSByte_8](repeating: 0, count: 300*300))
+                prime.hasExtensions = true
+        
+        let file = FitsFile.init(prime: prime)
+        file.HDUs.append(hdu)
+        
+        var test = file.validate { message in
+            print("VAL: \(message)")
+        }
+        
+        let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        let url = desktop.appendingPathComponent("Table.fits")
+        
+        file.write(to: url, onError: { error in
+            print(error)
+        }) {
+            // done
+        }
+    }
     
     
     

@@ -96,17 +96,18 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         
         let size = self.dataUnit?.count ?? 0
         
+        /*
         guard size == dataSize else  {
             onMessage?("Data contains \(size) bytes but supposed to be \(dataSize)")
             return false
-        }
+        }*/
         
         guard let dimensions = self.naxis else {
             onMessage?("Missing NAXIS header")
             return false
         }
         
-        for dimension in 1..<dimensions {
+        for dimension in 1..<dimensions+1 {
             guard self.naxis(dimension) != nil else {
                 onMessage?("Missing naxis \(dimension)")
                 return false
@@ -124,7 +125,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     /// sets value and comment for `HDUKeyworld`
     public func header<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String?) {
         
-        print("SET> \(keyword): \(value.description)")
+        //print("SET> \(keyword): \(value.description)")
         
         if var block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
@@ -167,8 +168,9 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         while readHeader(data: &data) {
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
+        print(data.count)
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
-        
+            
         #if DEBUG
         print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
@@ -223,19 +225,27 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         self.dataUnit = data.subdata(in: 0..<self.dataSize)
     }
     
-}
-
 //MARK:- Writer
-extension AnyHDU : Writer {
     
     public func write(to: inout Data) throws {
 
+        try self.writeHeader(to: &to)
+        
+        try self.writeData(to: &to)
+    }
+    
+    internal func writeHeader(to: inout Data) throws {
+        
         self.headerUnit.forEach { block in
             try? block.write(to: &to)
         }
-         
+        
         // fill with zeros
         self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
+        
+    }
+    
+    internal func writeData(to: inout Data) throws {
         
         if let unit = dataUnit {
             to.append(unit)

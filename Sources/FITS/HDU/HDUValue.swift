@@ -30,6 +30,8 @@ import Foundation
 public protocol HDUValue : CustomStringConvertible {
     
     var hashable : AnyHashable { get }
+    
+    var toString : String { get }
 }
 
 struct AnyHDUValue {
@@ -153,11 +155,19 @@ extension String : HDUValue {
     public var description: String {
         return "'\(self)'"
     }
+    
+    public var toString : String {
+        return "'\(self)'"
+    }
 }
 
 extension Bool : HDUValue {
     
     public var description: String {
+        return self ? "T" : "F"
+    }
+    
+    public var toString : String {
         return self ? "T" : "F"
     }
 }
@@ -167,12 +177,21 @@ extension Float : HDUValue {
     public var description: String {
         "\(self)"
     }
+    
+    public var toString : String {
+        return "\(self)"
+    }
+    
 }
 
 extension Int : HDUValue {
     
     public var description: String {
         "\(self)"
+    }
+    
+    public var toString : String {
+        return "\(self)"
     }
 }
 
@@ -181,12 +200,20 @@ extension FITSComplex : HDUValue {
     public var description: String {
         "\(self)"
     }
+    
+    public var toString : String {
+        return "\(self)"
+    }
 }
 
 extension BITPIX : HDUValue {
     
     public var description: String {
         "\(self.rawValue)"
+    }
+    
+    public var toString : String {
+        return "\(self)"
     }
 }
 
@@ -196,12 +223,19 @@ extension Date : HDUValue {
         "\(self)"
     }
     
+    public var toString : String {
+        return "\(self)"
+    }
 }
 
 extension BFORM : HDUValue {
     
     public var description: String {
         "\(self.FITSString)"
+    }
+    
+    public var toString : String {
+        return self.FITSString
     }
 }
 
@@ -210,6 +244,10 @@ extension TFORM : HDUValue {
     public var description: String {
         "\(self.FITSString)"
     }
+    
+    public var toString : String {
+        return self.FITSString
+    }
 }
 
 extension BDISP : HDUValue {
@@ -217,11 +255,19 @@ extension BDISP : HDUValue {
     public var description: String {
         "\(self.FITSString)"
     }
+    
+    public var toString : String {
+        return self.FITSString
+    }
 }
 
 extension TDISP : HDUValue {
     
     public var description: String {
         "\(self.FITSString)"
+    }
+    
+    public var toString : String {
+        return self.FITSString
     }
 }
