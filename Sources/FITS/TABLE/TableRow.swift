@@ -24,8 +24,46 @@
 
 import Foundation
 
-public protocol Table {
-    associatedtype Field : FIELD
+public class TableRow<Field> : Identifiable where Field: FIELD {
     
-    var columns : [TableColumn<Field>] {get}
+    public let id = UUID()
+    
+    private let table: AnyTableHDU<Field>
+    private let rowIndex : Int
+    
+    init(_ table: AnyTableHDU<Field>, _ index: Int){
+        self.table = table
+        self.rowIndex = index
+    }
+    
+    public var values : [Field] {
+        table.columns.reduce(into: [Field]()) { array, column in
+            array.append(column[rowIndex])
+        }
+    }
+    
+    subscript(_ col: Int) -> Field {
+        get{
+            table.columns[col][rowIndex]
+        }
+        set {
+            table.columns[col][rowIndex] = newValue
+        }
+    }
+    
+    func TFORM(_ col: Int) -> Field.TFORM? {
+        return table.columns[col].TFORM
+    }
+    
+    func TDISP(_ col: Int) -> Field.TDISP? {
+        return table.columns[col].TDISP
+    }
+    
+}
+
+extension TableRow : CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        return "Row: \(values.debugDescription)"
+    }
 }

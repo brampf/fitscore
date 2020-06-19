@@ -6,7 +6,11 @@ import XCTest
 final class TableTests: XCTestCase {
 
     static var allTests = [
-        ("testTField",testTField)
+        ("testTField",testTField),
+        ("testReadTable",testReadTable),
+        ("testCreateTable",testCreateTable),
+        ("testModifyTable",testModifyTable),
+        ("testWriteTable",testWriteTable)
     ]
     
     func testTField() {
@@ -26,6 +30,19 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(String(format: "%e", d.val ??  0), "4.994714e+08")
         XCTAssertEqual(d.form, TFORM.D(w: 12, d: 10))
         
+        let e1 = TFIELD.E(val: 20392.232234)
+        let e2 = TFIELD.E(val: 3939.333222)
+        let e3 = TFIELD.E(val: 9393.2232342342342)
+        
+        XCTAssertEqual(e1.form, TFORM.E(w: 12, d: 10))
+        XCTAssertEqual(e2.form, TFORM.E(w: 12, d: 10))
+        XCTAssertEqual(e3.form, TFORM.E(w: 12, d: 10))
+     
+        let et = TFORM.E(w: 15, d: 5)
+        
+        XCTAssertEqual(e1.write(et), "    2.03922E+04")
+        XCTAssertEqual(e2.write(et), "    3.93933E+03")
+        XCTAssertEqual(e3.write(et), "    9.39322E+03")
     }
     
     
@@ -119,42 +136,71 @@ final class TableTests: XCTestCase {
     func testWriteTable() {
         
         let hdu = TableHDU()
-        let _ = hdu.addColumn(TFORM: TFORM.I(w: 3), TDISP: TDISP.I(w: 5, m: 3), TTYPE: "Numbers", TFIELD.I(val: 3),TFIELD.I(val: 333),TFIELD.I(val: 3))
+        let _ = hdu.addColumn(TFORM: TFORM.I(w: 5), TDISP: TDISP.I(w: 5, m: 3), TTYPE: "Numbers", TFIELD.I(val: 3),TFIELD.I(val: 333),TFIELD.I(val: 3))
         let _ = hdu.addColumn(TFORM: TFORM.A(w: 12), TDISP: TDISP.A(w: 10),  TTYPE: "Text", TFIELD.A(val: "Hello"),TFIELD.A(val: "World"),TFIELD.A(val: "AGAIN"))
-        let _ = hdu.addColumn(TFORM: TFORM.E(w: 20, d: 4), TDISP: TDISP.E(w: 24, d: 4, e: 2), TTYPE: "Exponentials", TFIELD.E(val: 20392.232234),TFIELD.E(val: 3939.333222),TFIELD.E(val: 9393.2232342342342))
-        
-        self.plotTable(hdu)
-        
-        for row in hdu.rows {
-            var out = ""
-            for index in 0..<row.values.count{
-                let field = row[index]
-                let form = row.tform(index)!
-                out.append(field.write(form))
-            }
-            print(out)
-        }
+        let _ = hdu.addColumn(TFORM: TFORM.E(w: 20, d: 5), TDISP: TDISP.E(w: 30, d: 5, e: nil), TTYPE: "Exponentials", TFIELD.E(val: 20392.232234),TFIELD.E(val: 3939.333222),TFIELD.E(val: -6.9393e+03))
         
         let prime = PrimaryHDU()
-
-        prime.set(width: 300, height: 300, vectors: [FITSByte_8](repeating: 0, count: 300*300))
-                prime.hasExtensions = true
+        prime.hasExtensions = true
         
         let file = FitsFile.init(prime: prime)
         file.HDUs.append(hdu)
         
-        var test = file.validate { message in
+        XCTAssertEqual(hdu.naxis, 2)
+        XCTAssertEqual(hdu.bitpix, BITPIX.UINT8)
+        XCTAssertEqual(hdu.naxis(1), 37)
+        XCTAssertEqual(hdu.naxis(2), 3)
+        XCTAssertEqual(hdu.pcount, 0)
+        XCTAssertEqual(hdu.lookup(HDUKeyword.GCOUNT), 1)
+        XCTAssertEqual(hdu.dataSize, 111)
+        XCTAssertEqual(hdu.dataUnit, nil)
+        
+        XCTAssertEqual(hdu.columns[0][1], TFIELD.I(val: 333))
+        XCTAssertEqual(hdu.rows[1][2], TFIELD.E(val: 3939.3333))
+        
+        file.validate { message in
             print("VAL: \(message)")
         }
         
-        let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        let url = desktop.appendingPathComponent("Table.fits")
+        XCTAssertEqual(file.prime.isSimple, true)
+        XCTAssertEqual(file.HDUs.count, 1)
         
-        file.write(to: url, onError: { error in
-            print(error)
-        }) {
-            // done
+        var data = Data()
+        XCTAssertNoThrow(try file.write(to: &data))
+        
+        var new : FitsFile? = nil
+        XCTAssertNoThrow(new = try FitsFile.read(from: &data))
+        
+        guard let parsed = new else {
+            XCTFail("There must be a file")
+            return
         }
+        
+        XCTAssertEqual(parsed.prime.isSimple, true)
+        XCTAssertEqual(parsed.HDUs.count, 1)
+        
+        guard let thdu  = parsed.HDUs.first as? TableHDU else {
+            XCTFail("There must be a table HDU")
+            return
+        }
+        
+        XCTAssertEqual(thdu.naxis, 2)
+        XCTAssertEqual(thdu.bitpix, BITPIX.UINT8)
+        XCTAssertEqual(thdu.naxis(1), 37)
+        XCTAssertEqual(thdu.naxis(2), 3)
+        XCTAssertEqual(thdu.pcount, 0)
+        XCTAssertEqual(thdu.lookup(HDUKeyword.GCOUNT), 1)
+        XCTAssertEqual(thdu.dataSize, 111)
+        XCTAssertEqual(thdu.dataUnit?.count, 111)
+        
+        XCTAssertEqual(thdu.columns[0][0], hdu.columns[0][0])
+        XCTAssertEqual(thdu.columns[1][1], hdu.columns[1][1])
+        XCTAssertEqual(thdu.columns[2][2], hdu.columns[2][2])
+        
+        if let thdu = parsed.HDUs.first as? AnyTableHDU<TFIELD> {
+            self.plotTable(thdu)
+        }
+        
     }
     
     
@@ -168,43 +214,11 @@ final class TableTests: XCTestCase {
     //MARK:-
     
     func plotTable<Field: FIELD>(_ hdu: AnyTableHDU<Field>){
-        
-        let maxCellWidth = hdu.columns.reduce(into: 0){ m, col in
-            m = max(m, max(col.TFORM?.length ?? 0, col.TTYPE?.count ?? 0))
-        }
-        let dashWidth = (4 + maxCellWidth) * (hdu.tfields ?? 0)
-        let dashes = String(repeating: "-", count: dashWidth-1)
-        //String(repeating: "-", count: hdu.naxis(1) ?? 0)
-        
-        print(dashes)
-        var out = ""
-        for col in 0..<(hdu.tfields ?? 0) {
-            let ttype = hdu.columns[col].TTYPE ?? "N/A"
-            if col == 0 {
-                out.append("|")
-            }
-            out.append(" ")
-            out.append(ttype.padPrefix(minSize: maxCellWidth, char: " "))
-            out.append(" |")
-        }
-        print(out)
-        print(dashes)
-        for row in 0..<(hdu.naxis(2) ?? 0) {
-            var out = ""
-            for col in 0..<(hdu.tfields ?? 0) {
-                let disp = hdu.columns[col].TDISP
-                let field = hdu.columns[col].values[row]
-                let value = field.format(disp) ?? ""
-                if col == 0 {
-                    out.append("|")
-                }
-                out.append(" ")
-                out.append(value.padPrefix(minSize: maxCellWidth, char: " "))
-                out.append(" |")
-            }
+        var data = Data()
+        hdu.plot(data: &data)
+        if let out = String(data: data, encoding: .ascii) {
             print(out)
         }
-        print(dashes)
     }
     
 }

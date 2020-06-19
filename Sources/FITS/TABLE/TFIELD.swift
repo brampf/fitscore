@@ -47,6 +47,10 @@ open class TFIELD : FIELD {
         return ""
     }
     
+    public func write(to: inout Data) {
+        //
+    }
+    
     public var description: String {
         return  "TFIELD"
     }
@@ -251,7 +255,7 @@ open class TFIELD : FIELD {
             
             switch disp {
             case .E(let w, let d, let _):
-                return String(format: "%\(w).\(d)e", val ?? 0)
+                return String(format: "%\(w).\(d)E", val ?? 0)
             default:
                 return self.description
             }
@@ -265,7 +269,7 @@ open class TFIELD : FIELD {
         override public func write(_ form: TFORM) -> String {
             switch form {
             case .E(let w, let d):
-                return String(format: "%\(w).\(d)e", val ?? 0)
+                return String(format: "%\(w).\(d)E", val ?? 0)
             default:
                 return ""
             }
@@ -300,7 +304,7 @@ open class TFIELD : FIELD {
             
             switch disp {
             case .D(let w, let d, let _):
-                return String(format: "%\(w).\(d)e", val ?? 0)
+                return String(format: "%\(w).\(d)E", val ?? 0)
             default:
                 return self.description
             }
@@ -314,7 +318,7 @@ open class TFIELD : FIELD {
         override public func write(_ form: TFORM) -> String {
             switch form {
             case .D(let w, let d):
-                return String(format: "%\(w).\(d)e", val ?? 0)
+                return String(format: "%\(w).\(d)E", val ?? 0)
             default:
                 return ""
             }
@@ -329,17 +333,9 @@ open class TFIELD : FIELD {
             hasher.combine(val)
         }
         
-        
         public override var description: String {
             return val != nil ? "\(val!)" : "-/-"
         }
         
-    }
-}
-
-extension TFIELD : Writer {
-    
-    func write(to: inout Data) throws {
-        /// - Todo: implement me!
     }
 }

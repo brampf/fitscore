@@ -34,10 +34,25 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     required init() {
         super.init()
-        //fatalError("init() has not been implemented")
+        // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.XTENSION, value: "BINTABLE", comment: "Table extension"))
+        // The value field shall contain the integer 8, denoting that the array contains ASCII characters.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.BITPIX, value: BITPIX.UINT8,  comment: "Only Chars in Table"))
+        // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.NAXIS, value: 2, comment: "Two dimensional table"))
+        // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS1", value: 0, comment: "Number of bytes per row"))
+        // The value field shall contain a non-negative integer, giving the number of rows in the table.
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS2", value: 0, comment: "Number of rows"))
+        // The value field shall contain the number of bytes that follow the table in the supplemental data area called the heap.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: "No random parameter"))
+        // The value field shall contain the integer 1; the data blocks contain a single table.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: "One Group"))
+        // The value field shall contain a non-negative integer representing the number of fields in each row. 
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
     }
     
-    internal func buildTable() {
+    public func buildTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
         // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.
@@ -69,12 +84,12 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             return
         }
         
-        for _ in 0..<rows {
+        for rowIndex in 0..<rows {
             let row = data.subdata(in: 0..<rowLength)
             for columnIndex in 0..<columns.count {
                 let column = columns[columnIndex]
                 if let tfrom  = format[columnIndex] {
-                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
+                    print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
                     if let tform = column.TFORM {
                         let value = BFIELD.parse(data: val, type: tform)
@@ -86,14 +101,43 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                 }
             
             }
-        }
-        if data.count > rowLength {
-            data = data.advanced(by: rowLength)
-        } else {
-            data = Data()
+            if data.count > rowLength {
+                data = data.advanced(by: rowLength)
+            } else {
+                data = Data()
+            }
         }
     }
 
+    public override func validate(onMessage: ((String) -> Void)? = nil) -> Bool {
+        
+        // suboptimal hack to set TBCOL
+        for row in self.rows {
+            var tbcol = 1
+            for index in 0..<row.values.count{
+                //let field = row[index]
+                let form = row.TFORM(index)!
+                self.header("TBCOL\(index+1)", value: tbcol, comment: nil)
+                tbcol += form.length
+            }
+        }
+        
+        return super.validate(onMessage: onMessage)
+    }
+    
+    override internal func writeData(to: inout Data) throws {
+        
+        for row in self.rows {
+            for index in 0..<row.values.count{
+                let field = row[index]
+                //let form = row.TFORM(index)!
+                field.write(to: &to)
+            }
+        }
+        
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
+    }
 }
 
 

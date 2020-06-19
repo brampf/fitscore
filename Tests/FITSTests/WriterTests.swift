@@ -106,7 +106,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample8.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 273600)
     }
@@ -162,7 +164,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 1082880)
     }
@@ -190,7 +194,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 2162880)
     }
@@ -218,7 +224,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 1082880)
     }
@@ -246,7 +254,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 2162880)
     }

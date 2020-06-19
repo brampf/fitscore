@@ -120,6 +120,33 @@ public enum TDISP : DISP {
         }
     }
     
+    public var length : Int {
+        switch self {
+        case .A(let w):
+            return w
+        case .I(let w, _):
+            return w
+        case .B(let w, _):
+            return w
+        case .O(let w, _):
+            return w
+        case .Z(let w, _):
+            return w
+        case .F(let w, _):
+            return w
+        case .E(let w, _, _):
+            return w
+        case .ES(let w, _):
+            return w
+        case .EN(let w, _):
+            return w
+        case .G(let w, _, _):
+            return w
+        case .D(let w, _, _):
+            return w
+        }
+    }
+    
     var FITSString : String {
         switch self {
         case .A(let w):

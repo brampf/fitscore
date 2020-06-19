@@ -130,23 +130,23 @@ public enum BFORM : FORM {
         
         switch self {
         case .L(let r):
-            return r*1
+            return r*MemoryLayout<UInt8>.size
         case .X(let r):
-            return r*1
+            return r*MemoryLayout<UInt8>.size
         case .B(let r):
-            return r*1
+            return r*MemoryLayout<UInt8>.size
         case .I(let r):
-            return r*2
+            return r*MemoryLayout<Int16>.size
         case .J(let r):
-            return r*4
+            return r*MemoryLayout<Int32>.size
         case .K(let r):
-            return r*8
+            return r*MemoryLayout<Int64>.size
         case .A(let r):
-            return r*1
+            return r*MemoryLayout<UInt8>.size
         case .E(let r):
-            return r*4
+            return r*MemoryLayout<Float>.size
         case .D(let r):
-            return r*8
+            return r*MemoryLayout<Double>.size
         case .C(let r):
             return r*8
         case .M(let r):
@@ -162,31 +162,31 @@ public enum BFORM : FORM {
     public var FITSString : String {
         switch self {
         case .L(let r):
-            return "L\(r)"
+            return "\(r)L"
         case .X(let r):
-            return "X\(r)"
+            return "\(r)X"
         case .B(let r):
-            return "B\(r)"
+            return "\(r)B"
         case .I(let r):
-            return "I\(r)"
+            return "\(r)I"
         case .J(let r):
-            return "J\(r)"
+            return "\(r)J"
         case .K(let r):
-            return "K\(r)"
+            return "\(r)K"
         case .A(let r):
-            return "A\(r)"
+            return "\(r)A"
         case .E(let r):
-            return "E\(r)"
+            return "\(r)E"
         case .D(let r):
-            return "D\(r)"
+            return "\(r)D"
         case .C(let r):
-            return "C\(r)"
+            return "\(r)C"
         case .M(let r):
-            return "M\(r)"
+            return "\(r)M"
         case .P(let r):
-            return "P\(r)"
+            return "\(r)P"
         case .Q(let r):
-            return "Q\(r)"
+            return "\(r)Q"
         }
     }
 }

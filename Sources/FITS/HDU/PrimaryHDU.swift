@@ -46,7 +46,13 @@ public final class PrimaryHDU : AnyImageHDU {
     
     required init() {
         super.init()
-        //fatalError("init() has not been implemented")
+        // The value field shall contain a logical constant with the value T if the file conforms to this Standard
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.SIMPLE, value: true, comment: "Simply FitsCore"))
+        // The value field shall contain an integer. The absolute value is used in computing the sizes of data structures
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.BITPIX, value: BITPIX.UINT8,  comment: "Only Chars in Table"))
+        //  The value field shall contain a non-negative integer no greater than 999 representing the number of axes in the associated data array. A value of zero signifies that no data follow the header in the HDU.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.NAXIS, value: 0, comment: "Number of dimensions"))
+        
         self.initializeWrapper()
     }
     

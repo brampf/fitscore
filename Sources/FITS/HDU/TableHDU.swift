@@ -43,13 +43,19 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.BITPIX, value: BITPIX.UINT8,  comment: "Only Chars in Table"))
         // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.NAXIS, value: 2, comment: "Two dimensional table"))
+        //The value field shall contain a non-negative integer, giving the number of ASCII characters in each row of the table. This includes all the characters in the defined fields plus any characters that are not included in any field.
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS1", value: 0, comment: "Number of characters per row"))
+        // The value field shall contain a non-negative integer, giving the number of rows in the table.
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS2", value: 0, comment: "Number of rows"))
         // The value field shall contain the integer 0
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: "No random parameter"))
         // The value field shall contain the integer 1; the data blocks contain a single table.
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: "One Group"))
+        // Thevaluefieldshallcontainanon-negative integer representing the number of fields in each row. The max- imum permissible value is 999
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
     }
     
-    func readTable() {
+    public func readTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
         
@@ -80,12 +86,12 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             return
         }
         
-        for rowIndex in 0..<rows {
+        for _ in 0..<rows {
             let row = data.subdata(in: 0..<rowLength)
             for columnIndex in 0..<columns.count {
                 let column = columns[columnIndex]
                 if let tfrom  = format[columnIndex] {
-                    print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
+                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0-1..<tfrom.0+tfrom.1-1)
                     var string = String(data: val, encoding: .ascii) ?? ""
                     string = string.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -113,7 +119,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             var tbcol = 1
             for index in 0..<row.values.count{
                 //let field = row[index]
-                let form = row.tform(index)!
+                let form = row.TFORM(index)!
                 self.header("TBCOL\(index+1)", value: tbcol, comment: nil)
                 tbcol += form.length
             }
@@ -127,7 +133,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         for row in self.rows {
             for index in 0..<row.values.count{
                 let field = row[index]
-                let form = row.tform(index)!
+                let form = row.TFORM(index)!
                 if let data = field.write(form).data(using: .ascii) {
                     to.append(data)
                 }

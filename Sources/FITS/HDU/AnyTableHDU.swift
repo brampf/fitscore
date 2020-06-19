@@ -93,3 +93,55 @@ extension AnyTableHDU {
         self.columns.remove(at: index)
     }
 }
+
+extension AnyTableHDU {
+        
+    func plot(data: inout Data){
+        
+        var dashWidth =  0
+        let maxWidths = self.columns.reduce(into: [Int]()) { me, col in
+            var length = max(col.TDISP?.length ?? 0 , col.TFORM?.length ?? 0)
+            length = max(length, col.TTYPE?.count ?? 0)
+            me.append(length)
+            dashWidth += length + 4
+        }
+        
+        let dashes = String(repeating: "-", count: max(0 ,dashWidth-1))
+        //String(repeating: "-", count: hdu.naxis(1) ?? 0)
+        
+        data.append(dashes)
+        data.append("\n")
+        var out = ""
+        for col in 0..<(self.tfields ?? 0) {
+            let ttype = self.columns[col].TTYPE ?? "N/A"
+            if col == 0 {
+                out.append("|")
+            }
+            out.append(" ")
+            out.append(ttype.padPrefix(minSize: maxWidths[col], char: " "))
+            out.append(" |")
+        }
+        data.append(out)
+        data.append("\n")
+        data.append(dashes)
+        data.append("\n")
+        for row in 0..<(self.naxis(2) ?? 0) {
+            var out = ""
+            for col in 0..<(self.tfields ?? 0) {
+                let disp = self.columns[col].TDISP
+                let field = self.columns[col].values[row]
+                let value = field.format(disp) ?? ""
+                if col == 0 {
+                    out.append("|")
+                }
+                out.append(" ")
+                out.append(value.padPrefix(minSize: maxWidths[col], char: " "))
+                out.append(" |")
+            }
+            data.append(out)
+            data.append("\n")
+        }
+        data.append(dashes)
+        data.append("\n")
+    }
+}

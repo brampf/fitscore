@@ -168,7 +168,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         while readHeader(data: &data) {
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
-        print(data.count)
+
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
             
         #if DEBUG

@@ -69,10 +69,50 @@ extension Accelerate.DSPDoubleComplex : ComplexNumber {
 }
 #endif
 
-public struct BINTABLE {
+//MARK:- Table Data Types
+public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConvertible {
+    associatedtype TDISP : DISP
+    associatedtype TFORM : FORM
+    
+    func format(_ using: TDISP?) -> String?
+    func write(_ form: TFORM) -> String
+    func write(to: inout Data)
+    
+    var form : TFORM {get}
     
 }
 
-public struct TABLE {
+public protocol DISP : Hashable, HDUValue {
+    
+    var length : Int {get}
+}
+
+public protocol FORM : Hashable, HDUValue {
+    associatedtype TFIELD : FIELD
+    
+    var length : Int {get}
+    
+    var fieldType : TFIELD.Type {get}
+    
+
+}
+
+public protocol UNIT {
+    
+}
+
+public protocol TTYPE {
+    
+}
+
+//MARK:- Extensions
+
+extension Data {
+    
+    mutating func append(_ ascii : String){
+        if let data =  ascii.data(using: .ascii) {
+            self.append(contentsOf: data)
+        }
+    }
     
 }
