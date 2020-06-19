@@ -60,10 +60,10 @@ then simply add the `FITS` import to your target
 
 ## Documentation
 
-* [Introduction](DOCU_INTRO.md)
-* [Working with Files](DOCU_FILES.md)
-* [Working with HDUs](DOCU_HDUS.md)
-* [Working with Tables](DOCU_TABLES.md)
+* [Introduction](Doc/DOCU_INTRO.md)
+* [Working with Files](Doc/DOCU_FILES.md)
+* [Working with HDUs](Doc/DOCU_HDUS.md)
+* [Working with Tables](Doc/DOCU_TABLES.md)
 
 
 
