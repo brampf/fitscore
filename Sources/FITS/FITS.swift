@@ -82,12 +82,12 @@ public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConv
     
 }
 
-public protocol DISP : Hashable, HDUValue {
+public protocol DISP : Hashable, FITSSTRING, HDUValue {
     
     var length : Int {get}
 }
 
-public protocol FORM : Hashable, HDUValue {
+public protocol FORM : Hashable, FITSSTRING, HDUValue {
     associatedtype TFIELD : FIELD
     
     var length : Int {get}
@@ -102,6 +102,11 @@ public protocol UNIT {
 }
 
 public protocol TTYPE {
+    
+}
+
+/// Indicator that values are to  be treated like strings when reading / writing
+public protocol FITSSTRING {
     
 }
 

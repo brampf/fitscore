@@ -65,7 +65,7 @@ extension AnyTableHDU {
     }
     
     /// adds a new column to the table
-    public func addColumn(index: Int? = nil, TFORM: Field.TFORM, TDISP: Field.TDISP? = nil, TUNIT: String? = nil, TTYPE: String? = nil, _ fields: Field...) -> Column {
+    public func addColumn(index: Int? = nil, TFORM: Field.TFORM, TDISP: Field.TDISP? = nil, TUNIT: String? = "", TTYPE: String = "", _ fields: Field...) -> Column {
         
         let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, fields: fields)
     

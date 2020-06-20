@@ -37,13 +37,14 @@ extension HDU where Self: CustomDebugStringConvertible {
     
     public var debugDescription: String {
         
-        var result = headerUnit.reduce(into: "") { result, block in
+        var result = ""
+        result.append("-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n")
+        headerUnit.forEach{ block in
             result.append(contentsOf: block.description)
             result.append("\n")
         }
-        result.append("-------------------------------------------\n")
+        result.append(String(repeating: "-", count: 80)+"\n")
         result.append("\(dataUnit.debugDescription)\n")
-        result.append("-------------------------------------------\n")
         
         return result
     }

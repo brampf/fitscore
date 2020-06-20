@@ -32,6 +32,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         self.buildTable()
     }
     
+    /// initializes the a new HDU with all default headers
     required init() {
         super.init()
         // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
@@ -52,6 +53,11 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
     }
     
+    /**
+        Reads the table structure from raw data
+     
+        Reads the `dataUnit` according to the header files
+     */
     public func buildTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
@@ -72,7 +78,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
             if let tform = rawTFORM {
-                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
                 //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (offset,tform.length)
                 offset = offset + tform.length
@@ -84,12 +90,12 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             return
         }
         
-        for rowIndex in 0..<rows {
+        for _ in 0..<rows {
             let row = data.subdata(in: 0..<rowLength)
             for columnIndex in 0..<columns.count {
                 let column = columns[columnIndex]
                 if let tfrom  = format[columnIndex] {
-                    print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
+                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
                     if let tform = column.TFORM {
                         let value = BFIELD.parse(data: val, type: tform)
@@ -107,22 +113,6 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                 data = Data()
             }
         }
-    }
-
-    public override func validate(onMessage: ((String) -> Void)? = nil) -> Bool {
-        
-        // suboptimal hack to set TBCOL
-        for row in self.rows {
-            var tbcol = 1
-            for index in 0..<row.values.count{
-                //let field = row[index]
-                let form = row.TFORM(index)!
-                self.header("TBCOL\(index+1)", value: tbcol, comment: nil)
-                tbcol += form.length
-            }
-        }
-        
-        return super.validate(onMessage: onMessage)
     }
     
     override internal func writeData(to: inout Data) throws {
@@ -145,24 +135,5 @@ extension BintableHDU  {
     
     public var description: String {
         return "BINTABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"
-    }
-    
-    public var debugDescription: String {
-        
-        var result = ""
-        result.append("-BINTABLE----------------------------------\n")
-        result.append("BITPIX: \(bitpix.debugDescription)\n")
-        if naxis ?? 0 > 1 {
-            result.append("NAXIS: \(naxis ?? 0)\n")
-            for i in 1...naxis! {
-                result.append("NAXIS\(i): \(naxis(i) ?? 0)\n")
-            }
-        }
-        result.append("TFIELDS: \(self.lookup(HDUKeyword.TFIELDS) ?? 0)")
-        result.append("-------------------------------------------\n")
-        result.append("\(dataUnit.debugDescription)\n")
-        result.append("-------------------------------------------\n")
-        
-        return result
     }
 }

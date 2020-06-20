@@ -35,6 +35,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         self.readTable()
     }
     
+    /// initializes the a new HDU with all default headers
     required init() {
         super.init()
         // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
@@ -55,6 +56,11 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
     }
     
+    /**
+     Reads the table structure from raw data
+     
+     Reads the `dataUnit` according to the header files
+     */
     public func readTable() {
         
         let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
@@ -71,7 +77,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             let rawTDISP : TDISP? = self.lookup("TDISP\(col+1)")
             
             if let tform = rawTFORM {
-                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE))
+                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
                 //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (rawTBCOL,tform.length)
             }
@@ -150,24 +156,5 @@ extension TableHDU  {
     
     public var description: String {
         return "TABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"
-    }
-
-    public var debugDescription: String {
-        
-        var result = ""
-        result.append("-TABLE-------------------------------------\n")
-        result.append("BITPIX: \(bitpix.debugDescription)\n")
-        if naxis ?? 0 > 1 {
-            result.append("NAXIS: \(naxis ?? 0)\n")
-            for i in 1...naxis! {
-                result.append("NAXIS\(i): \(naxis(i) ?? 0)\n")
-            }
-        }
-        result.append("TFIELDS: \(self.lookup(HDUKeyword.TFIELDS) ?? 0)")
-        result.append("-------------------------------------------\n")
-        result.append("\(dataUnit.debugDescription)\n")
-        result.append("-------------------------------------------\n")
-        
-        return result
     }
 }

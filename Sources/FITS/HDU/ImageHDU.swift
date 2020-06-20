@@ -25,6 +25,29 @@
 import Foundation
 
 public final class ImageHDU : AnyImageHDU {
-
+    
+    public required init(with data: inout Data) throws {
+        try super.init(with: &data)
+        
+        self.initializeWrapper()
+    }
+    
+    /// initializes the a new HDU with all default headers
+    required init() {
+        super.init()
+        // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.XTENSION, value: "IMAGE   ", comment: "Image extension"))
+        // The value field shall contain an integer. The absolute value is used in computing the sizes of data structures
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.BITPIX, value: BITPIX.UINT8,  comment: "Size of data structures"))
+        //  The value field shall contain a non-negative integer no greater than 999 representing the number of axes in the associated data array. A value of zero signifies that no data follow the header in the HDU.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.NAXIS, value: 0, comment: "Number of dimensions"))
+        
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS1", value: 0, comment: nil))
+        self.headerUnit.append(HeaderBlock(keyword: "NAXIS2", value: 0, comment: nil))
+        
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: "No random parameter"))
+        // The value field shall contain the integer 1; each IMAGE extension contains a single array.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: "One Group"))
+    }
 
 }

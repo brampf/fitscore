@@ -174,10 +174,14 @@ extension HeaderBlock : Writer{
                 out += "= "
             }
         }
-        out += self.value?.toString ?? ""
+        if self.value is String || self.value is FITSSTRING {
+            out += (self.value?.toString ?? "''").padSuffix(toSize: 20, char: " ")
+        } else {
+            out += (self.value?.toString ?? "").padPrefix(toSize: 20, char: " ")
+        }
         if let comment = self.comment {
             if !isEmpty && !isComment && !isEnd {
-            out += " / "
+                out += " / "
             }
             out += comment
         }

@@ -33,11 +33,13 @@ open class AnyImageHDU : AnyHDU {
         self.init()
         
         self.header(HDUKeyword.BITPIX, value: ByteFormat.bitpix, comment: "\(ByteFormat.bitpix) Bit")
-        self.header(HDUKeyword.NAXIS, value: 3, comment: "Two dimensional picture")
+        self.header(HDUKeyword.NAXIS, value: vectors.count == 1 ? 2 : 3, comment: "Two dimensional picture")
         self.header("NAXIS\(1)", value: width, comment: "Width")
         self.header("NAXIS\(2)", value: height, comment: "Height")
-        self.header("NAXIS\(3)", value: vectors.count, comment: "Channels")
-        
+        if vectors.count > 1 {
+            self.header("NAXIS\(3)", value: vectors.count, comment: "Channels")
+        }
+            
         self.dataUnit = Data()
         vectors.forEach { vector in
             let data = vector.withUnsafeBytes { ptr in
@@ -70,13 +72,13 @@ open class AnyImageHDU : AnyHDU {
     /**
      Sets the content of the data unit to the data from the vectors via memory copy
      */
-    public func set(width: Int, height: Int, layers: Int, dataLayout: BITPIX, data: Data){
+    public func set(dimensions: Int..., dataLayout: BITPIX, data: Data){
         
-        self.header(HDUKeyword.BITPIX, value: dataLayout, comment: "\(dataLayout) Bit")
-        self.header(HDUKeyword.NAXIS, value: 3, comment: "Two dimensional picture")
-        self.header("NAXIS\(1)", value: width, comment: "Width")
-        self.header("NAXIS\(2)", value: height, comment: "Height")
-        self.header("NAXIS\(3)", value: layers, comment: "Channels")
+        self.header(HDUKeyword.BITPIX, value: dataLayout, comment: "\(dataLayout) bit")
+        self.header(HDUKeyword.NAXIS, value: dimensions.count, comment: "No. of dimensions")
+        for dim in 1..<dimensions.count+1 {
+            self.header("NAXIS\(dim)", value: dimensions[dim], comment: "Size of \(dim). dimension ")
+        }
         
         self.dataUnit = data
     }

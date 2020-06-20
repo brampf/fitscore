@@ -229,45 +229,30 @@ extension Date : HDUValue {
 }
 
 extension BFORM : HDUValue {
-    
-    public var description: String {
-        "\(self.FITSString)"
-    }
-    
+
     public var toString : String {
-        return self.FITSString
+        return "'\(self)'"
     }
+    
 }
 
 extension TFORM : HDUValue {
     
-    public var description: String {
-        "\(self.FITSString)"
-    }
-    
     public var toString : String {
-        return self.FITSString
+        return "'\(self)'"
     }
 }
 
 extension BDISP : HDUValue {
     
-    public var description: String {
-        "\(self.FITSString)"
-    }
-    
     public var toString : String {
-        return self.FITSString
+        return "'\(self)'"
     }
 }
 
 extension TDISP : HDUValue {
     
-    public var description: String {
-        "\(self.FITSString)"
-    }
-    
     public var toString : String {
-        return self.FITSString
+        return "'\(self)'"
     }
 }

@@ -153,7 +153,7 @@ public enum BDISP : DISP {
         }
     }
     
-    var FITSString : String {
+    public var description : String {
         switch self {
         case .A(let w):
             return "A\(w)"

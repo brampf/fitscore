@@ -147,7 +147,7 @@ public enum TDISP : DISP {
         }
     }
     
-    var FITSString : String {
+    public var description : String {
         switch self {
         case .A(let w):
             return "A\(w)"

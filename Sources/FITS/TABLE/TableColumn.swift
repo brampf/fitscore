@@ -34,33 +34,30 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
     
     // Data display style
     @Keyword("TDISP") public var TDISP: Field.TDISP?
-    @Keyword("TUNIT") public var TUNIT: String?
-    @Keyword("TTYPE") public var TTYPE: String?
-    @Keyword("TBCOL") public var TBCOL: Int?
+    @Keyword("TUNIT") public var TUNIT: String? = ""
+    @Keyword("TTYPE") public var TTYPE: String? = ""
     
     //private var hdu : AnyTableHDU<Field>
     
     public internal(set) var values : [Field] = []
     
     /// Internal initializer which does not override the header values
-    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String?) where F.TFORM == Field.TFORM {
+    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String) where F.TFORM == Field.TFORM {
         
         //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
         self._TFORM = Keyword<Field.TFORM>("TFORM\(col)", hdu)
         self._TDISP = Keyword<Field.TDISP>("TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>("TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>( "TTYPE\(col)", hdu)
-        self._TTYPE = Keyword<String>( "TBCOL\(col)", hdu)
     }
     
-    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String?, fields: [Field]) where F.TFORM == Field.TFORM  {
+    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String, fields: [Field]) where F.TFORM == Field.TFORM  {
         
         //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
         self._TFORM = Keyword<Field.TFORM>(wrappedValue: TFORM, "TFORM\(col)", hdu)
         self._TDISP = Keyword<Field.TDISP>(wrappedValue: TDISP, "TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", hdu)
-        self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TBCOL\(col)", hdu)
         
         self.values = fields
     }

@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum TFORM : FORM {
+public enum TFORM : FORM {    
     
     /// Character
     case A(w: Int)
@@ -110,7 +110,7 @@ public enum TFORM : FORM {
         }
     }
     
-    public var FITSString : String {
+    public var description : String {
         switch self {
         case .A(let width):
             return "A\(width)"

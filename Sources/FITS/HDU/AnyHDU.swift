@@ -72,10 +72,11 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     
     var dataSize : Int {
         
-        let axis = self.naxis ?? 0
+        let axis = self.lookup(HDUKeyword.NAXIS) ?? 0
         
         if axis > 0 {
             /// - ToDo: figure out if this is really the proper way to deal with data alignments
+            let bitpix : BITPIX? = self.lookup(HDUKeyword.BITPIX)
             var size = (bitpix?.bits ?? 0) / 8 // DEFAULT Data type is is UInt8
             for naxis in 1...axis {
                 size = size * (self.naxis(naxis) ?? 1)
@@ -96,11 +97,12 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         
         let size = self.dataUnit?.count ?? 0
         
-        /*
-        guard size == dataSize else  {
-            onMessage?("Data contains \(size) bytes but supposed to be \(dataSize)")
-            return false
-        }*/
+        if modified == false {
+            guard size == dataSize else  {
+                onMessage?("Data contains \(size) bytes but supposed to be \(dataSize)")
+                return false
+            }
+        }
         
         guard let dimensions = self.naxis else {
             onMessage?("Missing NAXIS header")
@@ -127,7 +129,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         
         //print("SET> \(keyword): \(value.description)")
         
-        if var block = headerUnit.first(where: {$0.keyword == keyword}) {
+        if let block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
             block.value = value
             block.comment = comment
@@ -141,7 +143,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     /// sets value and comment for `HDUKeyworld`
     public func header(_ keyword: HDUKeyword, comment: String?) {
         
-        if var block = headerUnit.first(where: {$0.keyword == keyword}) {
+        if let block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
             block.value = nil
             block.comment = comment
@@ -240,7 +242,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
             try? block.write(to: &to)
         }
         
-        // fill with zeros
+        // fill with blanks
         self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
         
     }
@@ -250,7 +252,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         if let unit = dataUnit {
             to.append(unit)
         }
-        // fill with zeros
+        // fill with blanks
         self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
     }
     
@@ -263,7 +265,8 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     final internal func pad(_ dat: inout Data, by: Int) {
         
         while dat.count % by != 0 {
-            dat.append(0)
+            //dat.append(0)
+            dat.append(32)
         }
     }
 }

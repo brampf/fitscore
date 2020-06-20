@@ -159,7 +159,7 @@ public enum BFORM : FORM {
         
     }
     
-    public var FITSString : String {
+    public var description : String {
         switch self {
         case .L(let r):
             return "\(r)L"
