@@ -86,8 +86,8 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.B(val: nil)
             }
-        case .I(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .I:
+            if let data = data {
                 let values : [Int16] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: Int16.self).map{Int16.init(bigEndian: $0)}
                 }
@@ -114,7 +114,7 @@ open class BFIELD: FIELD {
                 return BFIELD.K(val: nil)
             }
         case .A:
-            if let data = data {
+           if let data = data {
                 let string = String(data: data, encoding: .ascii)
             return BFIELD.A(val: string)
             } else {
@@ -123,16 +123,16 @@ open class BFIELD: FIELD {
         case .E:
             if let data = data {
                 let values : [Float] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: UInt32.self).map{Float(bitPattern: $0)}
+                    ptr.bindMemory(to: UInt32.self).map{Float(bitPattern: $0.bigEndian)}
                 }
                 return BFIELD.E(val: values)
             } else {
                 return BFIELD.E(val: nil)
             }
-        case .D(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .D:
+            if let data = data {
                 let values : [Double] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0)}
+                    ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0.bigEndian)}
                 }
                 return BFIELD.D(val: values)
             } else {
@@ -144,8 +144,8 @@ open class BFIELD: FIELD {
             return BFIELD.M(val: nil)
             
             // variable length array
-        case .PL(let count):
-            if let data = data?.subdata(in: 0..<count), !data.isEmpty {
+        case .PL:
+            if let data = data, !data.isEmpty {
                 var string = String(data: data, encoding: .ascii)
                 string = string?.trimmingCharacters(in: .whitespacesAndNewlines)
                 let arr = string?.reduce(into: [Bool](), { arr, char in
@@ -169,8 +169,8 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.PB(val: nil)
             }
-        case .PI(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .PI:
+            if let data = data {
                 let values : [Int16] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: Int16.self).map{Int16.init(bigEndian: $0)}
                 }
@@ -178,8 +178,8 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.PI(val: nil)
             }
-        case .PJ(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .PJ:
+            if let data = data {
                 let values : [Int32] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: Int32.self).map{Int32.init(bigEndian: $0)}
                 }
@@ -187,8 +187,8 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.PJ(val: nil)
             }
-        case .PK(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .PK:
+            if let data = data {
                 let values : [Int64] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: Int64.self).map{Int64.init(bigEndian: $0)}
                 }
@@ -196,15 +196,15 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.PK(val: nil)
             }
-        case .PA(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .PA:
+            if let data = data {
                 let string = String(data: data, encoding: .ascii)
                 return BFIELD.A(val: string)
             } else {
                 return BFIELD.A(val: nil)
             }
-        case .PE(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .PE:
+            if let data = data {
                 let values : [Float32] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: UInt32.self).map{Float32(bitPattern: $0)}
                 }
@@ -213,11 +213,11 @@ open class BFIELD: FIELD {
                 return BFIELD.PE(val: nil)
             }
         case .PC:
-            return BFIELD.PB(val: nil)
+            return BFIELD.PC(val: nil)
 
             
-        case .QD(let count):
-            if let data = data?.subdata(in: 0..<count) {
+        case .QD:
+            if let data = data {
                 let values : [Double] = data.withUnsafeBytes { ptr in
                     ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0)}
                 }

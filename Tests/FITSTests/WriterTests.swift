@@ -286,6 +286,10 @@ final class WriterTests: XCTestCase {
         file.HDUs.append(table)
         file.HDUs.append(bintable)
         
+        XCTAssertTrue(file.HDUs[0] is ImageHDU)
+        XCTAssertTrue(file.HDUs[1] is TableHDU)
+        XCTAssertTrue(file.HDUs[2] is BintableHDU)
+        
         let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         let url = desktop.appendingPathComponent("FitsCore.fits")
         
@@ -303,6 +307,10 @@ final class WriterTests: XCTestCase {
         new.validate { msg in
             print(msg)
         }
+        
+        XCTAssertTrue(new.HDUs[0] is ImageHDU)
+        XCTAssertTrue(new.HDUs[1] is TableHDU)
+        XCTAssertTrue(new.HDUs[2] is BintableHDU)
         
         data.forEach { element in
             if element < 32 || element > 126 {

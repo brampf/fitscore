@@ -109,15 +109,16 @@ extension FitsFile : Reader {
     
     func readExtensions(from data: inout Data) throws {
         
-        guard let block = String(data: data.subdata(in: 0..<CARD_LENGTH), encoding: .ascii) else {
-            // this is not supposed to happen
-            throw FitsFail.malformattedHDU
-        }
-        
-        // read the next card and check for extension
-        let card = HeaderBlock.parse(form: block, context: AnyHDU.self)
-        
         while data.count > 0 {
+            
+            guard let block = String(data: data.subdata(in: 0..<CARD_LENGTH), encoding: .ascii) else {
+                // this is not supposed to happen
+                throw FitsFail.malformattedHDU
+            }
+            
+            // read the next card and check for extension
+            let card = HeaderBlock.parse(form: block, context: AnyHDU.self)
+            
             var newHDU : AnyHDU
             if !card.isXtension {
                 // also not supposed to happen
