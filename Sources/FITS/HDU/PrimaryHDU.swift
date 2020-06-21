@@ -76,17 +76,19 @@ public final class PrimaryHDU : AnyImageHDU {
                 return
         }
         
-        var size = 1
+
+        var dataSize = 1
         for naxis in 2...axis {
-            size *= (self.naxis(naxis) ?? 1)
+            dataSize *= (self.naxis(naxis) ?? 1)
         }
-        size += pcount
-        size *= gcount
-        size *= bitpix.size
+        var groupSize = dataSize
+        groupSize += pcount
+        groupSize *= gcount
+        groupSize *= bitpix.size
         
-        print("Group Size \(size)")
+        print("Group Size \(groupSize)")
         
-        
+        /*
         for groupIndex in 0..<gcount{
             
             let ptype: String? = self.lookup("PTYPE\(groupIndex+1)")
@@ -94,23 +96,22 @@ public final class PrimaryHDU : AnyImageHDU {
             let pzero: Float? = self.lookup("PZERO\(groupIndex+1)")
             
             for naxis in 2...axis {
-                let offset = naxis-2 * size + pcount
+                let offset = naxis-2 * dataSize + pcount
                 var sub = data.subdata(in: offset..<offset+axis)
                 let values = sub.withUnsafeBytes { ptr in
                     Array(arrayLiteral: ptr.baseAddress)
                 }
             }
             
-            //let group = Group(ptype: ptype, pscal: pscal, pzero: pzero, array: [])
-
+            //let group = Group(self, groupIndex)
         }
-        
+        */
         
         
         /// just move the parser for now
         /// - TODO: read the group
         
-        let paddy = padded(value: size,to: CARD_LENGTH*BLOCK_LENGTH)
+        let paddy = padded(value: groupSize,to: CARD_LENGTH*BLOCK_LENGTH)
         if paddy == data.count {
             data = Data()
         } else {

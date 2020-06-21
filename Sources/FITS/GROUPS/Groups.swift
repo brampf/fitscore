@@ -25,18 +25,18 @@
 import Foundation
 
 public protocol RandomGroup {
-    associatedtype BITPIX : FITSByte
+    associatedtype Byte : FITSByte
     
     var ptype : String? {get set}
     var pscal : Float? {get}
     var pzero : Float? {get}
     
-    var array : [BITPIX] {get set}
+    var array : [Byte] {get}
     
 }
 
 public struct Group<Bitpix: FITSByte> : RandomGroup {
-    public typealias BITPIX = Bitpix
+    public typealias Byte = Bitpix
     
     // The value field shall contain a character string giving the name of Parameter n. If the PTYPEn keywords for more than one value of n have the same associated name in the value field, then the data value for the parameter of that name is to be obtained by adding the derived data values of the corre- sponding parameters.
     @Keyword("PTYPE") public var ptype : String?
@@ -48,4 +48,21 @@ public struct Group<Bitpix: FITSByte> : RandomGroup {
     @Keyword("PZERO") public var pzero : Float? = 0.0
     
     public var array : [Bitpix] = []
+    
+    init(_ hdu: PrimaryHDU, _ group: Int, PTYPE: String?, PSCAL: Float?, PZERO: Float?, _ values: Bitpix...){
+        
+        self._ptype = Keyword(wrappedValue: PTYPE, "PTYPE\(group)", hdu)
+        self._pscal = Keyword(wrappedValue: PSCAL, "PTYPE\(group)", hdu)
+        self._pzero = Keyword(wrappedValue: PZERO, "PTYPE\(group)", hdu)
+        
+        self.array = values
+    }
+    
+    /// 
+    init(_ hdu: PrimaryHDU, _ group: Int){
+        
+        self._ptype = Keyword("PTYPE\(group)", hdu)
+        self._pscal = Keyword("PTYPE\(group)", hdu)
+        self._pzero = Keyword("PTYPE\(group)", hdu)
+    }
 }

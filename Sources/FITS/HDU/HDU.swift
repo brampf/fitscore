@@ -37,14 +37,17 @@ extension HDU where Self: CustomDebugStringConvertible {
     
     public var debugDescription: String {
         
-        var result = ""
-        result.append("-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n")
+        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
         headerUnit.forEach{ block in
             result.append(contentsOf: block.description)
             result.append("\n")
         }
         result.append(String(repeating: "-", count: 80)+"\n")
-        result.append("\(dataUnit.debugDescription)\n")
+        if let data = dataUnit {
+            result.append("\(data.debugDescription)\n")
+        } else {
+            result.append("No Data Unit!\n")
+        }
         
         return result
     }
@@ -55,7 +58,7 @@ extension HDU where Self: CustomStringConvertible {
     
     public var description: String {
         
-        var result = ""
+        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
         for index in 1..<(lookup(HDUKeyword.NAXIS) ?? 0) + 1 {
             result.append("\(lookup("NAXIS\(index)") ?? 0) x ")
         }
@@ -73,7 +76,7 @@ extension HDU {
         if let value = headerUnit.first(where: {$0.keyword == keyword})?.value {
             return value as? VAL
         } else {
-            print("\(keyword) not found")
+            //print("\(keyword) not found")
             return nil
         }
     }

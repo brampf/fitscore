@@ -174,7 +174,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
             
         #if DEBUG
-        print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
+        // print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
         
         // initilize the wrappers

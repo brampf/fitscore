@@ -101,7 +101,7 @@ extension FitsFile : Reader {
         self.init(prime: prime)
 
         if prime.hasExtensions == true {
-            print("File has extensions")
+            // print("File has extensions")
 
         }
         try readExtensions(from: &data)
