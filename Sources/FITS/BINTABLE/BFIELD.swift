@@ -86,10 +86,10 @@ open class BFIELD: FIELD {
             } else {
                 return BFIELD.B(val: nil)
             }
-        case .I:
-            if let data = data {
+        case .I(let count):
+            if let data = data?.subdata(in: 0..<count) {
                 let values : [Int16] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: Int16.self).map{$0.byteSwapped}
+                    ptr.bindMemory(to: Int16.self).map{Int16.init(bigEndian: $0)}
                 }
                 return BFIELD.I(val: values)
             } else {
@@ -98,7 +98,7 @@ open class BFIELD: FIELD {
         case .J:
             if let data = data {
                 let values : [Int32] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: Int32.self).map{$0.byteSwapped}
+                    ptr.bindMemory(to: Int32.self).map{Int32.init(bigEndian: $0)}
                 }
                 return BFIELD.J(val: values)
             } else {
@@ -107,7 +107,7 @@ open class BFIELD: FIELD {
         case .K:
             if let data = data {
                 let values : [Int64] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: Int64.self).map{$0.byteSwapped}
+                    ptr.bindMemory(to: Int64.self).map{Int64.init(bigEndian: $0)}
                 }
                 return BFIELD.K(val: values)
             } else {
@@ -123,16 +123,16 @@ open class BFIELD: FIELD {
         case .E:
             if let data = data {
                 let values : [Float] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: UInt32.self).map{Float(bitPattern: $0.byteSwapped)}
+                    ptr.bindMemory(to: UInt32.self).map{Float(bitPattern: $0)}
                 }
                 return BFIELD.E(val: values)
             } else {
                 return BFIELD.E(val: nil)
             }
-        case .D:
-            if let data = data {
+        case .D(let count):
+            if let data = data?.subdata(in: 0..<count) {
                 let values : [Double] = data.withUnsafeBytes { ptr in
-                    ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0.byteSwapped)}
+                    ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0)}
                 }
                 return BFIELD.D(val: values)
             } else {
@@ -142,10 +142,91 @@ open class BFIELD: FIELD {
             return BFIELD.C(val: nil)
         case .M:
             return BFIELD.M(val: nil)
-        case .P:
-            return BFIELD.P(val: nil)
-        case .Q:
-            return BFIELD.Q(val: nil)
+            
+            // variable length array
+        case .PL(let count):
+            if let data = data?.subdata(in: 0..<count), !data.isEmpty {
+                var string = String(data: data, encoding: .ascii)
+                string = string?.trimmingCharacters(in: .whitespacesAndNewlines)
+                let arr = string?.reduce(into: [Bool](), { arr, char in
+                    if char == "T" {
+                        arr.append(true)
+                    } else if char == "F" {
+                        arr.append(false)
+                    }
+                })
+                return BFIELD.PL(val: arr)
+            } else {
+                return BFIELD.PL(val: nil)
+            }
+        case .PX:
+            return BFIELD.PX(val: data)
+        case .PB(let count):
+            if let data = data {
+                var values : [UInt8] = []
+                data.copyBytes(to: &values, count: count)
+                return BFIELD.PB(val: values)
+            } else {
+                return BFIELD.PB(val: nil)
+            }
+        case .PI(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let values : [Int16] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: Int16.self).map{Int16.init(bigEndian: $0)}
+                }
+                return BFIELD.PI(val: values)
+            } else {
+                return BFIELD.PI(val: nil)
+            }
+        case .PJ(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let values : [Int32] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: Int32.self).map{Int32.init(bigEndian: $0)}
+                }
+                return BFIELD.PJ(val: values)
+            } else {
+                return BFIELD.PJ(val: nil)
+            }
+        case .PK(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let values : [Int64] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: Int64.self).map{Int64.init(bigEndian: $0)}
+                }
+                return BFIELD.PK(val: values)
+            } else {
+                return BFIELD.PK(val: nil)
+            }
+        case .PA(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let string = String(data: data, encoding: .ascii)
+                return BFIELD.A(val: string)
+            } else {
+                return BFIELD.A(val: nil)
+            }
+        case .PE(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let values : [Float32] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt32.self).map{Float32(bitPattern: $0)}
+                }
+                return BFIELD.PE(val: values)
+            } else {
+                return BFIELD.PE(val: nil)
+            }
+        case .PC:
+            return BFIELD.PB(val: nil)
+
+            
+        case .QD(let count):
+            if let data = data?.subdata(in: 0..<count) {
+                let values : [Double] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt64.self).map{Double(bitPattern: $0)}
+                }
+                return BFIELD.QD(val: values)
+            } else {
+                return BFIELD.QD(val: nil)
+            }
+        case .QM:
+            return BFIELD.QM(val: nil)
         }
     }
     
@@ -667,10 +748,10 @@ open class BFIELD: FIELD {
     
     //MARK:- P : Array Descriptor (32-bit)
     /// Array Descriptor (32-bit)
-    final public class P : BFIELD {
-        var val: Data?
+    final public class PL : BFIELD {
+        var val: [Bool]?
         
-        init(val: Data?){
+        init(val: [Bool]?){
             self.val = val
         }
         
@@ -688,15 +769,15 @@ open class BFIELD: FIELD {
         }
         
         public override var form: TFORM {
-            return BFORM.P(r: val?.count ?? 0)
+            return BFORM.PL(r: val?.count ?? 0)
         }
         
         override public var debugDescription: String {
-            return "BFIELD.P(\(val?.description ?? "-/-"))"
+            return "BFIELD.PL(\(val?.description ?? "-/-"))"
         }
         
         public override func hash(into hasher: inout Hasher) {
-            hasher.combine("P")
+            hasher.combine("PL")
             hasher.combine(val)
         }
         
@@ -705,12 +786,328 @@ open class BFIELD: FIELD {
         }
     }
     
-    //MARK:- Q : Array Descriptor (64-bit)
-    /// Array Descriptor (64-bit)
-    final public class Q : BFIELD {
+    /// Array Descriptor (32-bit)
+    final public class PX : BFIELD {
         var val: Data?
         
         init(val: Data?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PX(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PX(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PX")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PB : BFIELD {
+        var val: [UInt8]?
+        
+        init(val: [UInt8]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PB(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PB(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PB")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PI : BFIELD {
+        var val: [Int16]?
+        
+        init(val: [Int16]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PI(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PI(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PI")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PJ : BFIELD {
+        var val: [Int32]?
+        
+        init(val: [Int32]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PJ(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PJ(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PJ")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PK : BFIELD {
+        var val: [Int64]?
+        
+        init(val: [Int64]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PJ(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PK(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PK")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PA : BFIELD {
+        var val: [Character]?
+        
+        init(val: [Character]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PA(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PA(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PA")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PE : BFIELD {
+        var val: [Float32]?
+        
+        init(val: [Float32]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PE(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PE(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PE")
+            hasher.combine(val)
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    /// Array Descriptor (32-bit)
+    final public class PC : BFIELD {
+        var val: [(Float, Float)]?
+        
+        init(val: [(Float,Float)]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PC(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.PC(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("PC")
+            val?.forEach{ v in
+                hasher.combine(v.0)
+                hasher.combine(v.1)
+            }
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
+    
+    
+    //MARK:- Q : Array Descriptor (64-bit)
+    /// Array Descriptor (64-bit)
+    final public class QD : BFIELD {
+        var val: [Double]?
+        
+        init(val: [Double]?){
             self.val = val
         }
         
@@ -728,15 +1125,15 @@ open class BFIELD: FIELD {
         }
         
         public override var form: TFORM {
-            return BFORM.Q(r: val?.count ?? 0)
+            return BFORM.QD(r: val?.count ?? 0)
         }
         
         override public var debugDescription: String {
-            return "BFIELD.Q(\(val?.description ?? "-/-"))"
+            return "BFIELD.QD(\(val?.description ?? "-/-"))"
         }
         
         public override func hash(into hasher: inout Hasher) {
-            hasher.combine("Q")
+            hasher.combine("QD")
             hasher.combine(val)
         }
         
@@ -744,4 +1141,47 @@ open class BFIELD: FIELD {
             return val != nil ? "\(val!)" : "-/-"
         }
     }
+    
+    /// Array Descriptor (64-bit)
+    final public class QM : BFIELD {
+        var val: [(Double,Double)]?
+        
+        init(val: [(Double,Double)]?){
+            self.val = val
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
+        }
+        
+        public override var form: TFORM {
+            return BFORM.QM(r: val?.count ?? 0)
+        }
+        
+        override public var debugDescription: String {
+            return "BFIELD.QM(\(val?.description ?? "-/-"))"
+        }
+        
+        public override func hash(into hasher: inout Hasher) {
+            hasher.combine("QM")
+            val?.forEach({ v in
+                hasher.combine(v.0)
+                hasher.combine(v.1)
+            })
+        }
+        
+        public override var description: String {
+            return val != nil ? "\(val!)" : "-/-"
+        }
+    }
 }
+

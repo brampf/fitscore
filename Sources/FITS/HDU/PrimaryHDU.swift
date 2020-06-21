@@ -86,6 +86,27 @@ public final class PrimaryHDU : AnyImageHDU {
         
         print("Group Size \(size)")
         
+        
+        for groupIndex in 0..<gcount{
+            
+            let ptype: String? = self.lookup("PTYPE\(groupIndex+1)")
+            let pscal: Float? = self.lookup("PSCAL\(groupIndex+1)")
+            let pzero: Float? = self.lookup("PZERO\(groupIndex+1)")
+            
+            for naxis in 2...axis {
+                let offset = naxis-2 * size + pcount
+                var sub = data.subdata(in: offset..<offset+axis)
+                let values = sub.withUnsafeBytes { ptr in
+                    Array(arrayLiteral: ptr.baseAddress)
+                }
+            }
+            
+            //let group = Group(ptype: ptype, pscal: pscal, pzero: pzero, array: [])
+
+        }
+        
+        
+        
         /// just move the parser for now
         /// - TODO: read the group
         

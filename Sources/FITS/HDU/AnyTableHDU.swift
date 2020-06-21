@@ -96,7 +96,7 @@ extension AnyTableHDU {
 
 extension AnyTableHDU {
         
-    func plot(data: inout Data){
+    public func plot(data: inout Data){
         
         var dashWidth =  0
         let maxWidths = self.columns.reduce(into: [Int]()) { me, col in

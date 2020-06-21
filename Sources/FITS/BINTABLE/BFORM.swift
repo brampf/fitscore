@@ -37,9 +37,20 @@ public enum BFORM : FORM {
     case D(r: Int)
     case C(r: Int)
     case M(r: Int)
-    case P(r: Int)
-    case Q(r: Int)
     
+    case PL(r: Int)
+    case PX(r: Int)
+    case PB(r: Int)
+    case PI(r: Int)
+    case PJ(r: Int)
+    case PK(r: Int)
+    case PA(r: Int)
+    case PE(r: Int)
+    case PC(r: Int)
+
+    case QD(r: Int)
+    case QM(r: Int)
+
     public static  func parse(_ string: String) -> Self? {
         
         let trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
@@ -47,11 +58,19 @@ public enum BFORM : FORM {
         var prefix = ""
         var type = ""
         var suffix = ""
+        var varArr = false
         trimmed.forEach { char in
             if char.isNumber {
                 prefix.append(char)
-            } else if type.count < 1 {
+            } else if char == "P" {
+                varArr = true
                 type.append(char)
+            } else if varArr == true && type.count < 2 {
+                type.append(char)
+            } else if varArr == false && type.count < 1 {
+                type.append(char)
+            } else if varArr == true && char == "(" || char == ")" {
+                // ignore
             } else {
                 suffix.append(char)
             }
@@ -82,10 +101,28 @@ public enum BFORM : FORM {
             return C(r: r)
         case "M":
             return M(r: r)
-        case "P":
-            return P(r: r)
-        case "Q":
-            return Q(r: r)
+        case "PL":
+            return PL(r: r)
+        case "PX":
+            return PX(r: r)
+        case "PB":
+            return PB(r: r)
+        case "PI":
+            return PI(r: r)
+        case "PJ":
+            return PJ(r: r)
+        case "PK":
+            return PK(r: r)
+        case "PA":
+            return PA(r: r)
+        case "PE":
+            return PE(r: r)
+        case "PC":
+            return PC(r: r)
+        case "QD":
+            return QD(r: r)
+        case "QM":
+            return QM(r: r)
         default:
             return nil
         }
@@ -116,12 +153,31 @@ public enum BFORM : FORM {
             return BFIELD.C.self
         case .M:
             return BFIELD.M.self
-        case .P:
-            return BFIELD.P.self
-        case .Q:
-            return BFIELD.Q.self
+            
+        case .PL:
+            return BFIELD.PL.self
+        case .PX:
+            return BFIELD.PX.self
+        case .PB:
+            return BFIELD.PB.self
+        case .PI:
+            return BFIELD.PI.self
+        case .PJ:
+            return BFIELD.PJ.self
+        case .PK:
+            return BFIELD.PK.self
+        case .PA:
+            return BFIELD.PA.self
+        case .PE:
+            return BFIELD.PE.self
+        case .PC:
+            return BFIELD.PC.self
+            
+        case .QD:
+            return BFIELD.QD.self
+        case .QM:
+            return BFIELD.QM.self
         }
-        
     }
     
     
@@ -148,13 +204,33 @@ public enum BFORM : FORM {
         case .D(let r):
             return r*MemoryLayout<Double>.size
         case .C(let r):
-            return r*8
+            return r*2*MemoryLayout<Float32>.size
         case .M(let r):
-            return r*16
-        case .P(let r):
-            return r*8
-        case .Q(let r):
-            return r*16
+            return r*2*MemoryLayout<Float64>.size
+            
+        case .PL(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PX(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PB(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PI(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PJ(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PK(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PA(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PE(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PC(let r):
+            return r*2*MemoryLayout<Float32>.size
+            
+        case .QD(let r):
+            return r*MemoryLayout<Float64>.size
+        case .QM(let r):
+            return r*2*MemoryLayout<Float64>.size
         }
         
     }
@@ -183,10 +259,30 @@ public enum BFORM : FORM {
             return "\(r)C"
         case .M(let r):
             return "\(r)M"
-        case .P(let r):
-            return "\(r)P"
-        case .Q(let r):
-            return "\(r)Q"
+            
+        case .PL(let r):
+            return "PL(\(r))"
+        case .PX(let r):
+            return "PX(\(r))"
+        case .PB(let r):
+            return "PB(\(r))"
+        case .PI(let r):
+            return "PI(\(r))"
+        case .PJ(let r):
+            return "PJ(\(r))"
+        case .PK(let r):
+            return "PK(\(r))"
+        case .PA(let r):
+            return "PA(\(r))"
+        case .PE(let r):
+            return "PE(\(r))"
+        case .PC(let r):
+            return "PC(\(r))"
+            
+        case .QD(let r):
+            return "QD(\(r))"
+        case .QM(let r):
+            return "QM(\(r))"
         }
     }
 }

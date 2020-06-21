@@ -85,11 +85,3 @@ public class Keyword<Value : HDUValue> : Initializable{
         self.hdu = hdu
     }
 }
-
-struct test {
-    
-    @Keyword(HDUKeyword.SIMPLE) var sim : Bool? = false
-    
-    @Keyword(HDUKeyword.SIMPLE, "Simply FITS") var simple : Bool? = true
-
-}

@@ -27,8 +27,8 @@ final class BintableTests: XCTestCase {
         let c = BFIELD.C(val:  nil)
         let m = BFIELD.M(val:  nil)
         
-        let p = BFIELD.P(val:  nil)
-        let q = BFIELD.Q(val:  nil)
+        //let p = BFIELD.P(val:  nil)
+        //let q = BFIELD.Q(val:  nil)
         
         XCTAssertEqual(a.form, BFORM.A(r: 11))
         XCTAssertEqual(l.form, BFORM.L(r: 1))
@@ -44,8 +44,8 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(c.form, BFORM.C(r: 0))
         XCTAssertEqual(m.form, BFORM.M(r: 0))
         
-        XCTAssertEqual(p.form, BFORM.P(r: 0))
-        XCTAssertEqual(q.form, BFORM.Q(r: 0))
+        //XCTAssertEqual(p.form, BFORM.P(r: 0))
+        //XCTAssertEqual(q.form, BFORM.Q(r: 0))
     }
     
     

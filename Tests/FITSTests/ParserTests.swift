@@ -236,4 +236,25 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(b5.val?[639], -16386)
         
     }
+    
+    func testReadBFORM_VarArr() {
+            
+        let t1 = "PB(1800)"
+        let x1 = BFORM.parse(t1)
+        
+        XCTAssertEqual(x1, BFORM.PB(r: 1800))
+        XCTAssertEqual(BFIELD.PB(val: [0,1,2,3,4,5,6,7,8,9]).form, BFORM.PB(r: 10))
+        
+        let t2 = "PE(1800)"
+        let x2 = BFORM.parse(t1)
+        
+        XCTAssertEqual(x2, BFORM.PE(r: 1800))
+        XCTAssertEqual(BFIELD.PE(val: [0,1,2,3,4,5,6,7,8,9]).form, BFORM.PE(r: 10))
+        
+        let t3 = "PA(10)"
+        let x3 = BFORM.parse(t1)
+        
+        XCTAssertEqual(x3, BFORM.PA(r: 10))
+        XCTAssertEqual(BFIELD.PA(val: ["0","1","2","3","4","5","6","7","8","9"]).form, BFORM.PA(r: 10))
+    }
 }
