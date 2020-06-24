@@ -87,7 +87,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         let rowLength = self.naxis(1) ?? 1
         let rows = self.naxis(2) ?? 0
         
-        guard var data = self.dataUnit , data.count == rows * rowLength else {
+        guard var data = self.dataUnit , data.count >= rows * rowLength else {
             //print("Invalid data size \(dataUnit?.count ?? 0); Expected \(rows * rowLength)")
             return
         }
@@ -150,11 +150,4 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
     }
     
-}
-
-extension TableHDU  {
-    
-    public var description: String {
-        return "TABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"
-    }
 }

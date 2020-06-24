@@ -102,7 +102,6 @@ extension FitsFile : Reader {
 
         if prime.hasExtensions == true {
             // print("File has extensions")
-
         }
         try readExtensions(from: &data)
     }
@@ -123,6 +122,7 @@ extension FitsFile : Reader {
             if !card.isXtension {
                 // also not supposed to happen
                 print("Missing extension keyword")
+                //print(card)
                 throw FitsFail.malformattedHDU
             }
             
@@ -135,6 +135,8 @@ extension FitsFile : Reader {
             } else {
                 newHDU = try AnyHDU(with: &data)
             }
+            
+            //print(newHDU.debugDescription)
             self.HDUs.append(newHDU)
         }
         

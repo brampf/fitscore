@@ -39,7 +39,6 @@ public final class HeaderBlock {
         self.comment = comment
     }
     
-    #if DEBUG
     init(keyword: HDUKeyword, value: HDUValue? = nil, comment: String? = nil, raw: String? = nil){
         self.keyword = keyword
         self.value = value
@@ -47,7 +46,6 @@ public final class HeaderBlock {
     }
     
     public var raw : String? = nil
-    #endif
 
     /// Containts the `HDUKeyworld.END`
     var isEnd : Bool {
@@ -111,14 +109,9 @@ typealias Context = HDU.Type
 extension HeaderBlock {
     
     static func parse(form raw: String, context: Context? = nil) -> HeaderBlock {
-        
+    
         let keyword = raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces)
-        
-        #if DEBUG
-        var block = HeaderBlock(keyword: keyword, raw: raw)
-        #else
-        var block = HeaderBlock(keyword: keyword)
-        #endif
+        let block = HeaderBlock(keyword: keyword, raw: raw)
         
         let remainer = raw.dropFirst(9).trimmingCharacters(in: CharacterSet.whitespaces)
         

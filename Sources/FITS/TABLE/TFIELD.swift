@@ -206,7 +206,7 @@ open class TFIELD : FIELD {
             
             switch disp {
             case .F(let w, let d):
-                return String(format: "%\(w).\(d)f", val ?? 0)
+                return String(format: "%\(w).\(d)f", val)
             default:
                 return self.description
             }
@@ -254,8 +254,8 @@ open class TFIELD : FIELD {
             }
             
             switch disp {
-            case .E(let w, let d, let _):
-                return String(format: "%\(w).\(d)E", val ?? 0)
+            case .E(let w, let d, _):
+                return String(format: "%\(w).\(d)E", val)
             default:
                 return self.description
             }
@@ -303,8 +303,8 @@ open class TFIELD : FIELD {
             }
             
             switch disp {
-            case .D(let w, let d, let _):
-                return String(format: "%\(w).\(d)E", val ?? 0)
+            case .D(let w, let d, _):
+                return String(format: "%\(w).\(d)E", val)
             default:
                 return self.description
             }

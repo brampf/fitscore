@@ -27,7 +27,7 @@ import Foundation
 /**
     A header data unit according to the FITS format specification.
  */
-open class AnyHDU : HDU, Reader, CustomStringConvertible {
+open class AnyHDU : HDU, Reader {
     
     public internal(set) var  headerUnit: [HeaderBlock] = []
     public internal(set) var dataUnit: Data?
@@ -45,7 +45,10 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
     @Keyword(HDUKeyword.BITPIX) public var bitpix : BITPIX?
     
     /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
-    @Keyword(HDUKeyword.PCOUNT) public var pcount : Int?
+    @Keyword(HDUKeyword.PCOUNT) public var pcount : Int? = 0
+    
+    /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
+    @Keyword(HDUKeyword.GCOUNT) public var gcount : Int? = 1
     
     /// This keyword shall be used, along with the BZERO keyword, to linearly scale the array pixel values (i.e., the actual values stored in the FITS file) to transform them into the physical values that they represent
     @Keyword(HDUKeyword.BSCALE) public var bscale : Float? = 1.0
@@ -65,6 +68,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         self._naxis.initialize(self)
         self._bitpix.initialize(self)
         self._pcount.initialize(self)
+        self._gcount.initialize(self)
         self._bscale.initialize(self)
         self._bzero.initialize(self)
         self._bunit.initialize(self)
@@ -74,17 +78,19 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         
         let axis = self.lookup(HDUKeyword.NAXIS) ?? 0
         
+        var size = 0
         if axis > 0 {
-            /// - ToDo: figure out if this is really the proper way to deal with data alignments
-            let bitpix : BITPIX? = self.lookup(HDUKeyword.BITPIX)
-            var size = (bitpix?.bits ?? 0) / 8 // DEFAULT Data type is is UInt8
+            size = 1
             for naxis in 1...axis {
                 size = size * (self.naxis(naxis) ?? 1)
             }
-            return size
-        } else {
-            return 0
+            
         }
+        size += self.pcount ?? 0
+        size *= self.gcount ?? 1
+        size *= abs(self.bitpix?.size ?? 1)
+        
+        return size
     }
     
     public func validate(onMessage:((String) -> Void)? = nil) -> Bool {
@@ -174,7 +180,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
             
         #if DEBUG
-        // print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
+        print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
         
         // initilize the wrappers
@@ -206,7 +212,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
                 // store the card
                 self.headerUnit.append(header)
                 
-                // end of header
+                // end of heade
                 if header.isEnd {
                     return false
                 }
@@ -222,7 +228,7 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
         return true
     }
     
-    internal final func readData(data: inout Data) {
+    internal func readData(data: inout Data) {
         
         self.dataUnit = data.subdata(in: 0..<self.dataSize)
     }
@@ -269,6 +275,20 @@ open class AnyHDU : HDU, Reader, CustomStringConvertible {
             dat.append(32)
         }
     }
+    
+    
+    public var description: String {
+        
+        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
+        for index in 1..<(lookup(HDUKeyword.NAXIS) ?? 0) + 1 {
+            result.append("\(lookup("NAXIS\(index)") ?? 0) x ")
+        }
+        result.append("\(lookup(HDUKeyword.BITPIX) ?? BITPIX.UINT8)-bit")
+        result.append(" \(self.dataUnit?.count ?? 0) bytes")
+        
+        return result
+    }
+    
 }
 
 extension AnyHDU : Hashable {

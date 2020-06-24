@@ -200,8 +200,9 @@ public extension HDUKeyword {
      */
     static let INHERIT = "INHERIT"
    
-    //MARK:- Image extension
+    //MARK:- Bintable extension
     
+    static let THEAP = "THEAP"
     
     //MARK:- ASCII Table extension
     

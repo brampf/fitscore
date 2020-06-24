@@ -26,6 +26,15 @@ import Foundation
 
 public final class BintableHDU : AnyTableHDU<BFIELD> {
     
+    public var heap: Data? {
+        
+        let size = self.dataSize
+        let theap = self.lookup(HDUKeyword.THEAP) ?? 0
+        let offset = size - theap
+        
+        return self.dataUnit?.subdata(in: offset..<size)
+    }
+    
     public required init(with data: inout Data) throws {
         try super.init(with: &data)
         
@@ -79,13 +88,12 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             
             if let tform = rawTFORM {
                 self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
-                //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (offset,tform.length)
                 offset = offset + tform.length
             }
         }
         
-        guard var data = self.dataUnit , data.count == rows * rowLength else {
+        guard var data = self.dataUnit, data.count >= rows * rowLength else {
             print("Invalid data size \(dataUnit?.count ?? 0); Expected \(rows * rowLength)")
             return
         }
@@ -98,11 +106,26 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
                     if let tform = column.TFORM {
-                        let value = BFIELD.parse(data: val, type: tform)
-                        column.values.append(value)
-                        #if DEBUG
-                        value.raw = val
-                        #endif
+                        if tform.isVarArray {
+                            // Special treatment
+                            let desc = tform.varArray(data: val)
+                            //print("\(rowIndex): HEAP: \(column.TFORM) \(desc)")
+                            //print("H\(rowIndex): \(column.TFORM): \(desc.offset)...\(desc.offset+desc.nelem)")
+                            //let dat = self.heap?.subdata(in: desc.offset..<desc.offset+tform.length)
+                            
+                            //let value = BFIELD.parse(data: dat, type: tform)
+                            //column.values.append(value)
+                            #if DEBUG
+                            //value.raw = val
+                            #endif
+                            
+                        } else {
+                            let value = BFIELD.parse(data: val, type: tform)
+                            column.values.append(value)
+                            #if DEBUG
+                            value.raw = val
+                            #endif
+                        }
                     }
                 }
             
@@ -113,6 +136,8 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                 data = Data()
             }
         }
+        
+        /// - TODO: Read Varargs
     }
     
     override internal func writeData(to: inout Data) throws {
@@ -128,12 +153,8 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         // fill with zeros
         self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
     }
-}
-
-
-extension BintableHDU  {
     
-    public var description: String {
-        return "BINTABLE: \(self.lookup(HDUKeyword.TFIELDS) ?? -1)x\(self.naxis(2) ?? -1) Fields"
+    public override var description: String {
+        return super.description.appending(" + \(self.heap?.count ?? 0) HEAP")
     }
 }

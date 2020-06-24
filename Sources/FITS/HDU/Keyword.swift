@@ -45,8 +45,7 @@ public class Keyword<Value : HDUValue> : Initializable{
         }
         set {
             //print("SET \(keyword) to \(newValue)")
-            
-            if var block = hdu?.headerUnit.first(where: {$0.keyword == keyword}) {
+            if let block = hdu?.headerUnit.first(where: {$0.keyword == keyword}) {
                 block.value = newValue
             } else {
                 hdu?.headerUnit.append(HeaderBlock(keyword: keyword, value: newValue, comment: comment))

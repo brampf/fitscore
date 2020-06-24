@@ -54,21 +54,6 @@ extension HDU where Self: CustomDebugStringConvertible {
     
 }
 
-extension HDU where Self: CustomStringConvertible {
-    
-    public var description: String {
-        
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
-        for index in 1..<(lookup(HDUKeyword.NAXIS) ?? 0) + 1 {
-            result.append("\(lookup("NAXIS\(index)") ?? 0) x ")
-        }
-        result.append("\(lookup(HDUKeyword.BITPIX) ?? BITPIX.UINT8)")
-        
-        return result
-    }
-    
-}
-
 extension HDU {
     
     /// fetches concrete value for specific `HDUKeyworld`

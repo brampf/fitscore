@@ -78,10 +78,11 @@ open class BFIELD: FIELD {
             }
         case .X:
             return BFIELD.X(val: data)
-        case .B(let count):
+        case .B:
             if let data = data {
-                var values : [UInt8] = []
-                data.copyBytes(to: &values, count: count)
+                let values : [UInt8] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt8.self).map{UInt8.init(bigEndian: $0)}
+                }
                 return BFIELD.B(val: values)
             } else {
                 return BFIELD.B(val: nil)
@@ -161,10 +162,11 @@ open class BFIELD: FIELD {
             }
         case .PX:
             return BFIELD.PX(val: data)
-        case .PB(let count):
+        case .PB:
             if let data = data {
-                var values : [UInt8] = []
-                data.copyBytes(to: &values, count: count)
+                let values : [UInt8] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt8.self).map{UInt8.init(bigEndian: $0)}
+                }
                 return BFIELD.PB(val: values)
             } else {
                 return BFIELD.PB(val: nil)
@@ -329,7 +331,7 @@ open class BFIELD: FIELD {
         }
         
         public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+            return val != nil ? "\(val!.reduce(into: "", { $0 += "["+String($1, radix: 2).padPrefix(toSize: 8, char: "0")+"]" }))" : "-/-"
         }
     }
     

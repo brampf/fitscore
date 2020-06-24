@@ -257,4 +257,5 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(x3, BFORM.PA(r: 10))
         XCTAssertEqual(BFIELD.PA(val: ["0","1","2","3","4","5","6","7","8","9"]).form, BFORM.PA(r: 10))
     }
+
 }

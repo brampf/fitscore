@@ -188,7 +188,8 @@ public enum BFORM : FORM {
         case .L(let r):
             return r*MemoryLayout<UInt8>.size
         case .X(let r):
-            return r*MemoryLayout<UInt8>.size
+            return Int((Float(r) / 8.0).rounded(.up))
+            //return r*MemoryLayout<UInt8>.size
         case .B(let r):
             return r*MemoryLayout<UInt8>.size
         case .I(let r):
@@ -209,28 +210,28 @@ public enum BFORM : FORM {
             return r*2*MemoryLayout<Float64>.size
             
         case .PL(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PX(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PB(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PI(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PJ(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PK(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PA(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PE(let r):
-            return r*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
         case .PC(let r):
-            return r*2*MemoryLayout<Float32>.size
+            return 2*MemoryLayout<Float32>.size
             
         case .QD(let r):
-            return r*MemoryLayout<Float64>.size
+            return 2*MemoryLayout<Float64>.size
         case .QM(let r):
-            return r*2*MemoryLayout<Float64>.size
+            return 2*MemoryLayout<Float64>.size
         }
         
     }
@@ -284,5 +285,40 @@ public enum BFORM : FORM {
         case .QM(let r):
             return "QM(\(r))"
         }
+
+    }
+    
+    var isVarArray : Bool {
+        switch self {
+        case .PL, .PX, .PB, .PI, .PJ, .PK, .PA, .PE, .PC, .QD, .QM:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    func varArray(data: Data) -> (nelem: Int,offset: Int) {
+        
+        var nelem: Int = 0 // the number of elements (array length) of the stored array
+        var offset: Int = 0 // followed by the zero-indexed byte offset of the first element of the array, measured from the start of the heap area.
+        
+        switch self {
+        case .PL, .PX, .PB, .PI, .PJ, .PK, .PA, .PE, .PC:
+            let desc = data.withUnsafeBytes { ptr in
+                ptr.bindMemory(to: Int32.self).map{Int32.init(bigEndian: $0)}
+            }
+            nelem = Int(desc[0])
+            offset = Int(desc[1])
+        case .QD, .QM :
+            let desc = data.withUnsafeBytes { ptr in
+                ptr.bindMemory(to: Int64.self).map{Int64.init(bigEndian: $0)}
+            }
+            nelem = Int(desc[0])
+            offset = Int(desc[1])
+        default:
+            // nothing
+            break
+        }
+        return (nelem, offset)
     }
 }
