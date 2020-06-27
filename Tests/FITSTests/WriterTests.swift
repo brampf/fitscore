@@ -136,9 +136,12 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
-        
+        #endif
+
         XCTAssertEqual(data.count, 544320)
+
     }
     
     func testSample32() {

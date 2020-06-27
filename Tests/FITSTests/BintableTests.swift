@@ -45,7 +45,8 @@ final class BintableTests: XCTestCase {
         ("testReadTable",testReadTable),
         ("testCreateTable",testCreateTable),
         ("testModifyTable",testModifyTable),
-        ("testWriteTable",testWriteTable)
+        ("testWriteTable",testWriteTable),
+        ("testWriteVarArray",testWriteVarArray),
     ]
 
     func testBField() {

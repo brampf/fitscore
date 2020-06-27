@@ -110,6 +110,7 @@ public protocol FITSSTRING {
 }
 
 //MARK:- Extensions
+import Foundation
 
 extension Data {
     

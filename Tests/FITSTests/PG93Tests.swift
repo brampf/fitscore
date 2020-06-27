@@ -3,7 +3,7 @@ import XCTest
 @testable import FITS
 
 
-final class PG93Tess: XCTestCase {
+final class PG93Tests: XCTestCase {
     
     static var allTests = [
         ("test_pg93_read00001", test_pg93_read00001),
