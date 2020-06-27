@@ -209,28 +209,28 @@ public enum BFORM : FORM {
         case .M(let r):
             return r*2*MemoryLayout<Float64>.size
             
-        case .PL(let r):
+        case .PL:
             return 2*MemoryLayout<Float32>.size
-        case .PX(let r):
+        case .PX:
             return 2*MemoryLayout<Float32>.size
-        case .PB(let r):
+        case .PB:
             return 2*MemoryLayout<Float32>.size
-        case .PI(let r):
+        case .PI:
             return 2*MemoryLayout<Float32>.size
-        case .PJ(let r):
+        case .PJ:
             return 2*MemoryLayout<Float32>.size
-        case .PK(let r):
+        case .PK:
             return 2*MemoryLayout<Float32>.size
-        case .PA(let r):
+        case .PA:
             return 2*MemoryLayout<Float32>.size
-        case .PE(let r):
+        case .PE:
             return 2*MemoryLayout<Float32>.size
-        case .PC(let r):
+        case .PC:
             return 2*MemoryLayout<Float32>.size
             
-        case .QD(let r):
+        case .QD:
             return 2*MemoryLayout<Float64>.size
-        case .QM(let r):
+        case .QM:
             return 2*MemoryLayout<Float64>.size
         }
         
@@ -297,6 +297,72 @@ public enum BFORM : FORM {
         }
     }
     
+    public var heapSize : Int {
+        
+        switch self {
+            
+        case .PL:
+            return MemoryLayout<UInt8>.size
+        case .PX:
+            return MemoryLayout<UInt8>.size
+        case .PB:
+            return MemoryLayout<UInt8>.size
+        case .PI:
+            return MemoryLayout<Int16>.size
+        case .PJ:
+            return MemoryLayout<Int32>.size
+        case .PK:
+            return MemoryLayout<Int64>.size
+        case .PA:
+            return MemoryLayout<UInt8>.size
+        case .PE:
+            return MemoryLayout<Float32>.size
+        case .PC:
+            return 2*MemoryLayout<Float32>.size
+            
+        case .QD:
+            return MemoryLayout<Float64>.size
+        case .QM:
+            return 2*MemoryLayout<Float64>.size
+        default:
+            return 0
+        }
+        
+    }
+    
+    public var heapLength : Int {
+        
+        switch self {
+            
+        case .PL(let r):
+            return r*MemoryLayout<UInt8>.size
+        case .PX(let r):
+            return r*MemoryLayout<UInt8>.size
+        case .PB(let r):
+            return r*MemoryLayout<UInt8>.size
+        case .PI(let r):
+            return r*MemoryLayout<Int16>.size
+        case .PJ(let r):
+            return r*MemoryLayout<Int32>.size
+        case .PK(let r):
+            return r*MemoryLayout<Int64>.size
+        case .PA(let r):
+            return r*MemoryLayout<UInt8>.size
+        case .PE(let r):
+            return r*MemoryLayout<Float32>.size
+        case .PC(let r):
+            return r*2*MemoryLayout<Float32>.size
+            
+        case .QD(let r):
+            return r*MemoryLayout<Float64>.size
+        case .QM(let r):
+            return r*2*MemoryLayout<Float64>.size
+        default:
+            return 0
+        }
+        
+    }
+    
     func varArray(data: Data) -> (nelem: Int,offset: Int) {
         
         var nelem: Int = 0 // the number of elements (array length) of the stored array
@@ -321,4 +387,5 @@ public enum BFORM : FORM {
         }
         return (nelem, offset)
     }
+
 }

@@ -271,7 +271,9 @@ final class WriterTests: XCTestCase {
         prime.set(width: 300, height: 300, vectors: red, green,blue)
         prime.hasExtensions = true
         
-        let image = ImageHDU(width: 300, height: 300, vectors: red)
+        let gray : [FITSByte_F] = Sample().imageData(.green)
+        
+        let image = ImageHDU(width: 300, height: 300, vectors: gray)
         
         let table = TableHDU()
         _ = table.addColumn(TFORM: TFORM.A(w: 5), TDISP: TDISP.A(w: 10), TUNIT: "", TTYPE: "Sample", TFIELD.A(val: "World"), TFIELD.A(val: "Hello"))
@@ -280,6 +282,7 @@ final class WriterTests: XCTestCase {
         _ = bintable.addColumn(TFORM: BFORM.A(r: 5), TDISP: BDISP.A(w: 5), TUNIT: "", TTYPE: "Characters", BFIELD.A(val: "Hello"), BFIELD.A(val: "World"))
         _ = bintable.addColumn(TFORM: BFORM.L(r: 2), TDISP: BDISP.L(w: 1), TUNIT: "",TTYPE: "Logical", BFIELD.L(val: [true,false]), BFIELD.L(val: [false,true]))
         _ = bintable.addColumn(TFORM: BFORM.B(r: 1), TDISP: BDISP.B(w: 5, m: 2), TUNIT: "", TTYPE: "Integer", BFIELD.B(val: [23]), BFIELD.B(val: [42]))
+        _ = bintable.addColumn(TFORM: BFORM.PI(r: 20), TDISP: BDISP.B(w: 5, m: 2), TUNIT: "", TTYPE: "Var_Int", BFIELD.PI(val: [0,1,2,3,4,5,6,7,8,9,32,64,128,256,512,1024,2048]), BFIELD.PI(val: [42]))
         
         let file = FitsFile(prime: prime)
         file.HDUs.append(image)
@@ -289,6 +292,10 @@ final class WriterTests: XCTestCase {
         XCTAssertTrue(file.HDUs[0] is ImageHDU)
         XCTAssertTrue(file.HDUs[1] is TableHDU)
         XCTAssertTrue(file.HDUs[2] is BintableHDU)
+        
+        file.validate { msg in
+            print(msg)
+        }
         
         let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         let url = desktop.appendingPathComponent("FitsCore.fits")
@@ -311,12 +318,6 @@ final class WriterTests: XCTestCase {
         XCTAssertTrue(new.HDUs[0] is ImageHDU)
         XCTAssertTrue(new.HDUs[1] is TableHDU)
         XCTAssertTrue(new.HDUs[2] is BintableHDU)
-        
-        data.forEach { element in
-            if element < 32 || element > 126 {
-                print("ERR: \(element)")
-            }
-        }
         
         print(file.prime.debugDescription)
         for hdu in new.HDUs {

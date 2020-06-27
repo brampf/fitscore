@@ -76,7 +76,6 @@ public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConv
     
     func format(_ using: TDISP?) -> String?
     func write(_ form: TFORM) -> String
-    func write(to: inout Data)
     
     var form : TFORM {get}
     

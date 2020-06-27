@@ -39,6 +39,9 @@ open class AnyHDU : HDU, Reader {
         self.initializeWrapper()
     }
     
+    /// The value field shall contain a character string to be used to distinguish among different extensions of the same type
+    @Keyword(HDUKeyword.EXTNAME) public var extname : String?
+    
     /// The value field shall contain an integer rang- ing from 1 to 999, representing one more than the number of axes in each data array.
     @Keyword(HDUKeyword.NAXIS) public var naxis : Int?
     
@@ -74,6 +77,23 @@ open class AnyHDU : HDU, Reader {
         self._bunit.initialize(self)
     }
     
+    var dataArraySize : Int {
+        
+        let axis = self.lookup(HDUKeyword.NAXIS) ?? 0
+        
+        var size = 0
+        if axis > 0 {
+            size = 1
+            for naxis in 1...axis {
+                size = size * (self.naxis(naxis) ?? 1)
+            }
+            
+        }
+        size *= abs(self.bitpix?.size ?? 1)
+        
+        return size
+    }
+    
     var dataSize : Int {
         
         let axis = self.lookup(HDUKeyword.NAXIS) ?? 0
@@ -95,39 +115,58 @@ open class AnyHDU : HDU, Reader {
     
     public func validate(onMessage:((String) -> Void)? = nil) -> Bool {
 
+        var result = true
+        
         defer {
             // always move the end to the end
             self.headerUnit.removeAll { $0.keyword == HDUKeyword.END }
             headerUnit.append(HeaderBlock(keyword: HDUKeyword.END))
         }
         
-        let size = self.dataUnit?.count ?? 0
-        
-        if modified == false {
-            guard size == dataSize else  {
-                onMessage?("Data contains \(size) bytes but supposed to be \(dataSize)")
-                return false
-            }
+        if self.bitpix == nil {
+            onMessage?("Missing BITPIX header")
+            result = false
         }
         
-        guard let dimensions = self.naxis else {
+        if self.naxis == nil  {
             onMessage?("Missing NAXIS header")
-            return false
+            result = false
         }
         
-        for dimension in 1..<dimensions+1 {
-            guard self.naxis(dimension) != nil else {
+        for dimension in 1..<(self.naxis ?? 0)+1 {
+            if self.naxis(dimension) == nil {
                 onMessage?("Missing naxis \(dimension)")
-                return false
+                result = false
             }
         }
         
-        guard self.bitpix != nil else {
-            onMessage?("Missing BITPIX header") 
-            return false
+        var data = Data()
+        try? self.writeHeader(to: &data)
+        data.forEach { element in
+            if element < 32 || element > 126 {
+                onMessage?("Invalid Character \(element)")
+                result = false
+            }
         }
         
-        return true
+        if data.count != self.headerUnit.count * CARD_LENGTH {
+            onMessage?("Invalid Header Size \(data.count)")
+            result = false
+        }
+        
+        if let size = dataUnit?.count, modified == false && size != dataSize  {
+            onMessage?("Data contains \(size) bytes but supposed to be \(dataSize) bytes")
+            result = false
+        }
+        
+        data = Data()
+        try? self.writeData(to: &data)
+        if data.count != dataSize {
+            onMessage?("Data contains \(data.count) bytes but supposed to be \(dataSize) bytes")
+            result = false
+        }
+        
+        return result
     }
     
     /// sets value and comment for `HDUKeyworld`
@@ -176,7 +215,6 @@ open class AnyHDU : HDU, Reader {
         while readHeader(data: &data) {
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
-
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
             
         #if DEBUG
@@ -238,8 +276,14 @@ open class AnyHDU : HDU, Reader {
     public func write(to: inout Data) throws {
 
         try self.writeHeader(to: &to)
+        // fill with blanks
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
         
         try self.writeData(to: &to)
+        // fill with blanks
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
+        
+        print("POSITION: \(to.count) (\(to.count / 2880)")
     }
     
     internal func writeHeader(to: inout Data) throws {
@@ -247,10 +291,6 @@ open class AnyHDU : HDU, Reader {
         self.headerUnit.forEach { block in
             try? block.write(to: &to)
         }
-        
-        // fill with blanks
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
-        
     }
     
     internal func writeData(to: inout Data) throws {
@@ -258,8 +298,6 @@ open class AnyHDU : HDU, Reader {
         if let unit = dataUnit {
             to.append(unit)
         }
-        // fill with blanks
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
     }
     
     func padded(value: Int, to: Int) -> Int {
@@ -279,7 +317,7 @@ open class AnyHDU : HDU, Reader {
     
     public var description: String {
         
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
+        var result = "-\(type(of: self)): \(self.extname ?? "")".padSuffix(toSize: 80, char: "-")+"\n"
         for index in 1..<(lookup(HDUKeyword.NAXIS) ?? 0) + 1 {
             result.append("\(lookup("NAXIS\(index)") ?? 0) x ")
         }

@@ -29,7 +29,7 @@ protocol Initializable {
 }
 
 @propertyWrapper
-public class Keyword<Value : HDUValue> : Initializable{
+public class Keyword<Value : HDUValue> : Initializable, CustomStringConvertible{
  
     private var hdu : AnyHDU?
     
@@ -82,5 +82,9 @@ public class Keyword<Value : HDUValue> : Initializable{
     
     func initialize(_ hdu: AnyHDU){
         self.hdu = hdu
+    }
+    
+    public var description: String {
+        return "\(self.keyword.padSuffix(toSize: 8, char: " ")) = \(self.wrappedValue)"
     }
 }

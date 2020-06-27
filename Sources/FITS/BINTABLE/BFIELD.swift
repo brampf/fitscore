@@ -30,7 +30,6 @@ import Foundation
  The TFORMn keywords must be present for all values n = 1, ..., TFIELDS and for no other values of n. The value field of this indexed keyword shall contain a char- acter string of the form rTa. The repeat count r is the ASCII representation of a non-negative integer specifying the number of elements in Field n. The default value of r is 1; the repeat count need not be present if it has the default value. A zero el- ement count, indicating an empty field, is permitted. The data type T specifies the data type of the contents of Field n. Only the data types in Table 18 are permitted. The format codes must be specified in upper case. For fields of type P or Q, the only per- mitted repeat counts are 0 and 1. The additional characters a are optional and are not further defined in this Standard. Table 18 lists the number of bytes each data type occupies in a table row. The first field of a row is numbered 1.
  */
 open class BFIELD: FIELD {
-    
     public typealias TDISP = BDISP
     public typealias TFORM = BFORM
     
@@ -48,12 +47,20 @@ open class BFIELD: FIELD {
     var raw : Data?
     #endif
     
-    public var description: String {
-        return  "BFIELD"
+    open var description: String {
+        if let me = self as? Describalbe {
+            return me.desc
+        } else {
+            return "\(type(of: self))"
+        }
     }
     
     public var debugDescription: String {
-        return String(describing: self)
+        if let me = self as? Describalbe {
+            return me.debugDesc
+        } else {
+            return String(describing: self)
+        }
     }
     
     public static func parse(data: Data?, type: BFORM) -> BFIELD {
@@ -115,9 +122,11 @@ open class BFIELD: FIELD {
                 return BFIELD.K(val: nil)
             }
         case .A:
-           if let data = data {
-                let string = String(data: data, encoding: .ascii)
-            return BFIELD.A(val: string)
+            if let data = data {
+                let values : [UInt8] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt8.self).map{$0}
+                }
+                return BFIELD.A(val: values)
             } else {
                 return BFIELD.A(val: nil)
             }
@@ -200,10 +209,12 @@ open class BFIELD: FIELD {
             }
         case .PA:
             if let data = data {
-                let string = String(data: data, encoding: .ascii)
-                return BFIELD.A(val: string)
+                let values : [UInt8] = data.withUnsafeBytes { ptr in
+                    ptr.bindMemory(to: UInt8.self).map{$0}
+                }
+                return BFIELD.PA(val: values)
             } else {
-                return BFIELD.A(val: nil)
+                return BFIELD.PA(val: nil)
             }
         case .PE:
             if let data = data {
@@ -243,17 +254,16 @@ open class BFIELD: FIELD {
     public func write(_ form: BFORM) -> String {
         ""
     }
-    
-    public func write(to: inout Data) {
-        //
-    }
-    
+
     //MARK:- L : Logical
     /// Logical
-    final public class L : BFIELD {
-        var val: [Bool]?
+    final public class L : BFIELD, BField {
+        typealias ValueType = Bool
         
-        init(val: [Bool]?){
+        let name = "L"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -271,7 +281,7 @@ open class BFIELD: FIELD {
             }
         }
         
-        public override func write(to: inout Data) {
+        public func write(to: inout Data) {
             let string = val?.reduce(into: "", { r, v in
                 r.append(v ? "T" : "F")
             }) ?? ""
@@ -281,28 +291,24 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.L(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.L(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("L")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
     //MARK:- X : BIT
     /// Bit
-    final public class X : BFIELD {
-        var val: Data?
+    final public class X : BFIELD, BField {
+        typealias ValueType = UInt8
+        
+        let name = "X"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
         
         init(val: Data?){
-            self.val = val
+            if let val = val {
+                self.val = Array(val)
+            }
         }
         
         override public func format(_ disp: BDISP?) -> String? {
@@ -314,6 +320,12 @@ open class BFIELD: FIELD {
             switch disp {
             default:
                 return self.description
+            }
+        }
+   
+        public func write(to: inout Data) {
+            if let val = val {
+                to.append(contentsOf: val)
             }
         }
         
@@ -337,10 +349,13 @@ open class BFIELD: FIELD {
     
      //MARK:- B : (U)Byte
     /// Unsigned byte
-    final public class B : BFIELD {
-        var val: [UInt8]?
+    final public class B : BFIELD, BField {
+        typealias ValueType = UInt8
         
-        init(val: [UInt8]?){
+        let name = "B"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -360,34 +375,17 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.B(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: UInt8.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<UInt8>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.B(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("B")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
      //MARK:- I : Int16
     /// 16-bit integer
-    final public class I : BFIELD {
-        var val: [Int16]?
+    final public class I : BFIELD, BField {
+        typealias ValueType = Int16
         
-        init(val: [Int16]?){
+        let name = "I"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -407,34 +405,17 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.I(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: Int16.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<Int16>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.I(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("I")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
      //MARK:- J : Int32
     /// 32-bit integer
-    final public class J : BFIELD {
-        var val: [Int32]?
+    final public class J : BFIELD, BField {
+        typealias ValueType = Int32
         
-        init(val: [Int32]?){
+        let name = "J"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -454,34 +435,17 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.J(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: Int32.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<Int32>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.J(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("J")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
      //MARK:- K : Int64
     /// 64-bit integer
-    final public class K : BFIELD {
-        var val: [Int64]?
+    final public class K : BFIELD, BField {
+        typealias ValueType = Int64
         
-        init(val: [Int64]?){
+        let name = "K"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -501,36 +465,24 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.K(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: Int64.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<Int64>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.K(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("K")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
      //MARK:- A : Character
     // Character
-    final public class A : BFIELD {
-        var val: String?
+    final public class A : BFIELD, BField {
+        typealias ValueType = String.UTF8View.Element
         
-        init(val: String?){
+        let name = "A"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
+        
+        init(val: String){
+            self.val = Array(val.utf8)
+        }
+        
         
         override public func format(_ disp: BDISP?) -> String? {
             
@@ -540,7 +492,7 @@ open class BFIELD: FIELD {
             
             switch disp {
             case .A(let w):
-                return String(val.prefix(w))
+                return String(bytes: val, encoding: .ascii)//.prefix(w))
             default:
                 return self.description
             }
@@ -549,33 +501,21 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.A(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let dat = val?.data(using: .ascii){
-                to.append(dat)
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.A(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("A")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+
+        public var debugDesc: String {
+            return "BFIELD.\(name)(\(String(bytes: val ?? [], encoding: .ascii) ?? "-/-"))"
         }
     }
     
      //MARK:- E : Single-precision floating point
     /// Single-precision floating point
-    final public class E : BFIELD {
-        var val: [Float]?
+    final public class E : BFIELD, BField {
+        typealias ValueType = Float32
         
-        init(val: [Float]?){
+        let name = "E"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -595,34 +535,17 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.E(r: val?.count ?? 0)
         }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: Float.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<Float>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.E(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("E")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
     //MARK:- D : Double-precision floating point
     /// Double-precision floating point
-    final public class D : BFIELD {
-        var val: [Double]?
+    final public class D : BFIELD, BField{
+        typealias ValueType = Float64
         
-        init(val: [Double]?){
+        let name = "D"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -640,26 +563,6 @@ open class BFIELD: FIELD {
         
         public override var form: TFORM {
             return BFORM.D(r: val?.count ?? 0)
-        }
-        
-        public override func write(to: inout Data) {
-            if let arr = val {
-                var dat = arr.withUnsafeBytes{ $0.bindMemory(to: Double.self).map{$0.bigEndian} }
-                to.append(Data(bytes: &dat, count: MemoryLayout<Double>.size * arr.count))
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.D(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("D")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
         }
     }
     
@@ -748,12 +651,18 @@ open class BFIELD: FIELD {
         }
     }
     
-    //MARK:- P : Array Descriptor (32-bit)
+    //MARK:- PL : Array Descriptor (32-bit)
     /// Array Descriptor (32-bit)
-    final public class PL : BFIELD {
-        var val: [Bool]?
+    final public class PL : BFIELD, BField, VarArray {
         
-        init(val: [Bool]?){
+        typealias ArrayType = Int32
+        typealias ValueType = Bool
+        
+        let name = "PL"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -770,30 +679,35 @@ open class BFIELD: FIELD {
             }
         }
         
+        public func write(to: inout Data) {
+            val?.forEach{ v in
+                to.append(v ? "T" : "F")
+            }
+        }
+        
         public override var form: TFORM {
             return BFORM.PL(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PL(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PL")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
+    //MARK:- PX
     /// Array Descriptor (32-bit)
-    final public class PX : BFIELD {
-        var val: Data?
+    final public class PX : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = UInt8
+        
+        let name = "PX"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
         
         init(val: Data?){
-            self.val = val
+            if let val = val {
+                self.val = Array(val)
+            }
         }
         
         override public func format(_ disp: BDISP?) -> String? {
@@ -806,46 +720,31 @@ open class BFIELD: FIELD {
             /// - ToDo: format `val`
             default:
                 return self.description
+            }
+        }
+        
+        public func write(to: inout Data) {
+            if let arr = val {
+                to.append(contentsOf: arr)
             }
         }
         
         public override var form: TFORM {
             return BFORM.PX(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PX(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PX")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
+    //MARK:- PB
     /// Array Descriptor (32-bit)
-    final public class PB : BFIELD {
-        var val: [UInt8]?
+    final public class PB : BFIELD, BField, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = UInt8
         
-        init(val: [UInt8]?){
+        let name = "PB"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
-        }
-        
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
         }
         
         public override var form: TFORM {
@@ -855,22 +754,19 @@ open class BFIELD: FIELD {
         override public var debugDescription: String {
             return "BFIELD.PB(\(val?.description ?? "-/-"))"
         }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PB")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
+    //MARK:- PI
     /// Array Descriptor (32-bit)
-    final public class PI : BFIELD {
-        var val: [Int16]?
+    final public class PI : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = Int16
         
-        init(val: [Int16]?){
+        let name = "PI"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -890,26 +786,51 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.PI(r: val?.count ?? 0)
         }
+    }
+    
+    //MARK:- PJ
+    /// Array Descriptor (32-bit)
+    final public class PJ : BFIELD, VarArray {
         
-        override public var debugDescription: String {
-            return "BFIELD.PI(\(val?.description ?? "-/-"))"
+        typealias ArrayType = Int32
+        typealias ValueType = Int32
+        
+        let name = "PJ"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        override public func format(_ disp: BDISP?) -> String? {
+            
+            guard let val = self.val else {
+                return nil
+            }
+            
+            switch disp {
+            /// - ToDo: format `val`
+            default:
+                return self.description
+            }
         }
         
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PI")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+        public override var form: TFORM {
+            return BFORM.PJ(r: val?.count ?? 0)
         }
     }
     
+    //MARK:- PK
     /// Array Descriptor (32-bit)
-    final public class PJ : BFIELD {
-        var val: [Int32]?
+    final public class PK : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = Int64
         
-        init(val: [Int32]?){
+        let name = "PK"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -927,29 +848,27 @@ open class BFIELD: FIELD {
         }
         
         public override var form: TFORM {
-            return BFORM.PJ(r: val?.count ?? 0)
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PJ(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PJ")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+            return BFORM.PK(r: val?.count ?? 0)
         }
     }
     
+    //MARK:- PA
     /// Array Descriptor (32-bit)
-    final public class PK : BFIELD {
-        var val: [Int64]?
+    final public class PA : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = String.UTF8View.Element
+
         
-        init(val: [Int64]?){
+        let name = "PA"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
+        }
+        
+        init(val: String){
+            self.val = Array(val.utf8)
         }
         
         override public func format(_ disp: BDISP?) -> String? {
@@ -964,69 +883,28 @@ open class BFIELD: FIELD {
                 return self.description
             }
         }
-        
-        public override var form: TFORM {
-            return BFORM.PJ(r: val?.count ?? 0)
-        }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PK(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PK")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-    }
-    
-    /// Array Descriptor (32-bit)
-    final public class PA : BFIELD {
-        var val: [Character]?
-        
-        init(val: [Character]?){
-            self.val = val
-        }
-        
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
-        }
-        
+
         public override var form: TFORM {
             return BFORM.PA(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PA(\(val?.description ?? "-/-"))"
+
+        public var debugDesc: String {
+            return "BFIELD.\(name)(\(String(bytes: val ?? [], encoding: .ascii) ?? "-/-"))"
         }
         
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PA")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
+    //MARK:- PE
     /// Array Descriptor (32-bit)
-    final public class PE : BFIELD {
-        var val: [Float32]?
+    final public class PE : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = Float32
         
-        init(val: [Float32]?){
+        let name = "PE"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -1046,26 +924,19 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.PE(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PE(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("PE")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
+    //MARK:- PC
     /// Array Descriptor (32-bit)
-    final public class PC : BFIELD {
-        var val: [(Float, Float)]?
+    final public class PC : BFIELD, VarArray {
+        typealias ArrayType = Int32
+        typealias ValueType = (Float, Float)
         
-        init(val: [(Float,Float)]?){
+        let name = "PC"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -1085,11 +956,7 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.PC(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.PC(\(val?.description ?? "-/-"))"
-        }
-        
+    
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("PC")
             val?.forEach{ v in
@@ -1098,18 +965,23 @@ open class BFIELD: FIELD {
             }
         }
         
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+        func write(to: inout Data) {
+            //
         }
     }
     
     
     //MARK:- Q : Array Descriptor (64-bit)
     /// Array Descriptor (64-bit)
-    final public class QD : BFIELD {
-        var val: [Double]?
+    final public class QD : BFIELD, VarArray {
+        typealias ArrayType = Int64
+        typealias ValueType = Double
         
-        init(val: [Double]?){
+        let name = "QD"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -1129,26 +1001,19 @@ open class BFIELD: FIELD {
         public override var form: TFORM {
             return BFORM.QD(r: val?.count ?? 0)
         }
-        
-        override public var debugDescription: String {
-            return "BFIELD.QD(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("QD")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
     }
     
     /// Array Descriptor (64-bit)
-    final public class QM : BFIELD {
-        var val: [(Double,Double)]?
+    final public class QM : BFIELD, VarArray {
         
-        init(val: [(Double,Double)]?){
+        typealias ArrayType = Int64
+        typealias ValueType = (Double,Double)
+        
+        let name = "QM"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
             self.val = val
         }
         
@@ -1169,10 +1034,6 @@ open class BFIELD: FIELD {
             return BFORM.QM(r: val?.count ?? 0)
         }
         
-        override public var debugDescription: String {
-            return "BFIELD.QM(\(val?.description ?? "-/-"))"
-        }
-        
         public override func hash(into hasher: inout Hasher) {
             hasher.combine("QM")
             val?.forEach({ v in
@@ -1181,9 +1042,116 @@ open class BFIELD: FIELD {
             })
         }
         
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
+        
+        func write(to: inout Data) {
+            //
         }
     }
 }
 
+protocol Describalbe {
+    
+    var desc: String {get}
+    
+    var debugDesc: String {get}
+    
+}
+
+protocol WritableBField {
+    
+    func write(to: inout Data)
+}
+
+protocol BField : FIELD, WritableBField, Describalbe where  TFORM == BFORM {
+    associatedtype ValueType
+    
+    var name : String {get}
+    var val : [ValueType]? { get set }
+    
+    init(val: [ValueType]?)
+    
+}
+
+extension BField {
+    
+    init(val: ValueType){
+        self.init(val: [val])
+    }
+    
+     public var debugDesc: String {
+        return "BFIELD.\(name)(\(val?.description ?? "-/-"))"
+    }
+
+    public  var desc: String {
+        return val != nil ? "\(val!)" : "-/-"
+    }
+}
+
+extension BField where ValueType : Hashable {
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(val)
+    }
+}
+
+extension BField where ValueType : FixedWidthInteger {
+    
+    func write(to: inout Data) {
+        if let arr = val {
+            var dat = arr.withUnsafeBytes{ $0.bindMemory(to: ValueType.self).map{$0.bigEndian} }
+            to.append(Data(bytes: &dat, count: MemoryLayout<ValueType>.size * arr.count))
+        }
+    }
+}
+
+extension BField where ValueType == Float {
+    
+    func write(to: inout Data) {
+        if let arr = val {
+            var dat = arr.withUnsafeBytes{ $0.bindMemory(to: ValueType.self).map{$0.bigEndian} }
+            to.append(Data(bytes: &dat, count: MemoryLayout<ValueType>.size * arr.count))
+        }
+    }
+}
+
+extension BField where ValueType == Double {
+    
+    func write(to: inout Data) {
+        if let arr = val {
+            var dat = arr.withUnsafeBytes{ $0.bindMemory(to: ValueType.self).map{$0.bigEndian} }
+            to.append(Data(bytes: &dat, count: MemoryLayout<ValueType>.size * arr.count))
+        }
+    }
+}
+
+protocol WritableVarBField {
+    
+    func write(to dataUnit: inout Data, heap: inout Data)
+}
+
+protocol VarArray : BField, WritableVarBField {
+    associatedtype ArrayType : FixedWidthInteger
+    
+
+}
+
+extension VarArray {
+    
+    public func write(to dataUnit: inout Data, heap: inout Data) {
+        
+        // array descriptor consists of (nelem, offset)
+        let desc = [ArrayType(val?.count ?? 0).bigEndian, ArrayType(heap.count).bigEndian]
+        //print("VarArray \((type(of: self))) -> \(ArrayType(heap.count))...\(ArrayType((val?.count ?? 0) * MemoryLayout<ValueType>.size + heap.count))")
+        
+        // write descriptor to data array
+        desc.withUnsafeBytes{ ptr in
+            dataUnit.append(ptr.bindMemory(to: ValueType.self))
+        }
+        
+        // write array to heap
+        self.write(to: &heap)
+        
+    }
+    
+}

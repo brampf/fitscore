@@ -129,8 +129,11 @@ extension AnyTableHDU {
             var out = ""
             for col in 0..<(self.tfields ?? 0) {
                 let disp = self.columns[col].TDISP
-                let field = self.columns[col].values[row]
-                let value = field.format(disp) ?? ""
+                var value = ""
+                if row < self.columns[col].values.count {
+                    let field = self.columns[col].values[row]
+                    value = field.format(disp) ?? ""
+                }
                 if col == 0 {
                     out.append("|")
                 }

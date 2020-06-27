@@ -26,13 +26,12 @@ import Foundation
 
 public final class BintableHDU : AnyTableHDU<BFIELD> {
     
+    @Keyword(HDUKeyword.THEAP) public var theap : Int?
+    
     public var heap: Data? {
         
-        let size = self.dataSize
-        let theap = self.lookup(HDUKeyword.THEAP) ?? 0
-        let offset = size - theap
-        
-        return self.dataUnit?.subdata(in: offset..<size)
+        let theap = self.theap ?? 0
+        return self.dataUnit?.subdata(in: theap..<self.dataSize)
     }
     
     public required init(with data: inout Data) throws {
@@ -55,11 +54,18 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         // The value field shall contain a non-negative integer, giving the number of rows in the table.
         self.headerUnit.append(HeaderBlock(keyword: "NAXIS2", value: 0, comment: "Number of rows"))
         // The value field shall contain the number of bytes that follow the table in the supplemental data area called the heap.
-        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: "No random parameter"))
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.PCOUNT, value: 0, comment: "Number of bytes in heap"))
         // The value field shall contain the integer 1; the data blocks contain a single table.
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.GCOUNT, value: 1, comment: "One Group"))
         // The value field shall contain a non-negative integer representing the number of fields in each row. 
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
+        // The value field of this keyword shall contain an integer providing the separation, in bytes, between the start of the main data table and the start of a supplemental data area called the heap.
+        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.THEAP, comment: "Bytes offset of heap"))
+    }
+    
+    override func initializeWrapper() {
+        super.initializeWrapper()
+        self._theap.initialize(self)
     }
     
     /**
@@ -106,25 +112,22 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
                     let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
                     if let tform = column.TFORM {
-                        if tform.isVarArray {
+                        if tform.heapLength > 0 {
                             // Special treatment
                             let desc = tform.varArray(data: val)
-                            //print("\(rowIndex): HEAP: \(column.TFORM) \(desc)")
-                            //print("H\(rowIndex): \(column.TFORM): \(desc.offset)...\(desc.offset+desc.nelem)")
-                            //let dat = self.heap?.subdata(in: desc.offset..<desc.offset+tform.length)
-                            
-                            //let value = BFIELD.parse(data: dat, type: tform)
-                            //column.values.append(value)
-                            #if DEBUG
-                            //value.raw = val
-                            #endif
+                            //if desc.offset < heap?.count ?? 0 && desc.offset+desc.nelem < heap?.count ?? 0 {
+                                //print("HEAP:\(rowIndex): \(tform): \(desc.offset)...\(desc.offset+desc.nelem*tform.heapSize)")
+                                let dat = self.heap?.subdata(in: desc.offset..<desc.offset+desc.nelem * tform.heapSize)
+                                
+                                let value = BFIELD.parse(data: dat, type: tform)
+                                column.values.append(value)
+                                value.raw = val
+                            //}
                             
                         } else {
                             let value = BFIELD.parse(data: val, type: tform)
                             column.values.append(value)
-                            #if DEBUG
                             value.raw = val
-                            #endif
                         }
                     }
                 }
@@ -136,22 +139,51 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                 data = Data()
             }
         }
+    }
+    
+    public override func validate(onMessage: ((String) -> Void)? = nil) -> Bool {
         
-        /// - TODO: Read Varargs
+        
+        let rowSize = self.columns.reduce(into: 0) { size, col in
+            size += col.TFORM?.length ?? 0
+        }
+        
+        let heapSize = self.columns.reduce(into: 0) { size, col in
+            if let tform = col.TFORM, tform.heapSize > 0 {
+                size += col.values.count * tform.heapSize
+            }
+        }
+        
+        if  heapSize > 0 {
+            // if there is no heap, there is no pcount
+            self.theap = self.dataArraySize
+            self.pcount = rowSize * self.rows.count + heapSize
+        }
+        
+        return super.validate(onMessage: onMessage)
     }
     
     override internal func writeData(to: inout Data) throws {
+
+        var heap = Data()
         
         for row in self.rows {
             for index in 0..<row.values.count{
                 let field = row[index]
-                //let form = row.TFORM(index)!
-                field.write(to: &to)
+                //let tform = row.TFORM(index)!
+                
+                if let field = field as? WritableVarBField {
+                    field.write(to: &to, heap: &heap)
+                } else if let field = field as? WritableBField {
+                    field.write(to: &to)
+                } else {
+                    print("Not writable: \(field)")
+                }
+
             }
         }
-        
-        // fill with zeros
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
+
+        to.append(heap)
     }
     
     public override var description: String {

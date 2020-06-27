@@ -188,8 +188,9 @@ final class PG93Tess: XCTestCase {
         XCTAssertEqual(bintable.rows.count, 11)
         
         XCTAssertEqual(bintable.dataUnit?.count, 3820)
-        XCTAssertEqual(bintable.heap?.count, 1107)
+        XCTAssertEqual(bintable.heap?.count, 2713)
         
+        XCTAssertEqual(bintable.columns[0].TTYPE, "IDENT   ")
         XCTAssertEqual(bintable.columns[0].TFORM, BFORM.A(r: 9))
         XCTAssertEqual(bintable.columns[0][0],BFIELD.A(val: "Ident2001"))
         XCTAssertEqual(bintable.columns[0][1],BFIELD.A(val: "Ident2002"))
@@ -231,12 +232,19 @@ final class PG93Tess: XCTestCase {
         XCTAssertEqual(bintable.columns[2][9],BFIELD.B(val: [145,146,147]))
         XCTAssertEqual(bintable.columns[2][10],BFIELD.B(val: [161,162,163]))
         
+        XCTAssertEqual(bintable.columns[3].TTYPE, "COOR    ")
         XCTAssertEqual(bintable.columns[3].TFORM, BFORM.D(r: 2))
         //XCTAssertEqual(bintable.columns[3].values, [])
+        
+        XCTAssertEqual(bintable.columns[4].TTYPE, "FLUX    ")
         XCTAssertEqual(bintable.columns[4].TFORM, BFORM.E(r: 3))
         //XCTAssertEqual(bintable.columns[4].values, [])
+        
+        XCTAssertEqual(bintable.columns[5].TTYPE, "DUMMY   ")
         XCTAssertEqual(bintable.columns[5].TFORM, BFORM.J(r: 0))
-        //XCTAssertEqual(bintable.columns[5].values, [])
+        
+        
+        
         XCTAssertEqual(bintable.columns[6].TFORM, BFORM.I(r: 1))
         //XCTAssertEqual(bintable.columns[6].values, [])
         
@@ -254,13 +262,30 @@ final class PG93Tess: XCTestCase {
         XCTAssertEqual(bintable.columns[7][9], BFIELD.L(val: [true]))
         XCTAssertEqual(bintable.columns[7][10], BFIELD.L(val: [true]))
         
+        XCTAssertEqual(bintable.columns[8].TTYPE, "Index   ")
         XCTAssertEqual(bintable.columns[8].TFORM, BFORM.J(r: 3))
         
+        XCTAssertEqual(bintable.columns[9].TTYPE, "Array   ")
         XCTAssertEqual(bintable.columns[9].TFORM, BFORM.PI(r: 13))
-        XCTAssertEqual(bintable.columns[9].values, [])
+        XCTAssertEqual(bintable.columns[9][0], BFIELD.PI(val: []))
+        XCTAssertEqual(bintable.columns[9][1], BFIELD.PI(val: [1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3841]))
+        XCTAssertEqual(bintable.columns[9][2], BFIELD.PI(val: [256, 512, 768, 1024, 1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3841, 1, 257, 513, 769, 1025, 1281, 1537, 1793, 2049]))
+        XCTAssertEqual(bintable.columns[9][3], BFIELD.PI(val: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268]))
+        XCTAssertEqual(bintable.columns[9][4], BFIELD.PI(val: [3, 4, 5, 6, 7, 8, 9, 10, 11]))
+        XCTAssertEqual(bintable.columns[9][5], BFIELD.PI(val: [768, 1024]))
+        XCTAssertEqual(bintable.columns[9][6], BFIELD.PI(val: [4, 5, 6, 7, 8, 9, 10, 11]))
+        XCTAssertEqual(bintable.columns[9][7], BFIELD.PI(val: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 512, 513]))
+        XCTAssertEqual(bintable.columns[9][8], BFIELD.PI(val: [1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3841, 1, 257, 513, 769, 1025, 1281, 1537, 1793, 2049, 2305, 2561, 2817, 3073, 3329, 3585, 3842, 2, 258, 514, 770, 1026, 1282, 1538, 1794, 2050, 2306, 2562, 2818, 3074, 3330, 3586, 3843, 3, 259, 515, 771, 1027, 1283, 1539, 1795, 2051, 2307, 2563, 2819, 3075, 3331, 3587, 3844, 4, 260, 516, 772, 1028, 1284, 1540, 1796, 2052, 2308, 2564, 2820, 3076]))
+        XCTAssertEqual(bintable.columns[9][9], BFIELD.PI(val: [1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3841, 1, 257, 513, 769, 1025, 1281, 1537, 1793, 2049, 2305, 2561, 2817, 3073, 3329, 3585, 3842, 2, 258, 514, 770, 1026, 1282, 1538, 1794, 2050, 2306, 2562, 2818, 3074, 3330, 3586, 3843, 3, 259, 515, 771, 1027]))
+        XCTAssertEqual(bintable.columns[9][10], BFIELD.PI(val: [1024, 1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3841, 1, 257, 513, 769, 1025, 1281, 1537, 1793, 2049, 2305, 2561, 2817, 3073, 3329, 3585, 3842, 2, 258, 514, 770, 1026, 1282, 1538, 1794, 2050, 2306, 2562, 2818, 3074, 3330, 3586, 3843, 3, 259, 515, 771, 1027, 1283, 1539, 1795, 2051, 2307, 2563, 2819, 3075, 3331, 3587, 3844, 4]))
         
+        XCTAssertEqual(bintable.columns[10].TTYPE, "Complex ")
         XCTAssertEqual(bintable.columns[10].TFORM, BFORM.C(r: 2))
+        
+        XCTAssertEqual(bintable.columns[11].TTYPE, "Cplx_64 ")
         XCTAssertEqual(bintable.columns[11].TFORM, BFORM.M(r: 1))
+        
+        
         XCTAssertEqual(bintable.columns[12].TTYPE, "NOTE    ")
         XCTAssertEqual(bintable.columns[12].TFORM, BFORM.B(r: 1))
         XCTAssertEqual(bintable.columns[12][0], BFIELD.B(val: [1]))
@@ -286,6 +311,7 @@ final class PG93Tess: XCTestCase {
         XCTAssertEqual(image.naxis(2), 31)
         
         XCTAssertEqual(image.dataUnit?.count, 22630)
+
     }
     
     /// IMAGE + TABLE

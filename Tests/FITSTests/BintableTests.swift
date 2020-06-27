@@ -2,6 +2,41 @@
 import XCTest
 @testable import FITS
 
+func XCTAssertIdent<B: BField & BFIELD>(_ field: B, file: StaticString = #file, line: UInt = #line) {
+    
+    var data = Data()
+    field.write(to: &data)
+    
+    let new = BFIELD.parse(data: data, type: field.form)
+    
+    XCTAssertEqual(field.form, new.form, file: file, line: line)
+    XCTAssertEqual(field, new, file: file, line: line)
+}
+
+func XCTAssertLength<B: BField>(_ field: B, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
+    
+    var data = Data()
+    field.write(to: &data)
+    
+    let count = field.val?.count ?? 0
+    
+    XCTAssertEqual(data.count, count * MemoryLayout<B.ValueType>.size, file: file, line: line)
+    XCTAssertEqual(data.count, expectedLenght, file: file, line: line)
+}
+
+func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
+    
+    var data = Data()
+    var heap = Data()
+    field.write(to: &data, heap: &heap)
+    
+    let count = field.val?.count ?? 0
+    
+    XCTAssertEqual(data.count, 8, file: file, line: line)
+    //XCTAssertEqual(Array(data), [UInt8](arrayLiteral: 0,0,0,UInt8(count),0,0,0,0), file: file, line: line)
+    XCTAssertEqual(heap.count, count * MemoryLayout<V.ValueType>.size, file: file, line: line)
+    XCTAssertEqual(heap.count, expectedLenght, file: file, line: line)
+}
 
 final class BintableTests: XCTestCase {
     
@@ -12,42 +47,76 @@ final class BintableTests: XCTestCase {
         ("testModifyTable",testModifyTable),
         ("testWriteTable",testWriteTable)
     ]
-    
+
     func testBField() {
         
         let a = BFIELD.A(val: "Hello World")
-        let l = BFIELD.L(val: [true])
-        let x = BFIELD.X(val: Data(repeating: 0b00000100, count: 1))
-        let b = BFIELD.B(val: [UInt8.max, 42, 23, UInt8.min])
-        let i = BFIELD.I(val: [Int16.max, 0, Int16.min])
-        let j = BFIELD.J(val: [Int32.max, 0, Int32.min])
-        let k = BFIELD.K(val: [Int64.max, 0, Int64.min])
-        let e = BFIELD.E(val: [Float.max, 0.0 , Float.min])
-        let d = BFIELD.D(val: [Double.max, 0.0, Double.min])
-        let c = BFIELD.C(val:  nil)
-        let m = BFIELD.M(val:  nil)
-        
-        //let p = BFIELD.P(val:  nil)
-        //let q = BFIELD.Q(val:  nil)
-        
         XCTAssertEqual(a.form, BFORM.A(r: 11))
-        XCTAssertEqual(l.form, BFORM.L(r: 1))
-        XCTAssertEqual(i.form, BFORM.I(r: 3))
-        XCTAssertEqual(x.form, BFORM.X(r: 1))
-        XCTAssertEqual(b.form, BFORM.B(r: 4))
-        XCTAssertEqual(i.form, BFORM.I(r: 3))
-        XCTAssertEqual(j.form, BFORM.J(r: 3))
-        XCTAssertEqual(k.form, BFORM.K(r: 3))
-        XCTAssertEqual(e.form, BFORM.E(r: 3))
-        XCTAssertEqual(d.form, BFORM.D(r: 3))
+        XCTAssertLength(a, 11)
+        XCTAssertIdent(a)
         
+        let l = BFIELD.L(val: [true])
+        XCTAssertEqual(l.form, BFORM.L(r: 1))
+        XCTAssertLength(l, 1)
+        XCTAssertIdent(l)
+        
+        let x = BFIELD.X(val: Data(repeating: 0b00000100, count: 1))
+        XCTAssertEqual(x.form, BFORM.X(r: 1))
+        XCTAssertLength(x,1)
+        XCTAssertIdent(x)
+        
+        let b = BFIELD.B(val: [UInt8.max, 42, 23, UInt8.min])
+        XCTAssertEqual(b.form, BFORM.B(r: 4))
+        XCTAssertLength(b, 4)
+        XCTAssertIdent(b)
+        
+        let i = BFIELD.I(val: [Int16.max, 0, Int16.min])
+        XCTAssertEqual(i.form, BFORM.I(r: 3))
+        XCTAssertLength(i, 6)
+        XCTAssertIdent(i)
+        
+        let j = BFIELD.J(val: [Int32.max, 0, Int32.min])
+        XCTAssertEqual(j.form, BFORM.J(r: 3))
+        XCTAssertLength(j, 12)
+        XCTAssertIdent(j)
+        
+        let k = BFIELD.K(val: [Int64.max, 0, Int64.min])
+        XCTAssertEqual(k.form, BFORM.K(r: 3))
+        XCTAssertLength(k, 24)
+        XCTAssertIdent(k)
+        
+        let e = BFIELD.E(val: [Float.max, 0.0 , Float.min])
+        XCTAssertEqual(e.form, BFORM.E(r: 3))
+        XCTAssertLength(e, 12)
+        XCTAssertIdent(e)
+        
+        let d = BFIELD.D(val: [Double.max, 0.0, Double.min])
+        XCTAssertEqual(d.form, BFORM.D(r: 3))
+        XCTAssertLength(d, 24)
+        XCTAssertIdent(d)
+        
+        let c = BFIELD.C(val:  nil)
         XCTAssertEqual(c.form, BFORM.C(r: 0))
+        
+        let m = BFIELD.M(val:  nil)
         XCTAssertEqual(m.form, BFORM.M(r: 0))
         
-        //XCTAssertEqual(p.form, BFORM.P(r: 0))
-        //XCTAssertEqual(q.form, BFORM.Q(r: 0))
+        let pa = BFIELD.PA(val:  "Hello World!")
+        XCTAssertEqual(pa.form, BFORM.PA(r: 12))
+        XCTAssertLength(pa, 12)
+        XCTAssertIdent(pa)
+        
+        let pl = BFIELD.PL(val:  [true,false,true,false,true])
+        XCTAssertEqual(pl.form, BFORM.PL(r: 5))
+        XCTAssertLength(pl, 5)
+        XCTAssertIdent(pl)
+        
+        let pb = BFIELD.PB(val:  [0,1,2,3,4,5,6,7,8,9,255])
+        XCTAssertEqual(pb.form, BFORM.PB(r: 11))
+        XCTAssertLength(pb, 11)
+        XCTAssertIdent(pb)
+        
     }
-    
     
     func testReadTable() {
         
@@ -201,7 +270,7 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(thdu.naxis(1), 38)
         XCTAssertEqual(thdu.naxis(2), 3)
         XCTAssertEqual(thdu.pcount, 0)
-        XCTAssertEqual(thdu.lookup(HDUKeyword.GCOUNT), 1)
+        XCTAssertEqual(thdu.gcount, 1)
         XCTAssertEqual(thdu.dataSize, 114)
         XCTAssertEqual(thdu.dataUnit?.count, 114)
         
@@ -220,6 +289,102 @@ final class BintableTests: XCTestCase {
         if let thdu = parsed.HDUs.first as? AnyTableHDU<BFIELD> {
             self.plotTable(thdu)
         }
+        
+    }
+    
+    func testWriteVarArray() {
+        
+        let prime = PrimaryHDU()
+        prime.hasExtensions = true
+        
+        let bintable = BintableHDU()
+        _ = bintable.addColumn(TFORM: BFORM.I(r: 1), TDISP: BDISP.I(w: 5, m: 1), TUNIT: "", TTYPE: "Index", BFIELD.I(val: [1]), BFIELD.I(val: [2]))
+        _ = bintable.addColumn(TFORM: BFORM.PA(r: 25), TDISP: BDISP.A(w: 5), TUNIT: "", TTYPE: "Characters", BFIELD.PA(val: "HELLO WORLD UPPERCASE"), BFIELD.PA(val: "hello world lowercase"))
+        _ = bintable.addColumn(TFORM: BFORM.PL(r: 10), TDISP: BDISP.L(w: 1), TUNIT: "",TTYPE: "Logical", BFIELD.PL(val: [true,false,true,false,true,false,true,false]), BFIELD.PL(val: [false,true]))
+        _ = bintable.addColumn(TFORM: BFORM.PB(r: 10), TDISP: BDISP.B(w: 5, m: 2), TUNIT: "", TTYPE: "Integer", BFIELD.PB(val: [0,1,23,42,128,255]), BFIELD.PB(val: []))
+        _ = bintable.addColumn(TFORM: BFORM.PJ(r: 10), TDISP: BDISP.E(w: 10, d: 4, e: nil), TUNIT: "", TTYPE: "Integer", BFIELD.PJ(val: [0,1,23,42,128,255]), BFIELD.PJ(val: []))
+        
+        let file = FitsFile(prime: prime)
+        file.HDUs.append(bintable)
+        
+        let rowSize = bintable.columns.reduce(into: 0) { size, col in
+            size += col.TFORM?.length ?? 0
+        }
+        
+        let heapSize = bintable.columns.reduce(into: 0) { size, col in
+            if col.TFORM?.isVarArray ?? false {
+                size += col.values.count  * (col.TFORM?.heapSize ?? 0)
+            }
+        }
+        
+        XCTAssertTrue(file.HDUs[0] is BintableHDU)
+        XCTAssertEqual(bintable.naxis, 2)
+        XCTAssertEqual(bintable.bitpix, BITPIX.UINT8)
+        XCTAssertEqual(bintable.naxis(1), rowSize)
+        XCTAssertEqual(bintable.naxis(2), 2)
+        XCTAssertEqual(bintable.pcount, 0)
+        XCTAssertEqual(bintable.gcount, 1)
+
+        XCTAssertEqual(bintable.dataArraySize, 68)
+        XCTAssertEqual(bintable.dataSize, 68)
+        XCTAssertEqual(bintable.dataUnit, nil)
+        
+        _ = bintable.validate()
+        
+        XCTAssertEqual(bintable.pcount, rowSize * bintable.rows.count + heapSize)
+        XCTAssertEqual(bintable.theap, rowSize * bintable.rows.count)
+        
+        //let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        //let url = desktop.appendingPathComponent("FitsCore.fits")
+        
+        print(bintable.description)
+        
+        var data = Data()
+        try! file.write(to: &data)
+        
+        
+        // -----------------------------------
+        
+        let new = try! FitsFile.read(from: &data)
+        
+        new.validate { msg in
+            print(msg)
+        }
+        
+        XCTAssertTrue(new.HDUs[0] is BintableHDU)
+        guard let btable = new.HDUs[0] as? BintableHDU else {
+            XCTFail("Expected bintable")
+            return
+        }
+        
+        XCTAssertEqual(btable.dataArraySize, 68)
+        XCTAssertEqual(btable.dataSize, 150)
+        
+        XCTAssertEqual(btable.pcount, 82)
+        XCTAssertEqual(btable.theap, 68)
+        
+        XCTAssertEqual(btable.columns.count, 5)
+        XCTAssertEqual(btable.rows.count, 2)
+        
+        XCTAssertEqual(btable.columns[0].TDISP, bintable.columns[0].TDISP)
+        XCTAssertEqual(btable.columns[0].TFORM, bintable.columns[0].TFORM)
+        XCTAssertEqual(btable.columns[0].values, bintable.columns[0].values)
+        
+        XCTAssertEqual(btable.columns[1].TDISP, bintable.columns[1].TDISP)
+        XCTAssertEqual(btable.columns[1].TFORM, bintable.columns[1].TFORM)
+        XCTAssertEqual(btable.columns[1].values, bintable.columns[1].values)
+        
+        XCTAssertEqual(btable.columns[2].TDISP, bintable.columns[2].TDISP)
+        XCTAssertEqual(btable.columns[2].TFORM, bintable.columns[2].TFORM)
+        XCTAssertEqual(btable.columns[2].values,bintable.columns[2].values)
+        
+        XCTAssertEqual(btable.columns[3].TDISP, bintable.columns[3].TDISP)
+        XCTAssertEqual(btable.columns[3].TFORM, bintable.columns[3].TFORM)
+        XCTAssertEqual(btable.columns[3].values, bintable.columns[3].values)
+        
+        XCTAssertEqual(btable.columns[4].TDISP, bintable.columns[4].TDISP)
+        XCTAssertEqual(btable.columns[4].TFORM, bintable.columns[4].TFORM)
+        XCTAssertEqual(btable.columns[4].values, bintable.columns[4].values)
         
     }
     
