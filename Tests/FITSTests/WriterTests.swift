@@ -83,6 +83,30 @@ final class WriterTests: XCTestCase {
         print(String(data: data, encoding: .ascii) ?? "")
     }
     
+    func testEmpty() {
+        
+        let file = FitsFile(prime: PrimaryHDU())
+        file.HDUs.append(ImageHDU())
+        file.HDUs.append(TableHDU())
+        file.HDUs.append(BintableHDU())
+        
+        file.prime.header(HDUKeyword.COMMENT, comment: "Written by FITSCore")
+        
+        self.write(file: file, name: "Empty.fits" )
+        
+    }
+    
+    func testMinimal() {
+        
+        let file = FitsFile(prime: PrimaryHDU(width: 3, height: 3, vectors: [FITSByte_8](arrayLiteral: 1,2,3,4,5,6,7,8,9)))
+        file.prime.header(HDUKeyword.COMMENT, comment: "Written by FITSCore")
+        
+        self.write(file: file, name: "Minimal.fits" )
+        
+        var data = Data()
+        try? file.write(to: &data)
+    }
+    
     func testSample8() {
         
         let sample8 = Sample().rgb(FITSByte_8.self)
@@ -105,6 +129,8 @@ final class WriterTests: XCTestCase {
         
         var data = Data()
         XCTAssertNoThrow(try sample8.write(to: &data))
+        
+        self.write(file: sample8, name: "sample8.fits")
         
         #if !os(Linux)
         self.add(XCTAttachment(data: data))
@@ -136,7 +162,9 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample.write(to: &data))
         
+        #if !os(Linux)
         self.add(XCTAttachment(data: data))
+        #endif
         
         XCTAssertEqual(data.count, 544320)
     }
@@ -264,19 +292,21 @@ final class WriterTests: XCTestCase {
      func testWriteFile() {
         
         let prime = PrimaryHDU()
-        let red: [FITSByte_16] = Sample().imageData(.red)
-        let green: [FITSByte_16] = Sample().imageData(.green)
-        let blue: [FITSByte_16] = Sample().imageData(.blue)
+        let red: [FITSByte_32] = Sample().imageData(.red)
+        let green: [FITSByte_32] = Sample().imageData(.green)
+        let blue: [FITSByte_32] = Sample().imageData(.blue)
         
         prime.set(width: 300, height: 300, vectors: red, green,blue)
         prime.hasExtensions = true
         
         let gray : [FITSByte_F] = Sample().imageData(.green)
-        
         let image = ImageHDU(width: 300, height: 300, vectors: gray)
         
         let table = TableHDU()
         _ = table.addColumn(TFORM: TFORM.A(w: 5), TDISP: TDISP.A(w: 10), TUNIT: "", TTYPE: "Sample", TFIELD.A(val: "World"), TFIELD.A(val: "Hello"))
+        _ = table.addColumn(TFORM: TFORM.I(w: 2), TDISP: TDISP.B(w: 2, m: 2), TUNIT: "", TTYPE: "Ints", TFIELD.I(val: 32), TFIELD.I(val: 64))
+        _ = table.addColumn(TFORM: TFORM.F(w: 46, d: 6), TDISP: TDISP.E(w: 46, d: 6, e: nil), TUNIT: "", TTYPE: "Floats", TFIELD.F(val: Float.min), TFIELD.F(val: Float.max))
+
         
         let bintable = BintableHDU()
         _ = bintable.addColumn(TFORM: BFORM.A(r: 5), TDISP: BDISP.A(w: 5), TUNIT: "", TTYPE: "Characters", BFIELD.A(val: "Hello"), BFIELD.A(val: "World"))
@@ -324,5 +354,21 @@ final class WriterTests: XCTestCase {
             print(hdu.debugDescription)
         }
 
+    }
+    
+    func write(file: FitsFile, name: String){
+        
+        let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        let url = desktop.appendingPathComponent(name)
+        
+        file.write(to: url, onError: { err in
+            print(err)
+        }) {
+            // done
+        }
+        
+        #if !os(Linux)
+            self.add(XCTAttachment(contentsOfFile: url))
+        #endif
     }
 }

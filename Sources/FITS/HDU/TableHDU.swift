@@ -145,6 +145,9 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
                 }
             }
         }
+        
+        // fill with blanks instead of zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 32)
     }
     
 }

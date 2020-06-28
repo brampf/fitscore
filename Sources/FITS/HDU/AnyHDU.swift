@@ -149,19 +149,19 @@ open class AnyHDU : HDU, Reader {
             }
         }
         
-        if data.count != self.headerUnit.count * CARD_LENGTH {
+        if data.count < self.headerUnit.count * CARD_LENGTH {
             onMessage?("Invalid Header Size \(data.count)")
             result = false
         }
         
-        if let size = dataUnit?.count, modified == false && size != dataSize  {
+        if let size = dataUnit?.count, modified == false && size < dataSize  {
             onMessage?("Data contains \(size) bytes but supposed to be \(dataSize) bytes")
             result = false
         }
         
         data = Data()
         try? self.writeData(to: &data)
-        if data.count != dataSize {
+        if data.count < dataSize {
             onMessage?("Data contains \(data.count) bytes but supposed to be \(dataSize) bytes")
             result = false
         }
@@ -276,14 +276,10 @@ open class AnyHDU : HDU, Reader {
     public func write(to: inout Data) throws {
 
         try self.writeHeader(to: &to)
-        // fill with blanks
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
         
         try self.writeData(to: &to)
-        // fill with blanks
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH)
         
-        print("POSITION: \(to.count) (\(to.count / 2880)")
+        //print("POSITION: \(to.count) (\(to.count / 2880))")
     }
     
     internal func writeHeader(to: inout Data) throws {
@@ -291,6 +287,9 @@ open class AnyHDU : HDU, Reader {
         self.headerUnit.forEach { block in
             try? block.write(to: &to)
         }
+        
+        // fill with blanks
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 32)
     }
     
     internal func writeData(to: inout Data) throws {
@@ -298,6 +297,9 @@ open class AnyHDU : HDU, Reader {
         if let unit = dataUnit {
             to.append(unit)
         }
+        
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 0)
     }
     
     func padded(value: Int, to: Int) -> Int {
@@ -306,11 +308,11 @@ open class AnyHDU : HDU, Reader {
         return to * Int(factor.rounded(.up))
     }
     
-    final internal func pad(_ dat: inout Data, by: Int) {
+    final internal func pad(_ dat: inout Data, by: Int, with: UInt8) {
         
         while dat.count % by != 0 {
             //dat.append(0)
-            dat.append(32)
+            dat.append(with)
         }
     }
     

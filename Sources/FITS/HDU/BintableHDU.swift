@@ -60,7 +60,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         // The value field shall contain a non-negative integer representing the number of fields in each row. 
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
         // The value field of this keyword shall contain an integer providing the separation, in bytes, between the start of the main data table and the start of a supplemental data area called the heap.
-        self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.THEAP, comment: "Bytes offset of heap"))
+        //self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.THEAP, comment: "Bytes offset of heap"))
     }
     
     override func initializeWrapper() {
@@ -184,6 +184,9 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         }
 
         to.append(heap)
+        
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 0)
     }
     
     public override var description: String {
