@@ -7,6 +7,7 @@ final class TypeTests: XCTestCase {
     
     static var allTests = [
         ("testTFIELD", testTFIELD),
+        ("testKeyword",testKeyword)
 ]
     
     func testTFIELD() {

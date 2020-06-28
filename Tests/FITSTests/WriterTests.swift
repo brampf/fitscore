@@ -167,6 +167,7 @@ final class WriterTests: XCTestCase {
         #endif
         
         XCTAssertEqual(data.count, 544320)
+
     }
     
     func testSample32() {

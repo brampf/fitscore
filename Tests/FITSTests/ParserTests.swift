@@ -19,6 +19,7 @@ final class ParserTests: XCTestCase {
         ("testReadTFIELD", testReadTFIELD),
         ("testReadBFORM", testReadBFORM),
         ("testReadBFIELD", testReadBFIELD),
+        ("testReadBFORM_VarArr",testReadBFORM_VarArr)
     ]
     
     func testReadSimple() {
