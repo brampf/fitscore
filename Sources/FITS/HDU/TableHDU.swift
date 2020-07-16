@@ -25,6 +25,12 @@
 
 import Foundation
 
+/**
+ A FITS (ASCII) Table Extension
+ 
+ 
+ The ASCII-table extension provides a means of storing catalogs and tables of astronomical data in FITS format. Each row of the table consists of a fixed-length sequence of ASCII characters divided into fields that correspond to the columns in the table. The first keyword record in an ASCII-table extension shall be XTENSION=␣'TABLE␣␣␣'.
+ */
 public final class TableHDU : AnyTableHDU<TFIELD> {
     
     public required init(with data: inout Data) throws {

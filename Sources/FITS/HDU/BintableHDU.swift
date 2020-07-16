@@ -24,6 +24,11 @@
 
 import Foundation
 
+/**
+ A FITS Binary Table extension
+ 
+ The binary-table extension is similar to the ASCII table in that it provides a means of storing catalogs and tables of astronomical data in FITS format, however, it offers more features and pro- vides more-efficient data storage than ASCII tables. The numer- ical values in binary tables are stored in more-compact binary formats rather than coded into ASCII, and each field of a binary table can contain an array of values rather than a simple scalar as in ASCII tables. The first keyword record in a binary-table extension shall be XTENSION=␣'BINTABLE'.
+ */
 public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     @Keyword(HDUKeyword.THEAP) public var theap : Int?
@@ -90,7 +95,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
             let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
             let rawTFORM : BFORM? = self.lookup("TFORM\(col+1)")
-            let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
+            //let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
             if let tform = rawTFORM {
                 self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))

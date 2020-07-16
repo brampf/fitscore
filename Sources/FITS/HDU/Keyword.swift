@@ -85,6 +85,6 @@ public class Keyword<Value : HDUValue> : Initializable, CustomStringConvertible{
     }
     
     public var description: String {
-        return "\(self.keyword.padSuffix(toSize: 8, char: " ")) = \(self.wrappedValue)"
+        return "\(self.keyword.padSuffix(toSize: 8, char: " ")) = \(self.wrappedValue.debugDescription)"
     }
 }

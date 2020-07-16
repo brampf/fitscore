@@ -38,10 +38,6 @@ public final class PrimaryHDU : AnyImageHDU {
         try super.init(with: &data)
         
         self.initializeWrapper()
-        
-        if self.lookup(HDUKeyword.GROUPS) == true {
-            try readGroups(from: &data)
-        }
     }
     
     required init() {
@@ -64,59 +60,30 @@ public final class PrimaryHDU : AnyImageHDU {
         self._hasExtensions.initialize(self)
     }
     
-    func readGroups(from data: inout Data) throws {
+    override var dataSize: Int {
         
-        guard
-            let axis = self.naxis,
-            let gcount : Int = self.lookup(HDUKeyword.GCOUNT),
-            let pcount : Int = self.lookup(HDUKeyword.PCOUNT),
-            let bitpix = self.bitpix
-            else {
-                print("Empty group, nothing to do")
-                return
-        }
-        
-
-        var dataSize = 1
-        for naxis in 2...axis {
-            dataSize *= (self.naxis(naxis) ?? 1)
-        }
-        var groupSize = dataSize
-        groupSize += pcount
-        groupSize *= gcount
-        groupSize *= bitpix.size
-        
-        print("Group Size \(groupSize)")
-        
-        /*
-        for groupIndex in 0..<gcount{
+        if self.hasGroups ?? false {
             
-            let ptype: String? = self.lookup("PTYPE\(groupIndex+1)")
-            let pscal: Float? = self.lookup("PSCAL\(groupIndex+1)")
-            let pzero: Float? = self.lookup("PZERO\(groupIndex+1)")
+            let axis = self.naxis ?? 0
             
-            for naxis in 2...axis {
-                let offset = naxis-2 * dataSize + pcount
-                var sub = data.subdata(in: offset..<offset+axis)
-                let values = sub.withUnsafeBytes { ptr in
-                    Array(arrayLiteral: ptr.baseAddress)
+            var groupSize = 0
+            if axis > 0 {
+                groupSize = 1
+                for naxis in 2...axis {
+                    groupSize = groupSize * (self.naxis(naxis) ?? 1)
                 }
+                
             }
+            groupSize += self.pcount ?? 0
+            groupSize *= self.gcount ?? 1
+            groupSize *= abs(self.bitpix?.size ?? 1)
             
-            //let group = Group(self, groupIndex)
-        }
-        */
-        
-        
-        /// just move the parser for now
-        /// - TODO: read the group
-        
-        let paddy = padded(value: groupSize,to: CARD_LENGTH*BLOCK_LENGTH)
-        if paddy == data.count {
-            data = Data()
+            return groupSize
         } else {
-            data = data.advanced(by: paddy)
+            return super.dataSize
         }
+        
     }
-    
+
+
 }

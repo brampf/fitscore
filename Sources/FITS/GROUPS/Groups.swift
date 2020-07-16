@@ -25,44 +25,38 @@
 import Foundation
 
 public protocol RandomGroup {
-    associatedtype Byte : FITSByte
-    
-    var ptype : String? {get set}
-    var pscal : Float? {get}
-    var pzero : Float? {get}
-    
-    var array : [Byte] {get}
     
 }
 
-public struct Group<Bitpix: FITSByte> : RandomGroup {
-    public typealias Byte = Bitpix
-    
-    // The value field shall contain a character string giving the name of Parameter n. If the PTYPEn keywords for more than one value of n have the same associated name in the value field, then the data value for the parameter of that name is to be obtained by adding the derived data values of the corre- sponding parameters.
-    @Keyword("PTYPE") public var ptype : String?
-    
-    // The value field shall contain a floating-point number representing the coefficient of the linear term
-    @Keyword("PSCAL") public var pscal : Float?
-    
-    // The value field shall contain a floating-point number, representing the true value correspond- ing to a group parameter value of zero. The default value for this keyword is 0.0.
-    @Keyword("PZERO") public var pzero : Float? = 0.0
-    
-    public var array : [Bitpix] = []
-    
-    init(_ hdu: PrimaryHDU, _ group: Int, PTYPE: String?, PSCAL: Float?, PZERO: Float?, _ values: Bitpix...){
-        
-        self._ptype = Keyword(wrappedValue: PTYPE, "PTYPE\(group)", hdu)
-        self._pscal = Keyword(wrappedValue: PSCAL, "PTYPE\(group)", hdu)
-        self._pzero = Keyword(wrappedValue: PZERO, "PTYPE\(group)", hdu)
-        
-        self.array = values
-    }
+public struct Group : RandomGroup {
+
+    public var hdu = PrimaryHDU()
     
     /// 
-    init(_ hdu: PrimaryHDU, _ group: Int){
+    init(_ hdu: PrimaryHDU){
+        self.hdu = hdu
+    }
+    
+    public subscript<Byte: FITSByte>(_ group: Int) -> [Byte] {
         
-        self._ptype = Keyword("PTYPE\(group)", hdu)
-        self._pscal = Keyword("PTYPE\(group)", hdu)
-        self._pzero = Keyword("PTYPE\(group)", hdu)
+        guard let axis = hdu.naxis, group < axis-1 && group > 0 else {
+            return []
+        }
+        
+        guard let data = hdu.dataUnit else {
+            return []
+        }
+        
+        let offset = hdu.dataArraySize + (hdu.pcount ?? 0)
+        
+        let groupSize = hdu.naxis(group+2) ?? 0 * (hdu.bitpix?.size ?? 0)
+        
+        let start = offset
+        let stop = hdu.pcount ?? 0 + groupSize * group
+        var sub = data.subdata(in: start..<stop)
+        return sub.withUnsafeMutableBytes { mptr8 in
+            mptr8.bindMemory(to: Byte.self).map{$0.littleEndian}
+        }
+        
     }
 }

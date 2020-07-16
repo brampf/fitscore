@@ -24,6 +24,11 @@
 
 import Foundation
 
+/**
+ An FITS Image Extension
+ 
+ The FITS IMAGE extension is nearly identical in structure to the the primary HDU and is used to store an array of data. Multiple IMAGE extensions can be used to store any number of arrays in a single FITS file. The first keyword record in an IMAGE extension shall be XTENSION=␣'IMAGE␣␣␣'.
+ */
 public final class ImageHDU : AnyImageHDU {
     
     public required init(with data: inout Data) throws {

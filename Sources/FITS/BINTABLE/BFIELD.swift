@@ -274,8 +274,8 @@ open class BFIELD: FIELD {
             }
             
             switch disp {
-            //case .L:
-            //    return val.first ? "T" : "F"
+            case .L:
+                return val.first ?? false ? "T" : "F"
             default:
                 return self.description
             }
@@ -492,7 +492,7 @@ open class BFIELD: FIELD {
             
             switch disp {
             case .A(let w):
-                return String(bytes: val, encoding: .ascii)//.prefix(w))
+                return String(bytes: val, encoding: .ascii)
             default:
                 return self.description
             }
