@@ -86,13 +86,22 @@ extension FitsFile : Reader {
         return try FitsFile(with: &data)
     }
     
+    public static func read(from url: URL) throws -> FitsFile {
+        
+        guard var data = try? Data(contentsOf: url) else {
+            throw FitsFail.malformattedFile
+        }
+        
+        return try FitsFile(with: &data)
+    }
+    
     /**
     Parses a FITS file by sequencially reading the data provided.
      
      - Parameter data: the data sequence to read from
      - Parameter onError: (Optional) callback for error logging
      
-     - Throws: `FitsFail` for unrecoverable errors during reaidng of the file
+     - Throws: `FitsFail` for unrecoverable errors during reading of the file
      */
     public convenience init(with data: inout Data) throws {
         
