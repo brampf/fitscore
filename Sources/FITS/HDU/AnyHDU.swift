@@ -296,10 +296,10 @@ open class AnyHDU : HDU, Reader {
         
         if let unit = dataUnit {
             to.append(unit)
+            
+            // fill with zeros
+            self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 0)
         }
-        
-        // fill with zeros
-        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 0)
     }
     
     func padded(value: Int, to: Int) -> Int {

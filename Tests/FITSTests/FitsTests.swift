@@ -227,18 +227,35 @@ final class FitsTests: XCTestCase {
         
         /// checksum according zu standard document Appendix J
         let crc : DATASUM = 868229149
-        XCTAssertEqual(crc.checksum, "hcHjjc9ghcEghc9g")
+        XCTAssertEqual(crc.ascii, "hcHjjc9ghcEghc9g")
         
         /// datasum  for emtpy dataUnit shall be "0"
-        XCTAssertEqual(Data().crc, 0)
+        XCTAssertEqual(Data().check(0), 0)
         
         let sample8 = Sample().rgb(FITSByte_8.self)
-        var data = Data()
-        try? sample8.prime.writeData(to: &data)
-        sample8.prime.header(HDUKeyword.DATASUM, value: String(data.crc), comment: nil)
+        let date = "2020-07-31 20:28:30 +0000"
+        var dataUnit = Data()
+        try? sample8.prime.writeData(to: &dataUnit)
+        let datasum = dataUnit.check(0)
         
-        XCTAssertEqual(data.crc, 4294929796)
+        XCTAssertEqual(datasum, 4294967295)
         
+        sample8.prime.header(HDUKeyword.DATASUM, value: String(datasum), comment: "Datasum \(date)")
+        sample8.prime.header(HDUKeyword.CHECKSUM, value: "0000000000000000", comment: "Checksum \(date)")
+        XCTAssertTrue(sample8.prime.validate())
+        
+        var headerUnit = Data()
+        try? sample8.prime.writeHeader(to: &headerUnit)
+        let check = headerUnit.check(datasum)
+        sample8.prime.header(HDUKeyword.CHECKSUM, value: check.ascii, comment: "Checksum \(date)")
+        
+        XCTAssertEqual(sample8.prime.headerUnit.count, 10)
+        sample8.prime.headerUnit.forEach { block in
+            print(block)
+        }
+        
+        XCTAssertEqual(sample8.prime.lookup(HDUKeyword.DATASUM), "4294967295")
+        XCTAssertEqual(sample8.prime.lookup(HDUKeyword.CHECKSUM), "Mbo9PZo9Mao9MYo9")
     }
     
     func testVerifyChecksum() {
@@ -251,11 +268,13 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(file.prime.lookup(HDUKeyword.DATASUM), "         0")
         
         
-        //file.prime.header(HDUKeyword.CHECKSUM, value: "0000000000000000", comment: nil)
         var primeData = Data()
-        try? file.prime.write(to: &primeData)
-        XCTAssertEqual(primeData.crc, 0)
-        XCTAssertEqual(primeData.crc.checksum, "3cMdAZKb3aKbAYKb")
+        try? file.prime.writeData(to: &primeData)
+        XCTAssertEqual(primeData.count, 0)
+        try? file.prime.writeHeader(to: &primeData)
+        XCTAssertEqual(primeData.count, 2880)
+        XCTAssertEqual(primeData.check(0), 1291959285)
+        XCTAssertEqual(primeData.check(0).ascii, "2aqA4YoA2aoA2WoA")
         
   
         guard let bintable = file.HDUs[0] as? BintableHDU else {
@@ -268,69 +287,30 @@ final class FitsTests: XCTestCase {
         var data = Data()
         try? bintable.writeData(to: &data)
         
-        XCTAssertEqual(data.crc, 340004495)
+        XCTAssertEqual(bintable.dataUnit?.check(0), 340004495)
+        XCTAssertEqual(data.check(0), 340004495)
         
-    }
+        var header = Data()
+        try? bintable.writeHeader(to: &header)
     
-}
-
-typealias DATASUM = UInt32
-
-extension Data {
-    
-    var crc : DATASUM {
-        var sum: UInt32 = 0
-        _ = self.withUnsafeBytes { ptr in
-            ptr.bindMemory(to: UInt32.self).map{sum = sum &+ $0.bigEndian}
-        }
-        return sum
-    }
-    
-}
-
-extension DATASUM {
-    
-    var checksum : String {
         
-        let allowed : [UInt8] = [
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
-            0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
-            0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
-            0x50, 0x51, 0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59,
-            0x5a, 0x5b,
-            0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,
-            0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
-            0x70, 0x71, 0x72
-        ]
-
-        var ascii = [UInt8](repeating: 0, count: 16)
-        for idx in stride(from: 0, through: 24, by: 8) {
-            
-            let val = UInt8((~self << idx) >> 24)
-            var val1 = val / 4 + val % 4 + 48
-            var val2 = val / 4 + 48
-            
-            while !allowed.contains(val1) || !allowed.contains(val2){
-                val1 += 1
-                val2 -= 1
+        // verfiy
+        if let checksum : String = bintable.lookup(HDUKeyword.CHECKSUM), let data = checksum.data(using: .ascii){
+            var arr : [UInt8] = .init(repeating: 0, count: 16)
+            var result : UInt32 = 0
+            for i in 0..<16 {
+                arr[i] = data[(i+15)%16] - 0x30
+            }
+            let x = arr.withUnsafeBytes { ptr in
+                ptr.bindMemory(to: UInt32.self).map{$0}
+            }
+            for j in 0..<4{
+               result &= x[j]
             }
             
-            var val3 = val / 4 + 48
-            var val4 = val / 4 + 48
-            
-            while !allowed.contains(val3) || !allowed.contains(val4){
-                val3 += 1
-                val4 -= 1
-            }
-            
-            ascii[idx / 8] = val1
-            ascii[idx / 8 + 4] =  val2
-            ascii[idx / 8 + 8] =  val3
-            ascii[idx / 8 + 12] =  val4
+            XCTAssertEqual(result, 0)
         }
-        ascii.insert(ascii.removeLast(), at: 0)
         
-        return String(bytes: ascii, encoding: .ascii) ?? ""
     }
     
 }
