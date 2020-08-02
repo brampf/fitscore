@@ -54,13 +54,13 @@ struct AnyHDUValue {
             } else {
                 return plainString
             }
-        case _ where keyword.starts(with: "TFORM"):
+        case _ where keyword.rawValue.starts(with: "TFORM"):
             if context is BintableHDU.Type {
                 return FITS.BFORM.parse(trimmed)
             } else {
                 return FITS.TFORM.parse(trimmed)
             }
-        case _ where keyword.starts(with: "TDISP"):
+        case _ where keyword.rawValue.starts(with: "TDISP"):
             if context is BintableHDU.Type {
                 return FITS.BDISP.parse(trimmed)
             } else {
@@ -255,4 +255,33 @@ extension TDISP : HDUValue {
     public var toString : String {
         return "'\(self)'"
     }
+}
+
+extension Optional : HDUValue, CustomStringConvertible where Wrapped : HDUValue & Hashable {
+    
+    public var hashable: AnyHashable {
+        if let val = self {
+            return AnyHashable(val)
+        } else {
+            return AnyHashable(UUID())
+        }
+    }
+    
+    public var toString: String {
+        if let val = self {
+            return val.toString
+        } else {
+            return ""
+        }
+    }
+    
+    public var description: String {
+        if let val = self {
+            return val.description
+        } else {
+            return "NIL"
+        }
+    }
+    
+    
 }

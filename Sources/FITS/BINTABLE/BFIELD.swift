@@ -251,13 +251,18 @@ open class BFIELD: FIELD {
         return BFIELD.ERR
     }
     
+    public func format(_ using: BDISP) -> [String] {
+        return [BFIELD.ERR]
+    }
+    
     public func write(_ form: BFORM) -> String {
-        ""
+        fatalError("Not implemented on \(self)")
     }
 
     //MARK:- L : Logical
     /// Logical
-    final public class L : BFIELD, BField {
+    final public class L : BFIELD, BField , ExpressibleByArrayLiteral {
+
         typealias ValueType = Bool
         
         let name = "L"
@@ -267,18 +272,18 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Bool...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .L:
-                return val.first ?? false ? "T" : "F"
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                result.append(value ? "T" : "F")
+            }) ?? []
         }
         
         public func write(to: inout Data) {
@@ -311,16 +316,18 @@ open class BFIELD: FIELD {
             }
         }
         
+        public init(arrayLiteral : UInt8...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                result.append(String(value, radix: 2))
+            }) ?? []
         }
    
         public func write(to: inout Data) {
@@ -349,7 +356,7 @@ open class BFIELD: FIELD {
     
      //MARK:- B : (U)Byte
     /// Unsigned byte
-    final public class B : BFIELD, BField {
+    final public class B : BFIELD, BField , ExpressibleByArrayLiteral {
         typealias ValueType = UInt8
         
         let name = "B"
@@ -359,17 +366,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : UInt8...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                /// - ToDo: format `val`
-                return nil
-            }
-            
-            switch disp {
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -390,16 +401,16 @@ open class BFIELD: FIELD {
         }
         
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -409,7 +420,7 @@ open class BFIELD: FIELD {
     
      //MARK:- J : Int32
     /// 32-bit integer
-    final public class J : BFIELD, BField {
+    final public class J : BFIELD, BField, ExpressibleByArrayLiteral{
         typealias ValueType = Int32
         
         let name = "J"
@@ -419,17 +430,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Int32...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -439,7 +454,7 @@ open class BFIELD: FIELD {
     
      //MARK:- K : Int64
     /// 64-bit integer
-    final public class K : BFIELD, BField {
+    final public class K : BFIELD, BField, ExpressibleByArrayLiteral {
         typealias ValueType = Int64
         
         let name = "K"
@@ -449,17 +464,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Int64...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -469,7 +488,7 @@ open class BFIELD: FIELD {
     
      //MARK:- A : Character
     // Character
-    final public class A : BFIELD, BField {
+    final public class A : BFIELD, BField, ExpressibleByArrayLiteral {
         typealias ValueType = String.UTF8View.Element
         
         let name = "A"
@@ -483,6 +502,9 @@ open class BFIELD: FIELD {
             self.val = Array(val.utf8)
         }
         
+        public init(arrayLiteral : String.UTF8View.Element...){
+            self.val = arrayLiteral
+        }
         
         override public func format(_ disp: BDISP?) -> String? {
             
@@ -492,10 +514,19 @@ open class BFIELD: FIELD {
             
             switch disp {
             case .A(let w):
-                return String(bytes: val, encoding: .ascii)
+                return String(bytes: val, encoding: .ascii)?.padPrefix(toSize: w, char: " ")
             default:
                 return self.description
             }
+        }
+
+        override public func format(_ using: BDISP?) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -509,7 +540,7 @@ open class BFIELD: FIELD {
     
      //MARK:- E : Single-precision floating point
     /// Single-precision floating point
-    final public class E : BFIELD, BField {
+    final public class E : BFIELD, BField, ExpressibleByArrayLiteral {
         typealias ValueType = Float32
         
         let name = "E"
@@ -519,17 +550,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Float32...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -539,7 +574,7 @@ open class BFIELD: FIELD {
     
     //MARK:- D : Double-precision floating point
     /// Double-precision floating point
-    final public class D : BFIELD, BField{
+    final public class D : BFIELD, BField, ExpressibleByArrayLiteral {
         typealias ValueType = Float64
         
         let name = "D"
@@ -549,16 +584,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Float64...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -568,23 +608,15 @@ open class BFIELD: FIELD {
     
     //MARK:- C : Single-precision complex
     /// Single-precision complex
-    final public class C : BFIELD {
+    final public class C : BFIELD, ExpressibleByArrayLiteral {
         var val: [(Float,Float)]?
         
         init(val: [(Float,Float)]?){
             self.val = val
         }
         
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            default:
-                return self.description
-            }
+        public init(arrayLiteral : (Float,Float)...){
+            self.val = arrayLiteral
         }
         
         public override var form: TFORM {
@@ -608,26 +640,17 @@ open class BFIELD: FIELD {
         }
     }
     
-    //MARK:- M : Single-precision floating point
+    //MARK:- M : Double-precision complex
     /// Double-precision complex
-    final public class M : BFIELD {
+    final public class M : BFIELD, ExpressibleByArrayLiteral {
         var val: [(Double,Double)]?
         
         init(val: [(Double,Double)]?){
             self.val = val
         }
         
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+        public init(arrayLiteral : (Double,Double)...){
+            self.val = arrayLiteral
         }
         
         public override var form: TFORM {
@@ -653,7 +676,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PL : Array Descriptor (32-bit)
     /// Array Descriptor (32-bit)
-    final public class PL : BFIELD, BField, VarArray {
+    final public class PL : BFIELD, BField, VarArray, ExpressibleByArrayLiteral {
         
         typealias ArrayType = Int32
         typealias ValueType = Bool
@@ -666,17 +689,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Bool...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public func write(to: inout Data) {
@@ -692,7 +719,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PX
     /// Array Descriptor (32-bit)
-    final public class PX : BFIELD, VarArray {
+    final public class PX : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = UInt8
         
@@ -710,17 +737,21 @@ open class BFIELD: FIELD {
             }
         }
         
+        public init(arrayLiteral : UInt8...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public func write(to: inout Data) {
@@ -736,7 +767,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PB
     /// Array Descriptor (32-bit)
-    final public class PB : BFIELD, BField, VarArray {
+    final public class PB : BFIELD, BField, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = UInt8
         
@@ -745,6 +776,23 @@ open class BFIELD: FIELD {
         
         init(val: [ValueType]?){
             self.val = val
+        }
+        
+        public init(arrayLiteral : UInt8...){
+            self.val = arrayLiteral
+        }
+        
+        override public func format(_ disp: BDISP?) -> String? {
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -758,7 +806,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PI
     /// Array Descriptor (32-bit)
-    final public class PI : BFIELD, VarArray {
+    final public class PI : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = Int16
         
@@ -770,17 +818,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Int16...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -790,7 +842,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PJ
     /// Array Descriptor (32-bit)
-    final public class PJ : BFIELD, VarArray {
+    final public class PJ : BFIELD, VarArray, ExpressibleByArrayLiteral {
         
         typealias ArrayType = Int32
         typealias ValueType = Int32
@@ -802,17 +854,22 @@ open class BFIELD: FIELD {
         init(val: [ValueType]?){
             self.val = val
         }
+        
+        public init(arrayLiteral : Int32...){
+            self.val = arrayLiteral
+        }
+
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -822,7 +879,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PK
     /// Array Descriptor (32-bit)
-    final public class PK : BFIELD, VarArray {
+    final public class PK : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = Int64
         
@@ -834,17 +891,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Int64...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -854,7 +915,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PA
     /// Array Descriptor (32-bit)
-    final public class PA : BFIELD, VarArray {
+    final public class PA : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = String.UTF8View.Element
 
@@ -871,17 +932,21 @@ open class BFIELD: FIELD {
             self.val = Array(val.utf8)
         }
         
+        public init(arrayLiteral : String.UTF8View.Element...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
 
         public override var form: TFORM {
@@ -896,7 +961,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PE
     /// Array Descriptor (32-bit)
-    final public class PE : BFIELD, VarArray {
+    final public class PE : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = Float32
         
@@ -908,17 +973,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Float32...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -928,7 +997,7 @@ open class BFIELD: FIELD {
     
     //MARK:- PC
     /// Array Descriptor (32-bit)
-    final public class PC : BFIELD, VarArray {
+    final public class PC : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = (Float, Float)
         
@@ -940,17 +1009,8 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+        public init(arrayLiteral : (Float,Float)...){
+            self.val = arrayLiteral
         }
         
         public override var form: TFORM {
@@ -973,7 +1033,7 @@ open class BFIELD: FIELD {
     
     //MARK:- Q : Array Descriptor (64-bit)
     /// Array Descriptor (64-bit)
-    final public class QD : BFIELD, VarArray {
+    final public class QD : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int64
         typealias ValueType = Double
         
@@ -985,17 +1045,21 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
+        public init(arrayLiteral : Double...){
+            self.val = arrayLiteral
+        }
+        
         override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-                /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+            return self.format(disp).description
+        }
+        
+        override public func format(_ using: BDISP) -> [String] {
+            return val?.reduce(into: [String](), { result, value in
+                
+                /// - Todo: format according to BDISP
+                
+                result.append(value.description)
+            }) ?? []
         }
         
         public override var form: TFORM {
@@ -1004,7 +1068,7 @@ open class BFIELD: FIELD {
     }
     
     /// Array Descriptor (64-bit)
-    final public class QM : BFIELD, VarArray {
+    final public class QM : BFIELD, VarArray, ExpressibleByArrayLiteral {
         
         typealias ArrayType = Int64
         typealias ValueType = (Double,Double)
@@ -1017,17 +1081,8 @@ open class BFIELD: FIELD {
             self.val = val
         }
         
-        override public func format(_ disp: BDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            /// - ToDo: format `val`
-            default:
-                return self.description
-            }
+        public init(arrayLiteral : (Double,Double)...){
+            self.val = arrayLiteral
         }
         
         public override var form: TFORM {

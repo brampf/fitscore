@@ -15,17 +15,17 @@ final class TypeTests: XCTestCase {
         let ta_0 = TFIELD.A(val: nil)
         let ti_0 = TFIELD.I(val: nil)
  
-        let ta_1 = TFIELD.A(val: "Hello World")
-        let ta_2 = TFIELD.A(val: "Hello World")
+        let ta_1 : TFIELD.A = "Hello World"
+        let ta_2 : TFIELD.A = TFIELD.A(val: "Hello World")
         
         XCTAssertNotEqual(ta_0, ti_0)
         XCTAssertNotEqual(ta_0, ta_1)
         XCTAssertEqual(ta_1, ta_2)
         
         let tf_1 = TFIELD.F(val: 32.0)
-        let tf_2 = TFIELD.E(val: 32.0)
+        let tf_2 : TFIELD.E = 2.0
         let tf_3 = TFIELD.F(val: 32.0)
-        let tf_4 = TFIELD.F(val: 64)
+        let tf_4 : TFIELD.F = 64.0
         
         XCTAssertNotEqual(tf_1, tf_2)
         XCTAssertNotEqual(tf_1, tf_4)
@@ -42,7 +42,7 @@ final class TypeTests: XCTestCase {
         
         XCTAssertEqual(hdu.headerUnit.count, 2)
         XCTAssertEqual(hdu.headerUnit.first?.keyword, "TEST")
-        XCTAssertTrue(hdu.headerUnit.first?.value == "Hello World", "Value: \(hdu.headerUnit.first?.value)")
+        XCTAssertTrue(hdu.headerUnit.first?.value == "Hello World", "Value: \(String(describing: hdu.headerUnit.first?.value))")
         
     
         

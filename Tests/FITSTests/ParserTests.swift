@@ -54,14 +54,14 @@ final class ParserTests: XCTestCase {
         let text = "NAXIS1  =                  480 / length of data axis 1                          "
         let block = HeaderBlock.parse(form: text)
         
-        XCTAssertEqual(block.keyword, HDUKeyword.NAXIS+"1")
+        XCTAssertEqual(block.keyword, "NAXIS\(1)")
         XCTAssertTrue(block.value == 480)
         XCTAssertEqual(block.comment, "length of data axis 1")
         
         let text2 = "NAXIS1  =                89688 / length of first data axis                      "
         let block2 = HeaderBlock.parse(form: text2)
         
-        XCTAssertEqual(block2.keyword, HDUKeyword.NAXIS+"1")
+        XCTAssertEqual(block2.keyword, "NAXIS\(1)")
         XCTAssertTrue(block2.value == 89688)
         XCTAssertEqual(block2.comment, "length of first data axis")
     }

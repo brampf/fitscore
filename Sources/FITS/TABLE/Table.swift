@@ -28,4 +28,6 @@ public protocol Table {
     associatedtype Field : FIELD
     
     var columns : [TableColumn<Field>] {get}
+    
+    
 }

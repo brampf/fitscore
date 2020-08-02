@@ -92,8 +92,6 @@ public protocol FORM : Hashable, FITSSTRING, HDUValue {
     var length : Int {get}
     
     var fieldType : TFIELD.Type {get}
-    
-
 }
 
 public protocol UNIT {

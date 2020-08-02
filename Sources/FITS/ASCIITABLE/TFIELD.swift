@@ -87,12 +87,17 @@ open class TFIELD : FIELD {
         return TFIELD.ERR
     }
     
-    final public class A : TFIELD {
-        
+    //MARK:- TFIELD.A
+    final public class A : TFIELD , ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+
         var val: String?
         
         init(val: String?){
             self.val = val
+        }
+        
+        public init(stringLiteral: String){
+            self.val = stringLiteral
         }
         
         override public func format(_ disp: TDISP?) -> String? {
@@ -136,11 +141,16 @@ open class TFIELD : FIELD {
         }
     }
     
-    final public class I : TFIELD {
+    //MARK:- TFIELD.I
+    final public class I : TFIELD, ExpressibleByIntegerLiteral {
         var val: Int?
         
         init(val: Int?){
             self.val = val
+        }
+        
+        public init(integerLiteral : Int){
+            self.val = integerLiteral
         }
         
         override public func format(_ disp: TDISP?) -> String? {
@@ -191,11 +201,16 @@ open class TFIELD : FIELD {
         }
     }
     
-    final public class F : TFIELD {
+    //MARK:- TFIELD.F
+    final public class F : TFIELD , ExpressibleByFloatLiteral {
         var val: Float?
         
         init(val: Float?){
             self.val = val
+        }
+        
+        public init(floatLiteral: Float){
+            self.val = floatLiteral
         }
         
         override public func format(_ disp: TDISP?) -> String? {
@@ -240,11 +255,16 @@ open class TFIELD : FIELD {
         }
     }
     
-    final public class E : TFIELD {
+    //MARK:- TFIELD.E
+    final public class E : TFIELD, ExpressibleByFloatLiteral {
         var val: Float?
         
         init(val: Float?){
             self.val = val
+        }
+        
+        public init(floatLiteral: Float){
+            self.val = floatLiteral
         }
         
         override public func format(_ disp: TDISP?) -> String? {
@@ -289,11 +309,16 @@ open class TFIELD : FIELD {
         }
     }
     
-    final public  class D : TFIELD {
+    //MARK:- TFIELD.D
+    final public  class D : TFIELD , ExpressibleByFloatLiteral {
         var val: Double?
         
         init(val: Double?){
             self.val = val
+        }
+        
+        public init(floatLiteral : Double){
+            self.val = floatLiteral
         }
         
         override public func format(_ disp: TDISP?) -> String? {

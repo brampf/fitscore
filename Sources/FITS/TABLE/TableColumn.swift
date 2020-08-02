@@ -37,6 +37,8 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
     @Keyword("TUNIT") public var TUNIT: String? = ""
     @Keyword("TTYPE") public var TTYPE: String? = ""
     
+    @Keyword("TNULL") public var TNULL: String? = ""
+    
     //private var hdu : AnyTableHDU<Field>
     
     public internal(set) var values : [Field] = []
@@ -49,15 +51,17 @@ public class TableColumn<Field> : Identifiable where Field: FIELD {
         self._TDISP = Keyword<Field.TDISP>("TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>("TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>( "TTYPE\(col)", hdu)
+        self._TNULL = Keyword<String>( "TNULL\(col)", hdu)
     }
     
-    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String, fields: [Field]) where F.TFORM == Field.TFORM  {
+    init<F: FIELD>(_ hdu: AnyTableHDU<F>, _ col: Int, TDISP: Field.TDISP?, TFORM: Field.TFORM, TUNIT: String?, TTYPE: String, TNULL: String, fields: [Field]) where F.TFORM == Field.TFORM  {
         
         //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
         self._TFORM = Keyword<Field.TFORM>(wrappedValue: TFORM, "TFORM\(col)", hdu)
         self._TDISP = Keyword<Field.TDISP>(wrappedValue: TDISP, "TDISP\(col)", hdu)
         self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", hdu)
         self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", hdu)
+        self._TNULL = Keyword<String>(wrappedValue: TNULL, "TNULL\(col)", hdu)
         
         self.values = fields
     }
