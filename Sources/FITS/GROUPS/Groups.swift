@@ -37,9 +37,11 @@ public struct Group : RandomGroup {
         self.hdu = hdu
     }
     
+    
+    
     public subscript<Byte: FITSByte>(_ group: Int) -> [Byte] {
         
-        guard let axis = hdu.naxis, group < axis-1 && group > 0 else {
+        guard let axis = hdu.naxis, let gcount = hdu.gcount, group < gcount && group >= 0 else {
             return []
         }
         
@@ -47,15 +49,20 @@ public struct Group : RandomGroup {
             return []
         }
         
-        let offset = hdu.dataArraySize + (hdu.pcount ?? 0)
+        var groupSize = 1
+        for dim in 2..<axis {
+            groupSize *= hdu.naxis(dim) ?? 1
+        }
+        groupSize *= abs(Byte.bitpix.size)
         
-        let groupSize = hdu.naxis(group+2) ?? 0 * (hdu.bitpix?.size ?? 0)
+        let start = groupSize * group + (hdu.pcount ?? 0) * abs(Byte.bitpix.size)
+        let stop = start + groupSize
         
-        let start = offset
-        let stop = hdu.pcount ?? 0 + groupSize * group
+        print("Group \(group): \(start)...\(stop)")
+        
         var sub = data.subdata(in: start..<stop)
         return sub.withUnsafeMutableBytes { mptr8 in
-            mptr8.bindMemory(to: Byte.self).map{$0.littleEndian}
+            mptr8.bindMemory(to: Byte.self).map{$0.bigEndian}
         }
         
     }
