@@ -3,12 +3,14 @@
 </p>
 
 <p align="center">
-    <a href="LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
-    </a>
-    <a href="https://swift.org">
-    <img src="https://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
-    </a>
+<a href="LICENSE.md">
+<img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
+</a>
+<a href="https://swift.org">
+<img src="https://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
+</a>
+<img src="https://img.shields.io/github/languages/top/brampf/fitscore?color=bright" alt="Language">
+<img src="https://img.shields.io/github/workflow/status/brampf/fitscore/Swift" alt="Swift">
 </p>
 
 A native Swift library to read and write FITS files
