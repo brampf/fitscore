@@ -64,8 +64,9 @@ final class TableTests: XCTestCase {
         
         for _ in 0..<(hdu.tfields ?? 0) {
             let dat = hdu.dataUnit!.subdata(in: 0..<(hdu.naxis(1) ?? 0))
-            let row = String(data: dat, encoding: .ascii)
-            print(row)
+            if let row = String(data: dat, encoding: .ascii) {
+                print(row)
+            }
         }
         
         plotTable(hdu)

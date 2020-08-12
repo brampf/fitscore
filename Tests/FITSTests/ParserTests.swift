@@ -91,7 +91,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.DATE)
-        XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value)")
+        XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value.debugDescription)")
         XCTAssertEqual(block.comment, "UTC date that FITS file was created")
     }
     
@@ -100,7 +100,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, "ANY")
-        XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value)")
+        XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value.debugDescription)")
         XCTAssertEqual(block.comment, "And acomment as well")
     }
 

@@ -21,28 +21,36 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-/// Value formatter for table fields
-public struct TableValueFormatter<Field> where Field: FIELD  {
+extension BFIELD {
     
-    /// table column the value formatting is based on
-    var column : TableColumn<Field>
-    
-    public init(column : TableColumn<Field>){
-        self.column = column
-    }
-    
-    /// format the given value according the properties provided by the table column
-    func string<D: Displayable>(_ value: D) -> String where D.TDISP == Field.TDISP, D.TFORM == Field.TFORM {
+    //MARK:- PE
+    /// Array Descriptor (32-bit)
+    final public class PE : BFIELD, VarArray, ExpressibleByArrayLiteral {
+        typealias ArrayType = Int32
+        typealias ValueType = Float32
         
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
+        let name = "PE"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : Float32...){
+            self.val = arrayLiteral
+        }
+        
+        public override var form: TFORM {
+            return BFORM.PE(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
     }
     
-    /// format the given value according the properties provided by the table column
-    public func string(_ value: Field) -> String where Field : Displayable {
-        
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
-    }
 }

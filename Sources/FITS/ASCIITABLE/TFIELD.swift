@@ -21,11 +21,12 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
+/**
+ Supertype to all ASCII Table Types
+ */
 open class TFIELD : FIELD {
-    
     public typealias TDISP = FITS.TDISP
     public typealias TFORM = FITS.TFORM
     
@@ -44,11 +45,11 @@ open class TFIELD : FIELD {
     #endif
     
     public func write(_ form: TFORM) -> String {
-        return ""
+        fatalError("Not Implemented on supertype")
     }
     
     public func write(to: inout Data) {
-        //
+        fatalError("Not Implemented on supertype")
     }
     
     public var description: String {
@@ -58,6 +59,18 @@ open class TFIELD : FIELD {
     public var debugDescription: String {
         return String(describing: self)
     }
+    
+    public var form: TFORM {
+        fatalError("Not Implemented on supertype")
+    }
+    
+    public func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
+        fatalError("Not Implemented on supertype")
+    }
+  
+}
+
+extension TFIELD {
     
     public static func parse(string: String?, type: TFORM) -> TFIELD {
         
@@ -79,288 +92,4 @@ open class TFIELD : FIELD {
         }
     }
     
-    public var form: TFORM {
-        fatalError("Not Implemented on supertype")
-    }
-    
-    public func format(_ disp: TDISP?) -> String? {
-        return TFIELD.ERR
-    }
-    
-    //MARK:- TFIELD.A
-    final public class A : TFIELD , ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
-
-        var val: String?
-        
-        init(val: String?){
-            self.val = val
-        }
-        
-        public init(stringLiteral: String){
-            self.val = stringLiteral
-        }
-        
-        override public func format(_ disp: TDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .A(let w):
-                return String(val.prefix(w))
-            default:
-                return self.description
-            }
-        }
-        
-        public override var form: TFORM {
-            TFORM.A(w: val?.count ?? 0)
-        }
-        
-        override public func write(_ form: TFORM) -> String {
-            switch form {
-            case .A(let w):
-                return (val ?? "").padPrefix(toSize: w, char: " ")
-            default:
-                return ""
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.A(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("A")
-            hasher.combine(val)
-        }
-        
-        public override var description: String{
-            return val != nil ? "\(val!)" : "-/-"
-        }
-    }
-    
-    //MARK:- TFIELD.I
-    final public class I : TFIELD, ExpressibleByIntegerLiteral {
-        var val: Int?
-        
-        init(val: Int?){
-            self.val = val
-        }
-        
-        public init(integerLiteral : Int){
-            self.val = integerLiteral
-        }
-        
-        override public func format(_ disp: TDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .I( _, let m):
-                return String(val).padPrefix(minSize: m ?? 0, char: "0")
-            case .B( _, let m):
-                return String(val, radix: 2).padPrefix(minSize: m ?? 0, char: "0")
-            case .O( _, let m):
-                return String(val, radix: 8).padPrefix(minSize: m ?? 0, char: "0")
-            case .Z( _, let m):
-                return String(val, radix: 16).padPrefix(minSize: m ?? 0, char: "0")
-            default:
-                return self.description
-            }
-        }
-        
-        public override var form: TFORM {
-            let string = String(format: "%d", val ?? 0)
-            return TFORM.I(w: string.count)
-        }
-        
-        override public func write(_ form: TFORM) -> String {
-            switch form {
-            case .I(let w):
-                return String(format: "%\(w)d", val ?? 0)
-            default:
-                return ""
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.I(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("I")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-    }
-    
-    //MARK:- TFIELD.F
-    final public class F : TFIELD , ExpressibleByFloatLiteral {
-        var val: Float?
-        
-        init(val: Float?){
-            self.val = val
-        }
-        
-        public init(floatLiteral: Float){
-            self.val = floatLiteral
-        }
-        
-        override public func format(_ disp: TDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .F(let w, let d):
-                return String(format: "%\(w).\(d)f", val)
-            default:
-                return self.description
-            }
-        }
-        
-        public override var form: TFORM {
-            let string = String(format: "%f",val ?? 0)
-            return TFORM.F(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
-        }
-        
-        override public func write(_ form: TFORM) -> String {
-            switch form {
-            case .F(let w, let d):
-               return String(format: "%\(w).\(d)f", val ?? 0)
-            default:
-                return ""
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.F(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("F")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-    }
-    
-    //MARK:- TFIELD.E
-    final public class E : TFIELD, ExpressibleByFloatLiteral {
-        var val: Float?
-        
-        init(val: Float?){
-            self.val = val
-        }
-        
-        public init(floatLiteral: Float){
-            self.val = floatLiteral
-        }
-        
-        override public func format(_ disp: TDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .E(let w, let d, _):
-                return String(format: "%\(w).\(d)E", val)
-            default:
-                return self.description
-            }
-        }
-        
-        public override var form: TFORM {
-            let string = String(format: "%e",val ?? 0)
-            return TFORM.E(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
-        }
-        
-        override public func write(_ form: TFORM) -> String {
-            switch form {
-            case .E(let w, let d):
-                return String(format: "%\(w).\(d)E", val ?? 0)
-            default:
-                return ""
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.E(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("E")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-    }
-    
-    //MARK:- TFIELD.D
-    final public  class D : TFIELD , ExpressibleByFloatLiteral {
-        var val: Double?
-        
-        init(val: Double?){
-            self.val = val
-        }
-        
-        public init(floatLiteral : Double){
-            self.val = floatLiteral
-        }
-        
-        override public func format(_ disp: TDISP?) -> String? {
-            
-            guard let val = self.val else {
-                return nil
-            }
-            
-            switch disp {
-            case .D(let w, let d, _):
-                return String(format: "%\(w).\(d)E", val)
-            default:
-                return self.description
-            }
-        }
-        
-        public override var form: TFORM {
-            let string = String(format: "%e",val ?? 0)
-            return TFORM.D(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
-        }
-        
-        override public func write(_ form: TFORM) -> String {
-            switch form {
-            case .D(let w, let d):
-                return String(format: "%\(w).\(d)E", val ?? 0)
-            default:
-                return ""
-            }
-        }
-        
-        override public var debugDescription: String {
-            return "TFIELD.D(\(val?.description ?? "-/-"))"
-        }
-        
-        public override func hash(into hasher: inout Hasher) {
-            hasher.combine("D")
-            hasher.combine(val)
-        }
-        
-        public override var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-        
-    }
 }

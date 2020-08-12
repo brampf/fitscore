@@ -2,15 +2,15 @@
 import XCTest
 @testable import FITS
 
-func XCTAssertIdent<B: BField & BFIELD>(_ field: B, file: StaticString = #file, line: UInt = #line) {
+func XCTAssertIdent<B: BField & BFIELD>(_ field: B, file: StaticString = #filePath, line: UInt = #line) {
     
     var data = Data()
     field.write(to: &data)
     
     let new = BFIELD.parse(data: data, type: field.form)
     
-    XCTAssertEqual(field.form, new.form, file: file, line: line)
-    XCTAssertEqual(field, new, file: file, line: line)
+    XCTAssertEqual(field.form, new.form, file: (file), line: line)
+    XCTAssertEqual(field, new, file: (file), line: line)
 }
 
 func XCTAssertLength<B: BField>(_ field: B, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
@@ -20,11 +20,11 @@ func XCTAssertLength<B: BField>(_ field: B, _ expectedLenght: Int, file: StaticS
     
     let count = field.val?.count ?? 0
     
-    XCTAssertEqual(data.count, count * MemoryLayout<B.ValueType>.size, file: file, line: line)
-    XCTAssertEqual(data.count, expectedLenght, file: file, line: line)
+    XCTAssertEqual(data.count, count * MemoryLayout<B.ValueType>.size, file: (file), line: line)
+    XCTAssertEqual(data.count, expectedLenght, file: (file), line: line)
 }
 
-func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
+func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #filePath, line: UInt = #line) {
     
     var data = Data()
     var heap = Data()
@@ -389,6 +389,38 @@ final class BintableTests: XCTestCase {
         
     }
     
+    func testFormatA(){
+        
+        let a : BFIELD.A = "Hello World"
+        XCTAssertEqual(a.form, BFORM.A(r: 11))
+        
+        var form = a.format(BDISP.A(w: 11), BFORM.A(r: 11), "")
+        XCTAssertEqual(form, "Hello World")
+        
+        form = a.format(BDISP.A(w: 8), BFORM.A(r: 11), "")
+        XCTAssertEqual(form, "Hello Wo")
+        
+        form = a.format(BDISP.A(w: 20), BFORM.A(r: 11), "")
+        XCTAssertEqual(form, "         Hello World")
+        
+        form = a.format(nil, BFORM.A(r: 11), "")
+        XCTAssertEqual(form, "Hello World")
+        
+        form = a.format(nil, BFORM.A(r: 8), "")
+        XCTAssertEqual(form, "Hello Wo")
+        
+        form = a.format(nil, BFORM.A(r: 20), "")
+        XCTAssertEqual(form, "         Hello World")
+        
+        form = a.format(nil, nil, "")
+        XCTAssertEqual(form, "")
+        
+        form = a.format(nil, nil, "Zero")
+        XCTAssertEqual(form, "Zero")
+        
+        form = a.format(nil, nil, nil)
+        XCTAssertEqual(form, "")
+    }
     
     
     

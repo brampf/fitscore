@@ -336,7 +336,7 @@ final class PG93Tests: XCTestCase {
         
         XCTAssertEqual(file.HDUs.count, 4)
         XCTAssertTrue(file.HDUs[0] is BintableHDU)
-        XCTAssertTrue(file.HDUs[1] is AnyHDU)
+        // XCTAssertTrue(file.HDUs[1] is AnyHDU) // Always true
         XCTAssertTrue(file.HDUs[2] is ImageHDU)
         XCTAssertTrue(file.HDUs[3] is TableHDU)
         //file.debugDescription

@@ -69,39 +69,6 @@ extension Accelerate.DSPDoubleComplex : ComplexNumber {
 }
 #endif
 
-//MARK:- Table Data Types
-public protocol FIELD : Hashable, CustomDebugStringConvertible, CustomStringConvertible {
-    associatedtype TDISP : DISP
-    associatedtype TFORM : FORM
-    
-    func format(_ using: TDISP?) -> String?
-    func write(_ form: TFORM) -> String
-    
-    var form : TFORM {get}
-    
-}
-
-public protocol DISP : Hashable, FITSSTRING, HDUValue {
-    
-    var length : Int {get}
-}
-
-public protocol FORM : Hashable, FITSSTRING, HDUValue {
-    associatedtype TFIELD : FIELD
-    
-    var length : Int {get}
-    
-    var fieldType : TFIELD.Type {get}
-}
-
-public protocol UNIT {
-    
-}
-
-public protocol TTYPE {
-    
-}
-
 /// Indicator that values are to  be treated like strings when reading / writing
 public protocol FITSSTRING {
     

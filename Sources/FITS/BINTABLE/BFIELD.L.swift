@@ -21,28 +21,45 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-/// Value formatter for table fields
-public struct TableValueFormatter<Field> where Field: FIELD  {
+extension BFIELD {
     
-    /// table column the value formatting is based on
-    var column : TableColumn<Field>
-    
-    public init(column : TableColumn<Field>){
-        self.column = column
-    }
-    
-    /// format the given value according the properties provided by the table column
-    func string<D: Displayable>(_ value: D) -> String where D.TDISP == Field.TDISP, D.TFORM == Field.TFORM {
+    //MARK:- L : Logical
+    /// Logical
+    final public class L : BFIELD, BField , ExpressibleByArrayLiteral {
+
+        typealias ValueType = Bool
         
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
+        let name = "L"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : Bool...){
+            self.val = arrayLiteral
+        }
+        
+        public func write(to: inout Data) {
+            let string = val?.reduce(into: "", { r, v in
+                r.append(v ? "T" : "F")
+            }) ?? ""
+            to.append(string)
+        }
+        
+        override public var form: TFORM {
+            return BFORM.L(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.val?.map({ value in
+                value.format(disp, form, null)
+            }).description ?? empty(form, null, "")
+            
+        }
     }
     
-    /// format the given value according the properties provided by the table column
-    public func string(_ value: Field) -> String where Field : Displayable {
-        
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
-    }
 }

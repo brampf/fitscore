@@ -238,7 +238,7 @@ open class AnyHDU : HDU, Reader {
     /**
      - Returns:  `false` if the header unit completed with `Keyworld.END`, true otherwise
      */
-    internal final func readHeader(data: inout Data) -> Bool{
+    internal final func readHeader(data: inout Data) -> Bool {
         
         for index in stride(from: 0, to: (BLOCK_LENGTH * CARD_LENGTH) - 1, by: CARD_LENGTH) {
             

@@ -128,11 +128,13 @@ extension AnyTableHDU {
         for row in 0..<(self.naxis(2) ?? 0) {
             var out = ""
             for col in 0..<(self.tfields ?? 0) {
-                let disp = self.columns[col].TDISP
+
                 var value = ""
                 if row < self.columns[col].values.count {
                     let field = self.columns[col].values[row]
-                    value = field.format(disp) ?? ""
+    
+                    let formatter = TableValueFormatter(column: self.columns[col])
+                    value = formatter.string(field)
                 }
                 if col == 0 {
                     out.append("|")
