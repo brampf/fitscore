@@ -216,13 +216,13 @@ open class AnyHDU : HDU, Reader {
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
-            
+
+        // initilize the wrappers
+        self.initializeWrapper()
+        
         #if DEBUG
         print("Expected: \(self.dataSize); Padded: \(self.padded(value: self.dataSize,to: CARD_LENGTH*BLOCK_LENGTH)) Found: \(data.count)")
         #endif
-        
-        // initilize the wrappers
-        self.initializeWrapper()
         
         // read the data block
         self.readData(data: &data)

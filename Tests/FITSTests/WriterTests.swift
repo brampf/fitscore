@@ -130,8 +130,6 @@ final class WriterTests: XCTestCase {
         var data = Data()
         XCTAssertNoThrow(try sample8.write(to: &data))
         
-        self.write(file: sample8, name: "sample8.fits")
-        
         #if !os(Linux)
         self.add(XCTAttachment(data: data))
         #endif
