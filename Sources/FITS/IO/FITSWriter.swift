@@ -133,3 +133,23 @@ extension String {
         }
     }
 }
+
+/// convenience extensions
+extension String {
+    
+    init<B: BinaryInteger>(_ int: B, radix: Int, min: Int, max: Int) {
+    
+        self.init(int, radix: radix)
+        if self.count < min {
+            self.m_padPrefix(toSize: min, char: "0")
+        } else {
+            self.m_padPrefix(toSize: max, char: "0")
+        }
+    }
+    
+    init(_ other: String, padded: Int){
+        self.init(other)
+        self.m_padPrefix(toSize: padded, char: " ")
+    }
+    
+}

@@ -40,27 +40,27 @@ open class AnyHDU : HDU, Reader {
     }
     
     /// The value field shall contain a character string to be used to distinguish among different extensions of the same type
-    @Keyword(HDUKeyword.EXTNAME) public var extname : String?
+    @Keyword(.EXTNAME) public var extname : String?
     
     /// The value field shall contain an integer rang- ing from 1 to 999, representing one more than the number of axes in each data array.
-    @Keyword(HDUKeyword.NAXIS) public var naxis : Int?
+    @Keyword(.NAXIS) public var naxis : Int?
     
-    @Keyword(HDUKeyword.BITPIX) public var bitpix : BITPIX?
-    
-    /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
-    @Keyword(HDUKeyword.PCOUNT) public var pcount : Int? = 0
+    @Keyword(.BITPIX) public var bitpix : BITPIX?
     
     /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
-    @Keyword(HDUKeyword.GCOUNT) public var gcount : Int? = 1
+    @Keyword(.PCOUNT) public var pcount : Int? = 0
+    
+    /// The value field shall contain an integer equal to the number of parameters preceding each array in a group
+    @Keyword(.GCOUNT) public var gcount : Int? = 1
     
     /// This keyword shall be used, along with the BZERO keyword, to linearly scale the array pixel values (i.e., the actual values stored in the FITS file) to transform them into the physical values that they represent
-    @Keyword(HDUKeyword.BSCALE) public var bscale : Float? = 1.0
+    @Keyword(.BSCALE) public var bscale : Float? = 1.0
     
     /// This keyword shall be used, along with the BSCALE keyword, to linearly scale the array pixel values (i.e., the actual values stored in the FITS file) to transform them into the physical values that they represent
-    @Keyword(HDUKeyword.BZERO) public var bzero : Float? = 0.0
+    @Keyword(.BZERO) public var bzero : Float? = 0.0
     
     /// The value field shall contain a character string describing the physical units in which the quantities in the ar- ray, after application of BSCALE and BZERO, are expressed.
-    @Keyword(HDUKeyword.BUNIT) public var bunit : String?
+    @Keyword(.BUNIT) public var bunit : String?
     
     public func naxis(_ dimension: Naxis) -> Int? {
         return self.lookup("NAXIS\(dimension)")
@@ -186,7 +186,7 @@ open class AnyHDU : HDU, Reader {
     }
     
     /// sets value and comment for `HDUKeyworld`
-    public func header(_ keyword: HDUKeyword, comment: String?) {
+    public func header(_ keyword: HDUKeyword, comment: String? = nil) {
         
         if let block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
@@ -238,7 +238,7 @@ open class AnyHDU : HDU, Reader {
     /**
      - Returns:  `false` if the header unit completed with `Keyworld.END`, true otherwise
      */
-    internal final func readHeader(data: inout Data) -> Bool{
+    internal final func readHeader(data: inout Data) -> Bool {
         
         for index in stride(from: 0, to: (BLOCK_LENGTH * CARD_LENGTH) - 1, by: CARD_LENGTH) {
             

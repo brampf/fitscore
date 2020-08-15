@@ -21,53 +21,48 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-public class TableRow<Field> : Identifiable where Field: FIELD {
+extension BFIELD {
     
-    public let id = UUID()
-    
-    private let table: AnyTableHDU<Field>
-    private let rowIndex : Int
-    
-    init(_ table: AnyTableHDU<Field>, _ index: Int){
-        self.table = table
-        self.rowIndex = index
-    }
-    
-    public var values : [Field] {
-        table.columns.reduce(into: [Field]()) { array, column in
-            array.append(column[rowIndex])
+    //MARK:- M : Double-precision complex
+    /// Double-precision complex
+    final public class M : BFIELD, ValueBField, ExpressibleByArrayLiteral {
+        typealias ValueType = DoubleComplexValue
+        
+        let name = "M"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : DoubleComplexValue...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
+            return BFORM.M(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     
-    subscript(_ col: Int) -> Field {
-        get{
-            table.columns[col][rowIndex]
-        }
-        set {
-            guard self.TFORM(col)?.fieldType == type(of: newValue) else {
-                print("Field does not match \(type(of: newValue))")
-                return
-            }
-            table.columns[col][rowIndex] = newValue
-        }
-    }
     
-    func TFORM(_ col: Int) -> Field.FORM? {
-        return table.columns[col].TFORM
-    }
-    
-    func TDISP(_ col: Int) -> Field.DISP? {
-        return table.columns[col].TDISP
-    }
-    
-}
-
-extension TableRow : CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
-        return "Row: \(values.debugDescription)"
-    }
 }

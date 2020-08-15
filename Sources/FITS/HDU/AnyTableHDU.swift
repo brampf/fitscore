@@ -24,7 +24,7 @@
 
 import Foundation
 
-open class AnyTableHDU<F: FIELD> : AnyHDU, Table  {
+open class AnyTableHDU<F: FIELD> : AnyHDU, Table {
     public typealias Field = F
     
     public internal(set) var columns: [TableColumn<Field>] = []
@@ -65,9 +65,9 @@ extension AnyTableHDU {
     }
     
     /// adds a new column to the table
-    public func addColumn(index: Int? = nil, TFORM: Field.TFORM, TDISP: Field.TDISP? = nil, TUNIT: String? = "", TTYPE: String = "", _ fields: Field...) -> Column {
+    public func addColumn(index: Int? = nil, TFORM: Field.FORM, TDISP: Field.DISP? = nil, TUNIT: String? = "", TTYPE: String = "", TNULL: String = "", _ fields: Field...) -> Column {
         
-        let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, fields: fields)
+        let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, TNULL: TNULL, fields: fields)
     
         if let index = index {
             self.columns.insert(column, at: index)
@@ -92,11 +92,12 @@ extension AnyTableHDU {
     public func removeColum(index: Int) {
         self.columns.remove(at: index)
     }
+    
 }
 
 extension AnyTableHDU {
         
-    public func plot(data: inout Data){
+     public func plot(data: inout Data){
         
         var dashWidth =  0
         let maxWidths = self.columns.reduce(into: [Int]()) { me, col in
@@ -128,11 +129,11 @@ extension AnyTableHDU {
         for row in 0..<(self.naxis(2) ?? 0) {
             var out = ""
             for col in 0..<(self.tfields ?? 0) {
-                let disp = self.columns[col].TDISP
+
                 var value = ""
                 if row < self.columns[col].values.count {
                     let field = self.columns[col].values[row]
-                    value = field.format(disp) ?? ""
+                    value = field.description
                 }
                 if col == 0 {
                     out.append("|")
