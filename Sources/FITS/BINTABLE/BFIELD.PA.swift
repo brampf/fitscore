@@ -92,6 +92,14 @@ extension BFIELD {
             
         }
         
+        override public var description: String {
+            String(self.val) ?? "-/-"
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)

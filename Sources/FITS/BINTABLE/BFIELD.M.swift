@@ -45,17 +45,17 @@ extension BFIELD {
             return BFORM.M(r: val?.count ?? 0)
         }
         
-        override public var debugDescription: String {
-            return "BFIELD.M(\(val?.description ?? "-/-"))"
-        }
-        
-        override public var description: String {
-            return val != nil ? "\(val!)" : "-/-"
-        }
-        
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
         }
         
         override public func hash(into hasher: inout Hasher) {

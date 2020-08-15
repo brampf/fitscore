@@ -51,10 +51,6 @@ extension BFIELD {
             return BFORM.X(r: val?.count ?? 0 * MemoryLayout<UInt8>.size)
         }
         
-        override public var debugDescription: String {
-            return "BFIELD.X(\(val?.description ?? "-/-"))"
-        }
-        
         override public var description: String {
             return val != nil ? "\(val!.reduce(into: "", { $0 += "["+String($1.rawValue, radix: 2).padPrefix(toSize: 8, char: "0")+"]" }))" : "-/-"
         }
@@ -65,6 +61,10 @@ extension BFIELD {
                 value.format(disp, form, null)
             }).description ?? empty(form, null, "")
             
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
         }
         
         override public func hash(into hasher: inout Hasher) {

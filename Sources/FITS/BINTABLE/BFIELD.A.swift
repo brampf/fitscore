@@ -88,7 +88,7 @@ extension BFIELD {
         }
         
         override public var description: String {
-            self.desc
+            String(self.val) ?? "-/-"
         }
         
         override public var debugDescription: String {
