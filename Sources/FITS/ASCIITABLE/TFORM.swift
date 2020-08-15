@@ -21,10 +21,9 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-public enum TFORM : FORM {    
+public enum TFORM : FORM {
     
     /// Character
     case A(w: Int)
@@ -40,43 +39,6 @@ public enum TFORM : FORM {
     
     /// Floating-point, exponential notation
     case D(w: Int, d: Int)
-    
-    public static  func parse(_ string: String) -> TFORM? {
-        
-        var trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
-        guard !trimmed.isEmpty else {
-            return nil
-        }
-        
-        let head = trimmed.removeFirst()
-        var w = ""
-        var d = ""
-        var digits = false
-        trimmed.forEach { char in
-            if char == "." {
-                digits  = true
-            } else if digits {
-                d.append(char)
-            } else  {
-                w.append(char)
-            }
-        }
-        
-        switch head {
-        case "A":
-            return TFORM.A(w: Int(w) ?? 0)
-        case "I":
-            return TFORM.I(w: Int(w) ?? 0)
-        case "F":
-            return TFORM.F(w: Int(w) ?? 0, d: Int(d) ?? 0)
-        case "E":
-            return TFORM.E(w: Int(w) ?? 0, d: Int(d) ?? 0)
-        case "D":
-            return TFORM.D(w: Int(w) ?? 0, d: Int(d) ?? 0)
-        default:
-            return nil
-        }
-    }
     
     public var length : Int {
         
@@ -124,4 +86,45 @@ public enum TFORM : FORM {
             return "D\(width).\(digits)"
         }
     }
+}
+
+extension TFORM : Parser {
+    
+    public static  func parse(_ string: String) -> TFORM? {
+        
+        var trimmed = string.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(arrayLiteral: "'")))
+        guard !trimmed.isEmpty else {
+            return nil
+        }
+        
+        let head = trimmed.removeFirst()
+        var w = ""
+        var d = ""
+        var digits = false
+        trimmed.forEach { char in
+            if char == "." {
+                digits  = true
+            } else if digits {
+                d.append(char)
+            } else  {
+                w.append(char)
+            }
+        }
+        
+        switch head {
+        case "A":
+            return TFORM.A(w: Int(w) ?? 0)
+        case "I":
+            return TFORM.I(w: Int(w) ?? 0)
+        case "F":
+            return TFORM.F(w: Int(w) ?? 0, d: Int(d) ?? 0)
+        case "E":
+            return TFORM.E(w: Int(w) ?? 0, d: Int(d) ?? 0)
+        case "D":
+            return TFORM.D(w: Int(w) ?? 0, d: Int(d) ?? 0)
+        default:
+            return nil
+        }
+    }
+    
 }

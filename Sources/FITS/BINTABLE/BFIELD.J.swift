@@ -21,23 +21,39 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-protocol Reader {
+extension BFIELD {
     
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
-
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
-}
-
-protocol Parser {
-    
-    static func parse(_ from: String) -> Self?
+    //MARK:- J : Int32
+    /// 32-bit integer
+    final public class J : BFIELD, ValueBField, ExpressibleByArrayLiteral{
+        typealias ValueType = Int32
+        
+        let name = "J"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : Int32...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
+            return BFORM.J(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
+        }
+    }
     
 }

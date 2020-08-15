@@ -21,23 +21,45 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-protocol Reader {
+extension BFIELD {
     
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
+    /// Array Descriptor (64-bit)
+    final public class QM : BFIELD, VarArray, ExpressibleByArrayLiteral {
+        
+        typealias ArrayType = Int64
+        typealias ValueType = DoubleComplexValue
+        
+        let name = "QM"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : DoubleComplexValue...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
+            return BFORM.QM(r: val?.count ?? 0)
+        }
 
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
-}
-
-protocol Parser {
-    
-    static func parse(_ from: String) -> Self?
+        func write(to: inout Data) {
+            //
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
+        }
+    }
     
 }

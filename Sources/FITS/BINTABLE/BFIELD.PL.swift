@@ -21,53 +21,48 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-public class TableRow<Field> : Identifiable where Field: FIELD {
+extension BFIELD {
     
-    public let id = UUID()
-    
-    private let table: AnyTableHDU<Field>
-    private let rowIndex : Int
-    
-    init(_ table: AnyTableHDU<Field>, _ index: Int){
-        self.table = table
-        self.rowIndex = index
-    }
-    
-    public var values : [Field] {
-        table.columns.reduce(into: [Field]()) { array, column in
-            array.append(column[rowIndex])
+    //MARK:- PL : Array Descriptor (32-bit)
+    /// Array Descriptor (32-bit)
+    final public class PL : BFIELD, VarArray, ExpressibleByArrayLiteral {
+        
+        typealias ArrayType = Int32
+        typealias ValueType = Bool
+        
+        let name = "PL"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
         }
-    }
-    
-    subscript(_ col: Int) -> Field {
-        get{
-            table.columns[col][rowIndex]
+        
+        public init(arrayLiteral : Bool...){
+            self.val = arrayLiteral
         }
-        set {
-            guard self.TFORM(col)?.fieldType == type(of: newValue) else {
-                print("Field does not match \(type(of: newValue))")
-                return
+        
+        public func write(to: inout Data) {
+            val?.forEach{ v in
+                to.append(v ? "T" : "F")
             }
-            table.columns[col][rowIndex] = newValue
+        }
+        
+        override public var form: BFORM {
+            return BFORM.PL(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     
-    func TFORM(_ col: Int) -> Field.FORM? {
-        return table.columns[col].TFORM
-    }
-    
-    func TDISP(_ col: Int) -> Field.DISP? {
-        return table.columns[col].TDISP
-    }
-    
-}
-
-extension TableRow : CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
-        return "Row: \(values.debugDescription)"
-    }
 }

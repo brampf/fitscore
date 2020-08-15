@@ -126,13 +126,17 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
                                 
                                 let value = BFIELD.parse(data: dat, type: tform)
                                 column.values.append(value)
+                            #if DEBUG
                                 value.raw = val
+                            #endif
                             //}
                             
                         } else {
                             let value = BFIELD.parse(data: val, type: tform)
                             column.values.append(value)
+                            #if DEBUG
                             value.raw = val
+                            #endif
                         }
                     }
                 }

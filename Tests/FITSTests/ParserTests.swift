@@ -54,14 +54,14 @@ final class ParserTests: XCTestCase {
         let text = "NAXIS1  =                  480 / length of data axis 1                          "
         let block = HeaderBlock.parse(form: text)
         
-        XCTAssertEqual(block.keyword, HDUKeyword.NAXIS+"1")
+        XCTAssertEqual(block.keyword, "NAXIS\(1)")
         XCTAssertTrue(block.value == 480)
         XCTAssertEqual(block.comment, "length of data axis 1")
         
         let text2 = "NAXIS1  =                89688 / length of first data axis                      "
         let block2 = HeaderBlock.parse(form: text2)
         
-        XCTAssertEqual(block2.keyword, HDUKeyword.NAXIS+"1")
+        XCTAssertEqual(block2.keyword, "NAXIS\(1)")
         XCTAssertTrue(block2.value == 89688)
         XCTAssertEqual(block2.comment, "length of first data axis")
     }
@@ -91,7 +91,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, HDUKeyword.DATE)
-        XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value)")
+        XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value.debugDescription)")
         XCTAssertEqual(block.comment, "UTC date that FITS file was created")
     }
     
@@ -100,7 +100,7 @@ final class ParserTests: XCTestCase {
         let block = HeaderBlock.parse(form: text)
         
         XCTAssertEqual(block.keyword, "ANY")
-        XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value)")
+        XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value.debugDescription)")
         XCTAssertEqual(block.comment, "And acomment as well")
     }
 
