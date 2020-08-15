@@ -118,6 +118,17 @@ final class WriterTests: XCTestCase {
             print(block.description)
         }
         
+        let date = Date().toString
+        var dataUnit = Data()
+        try? sample8.prime.writeData(to: &dataUnit)
+        let datasum = dataUnit.check(0)
+        sample8.prime.header(HDUKeyword.DATASUM, value: String(datasum), comment: "Datasum \(date)")
+        sample8.prime.header(HDUKeyword.CHECKSUM, value: "0000000000000000", comment: "Checksum \(date)")
+        var headerUnit = Data()
+        try? sample8.prime.writeHeader(to: &headerUnit)
+        let check = headerUnit.check(datasum)
+        sample8.prime.header(HDUKeyword.CHECKSUM, value: check.ascii, comment: "Checksum \(date)")
+        
         XCTAssertEqual(sample8.prime.headerUnit.count, 8)
         XCTAssertEqual(sample8.prime.isSimple, true)
         XCTAssertEqual(sample8.prime.naxis, 3)

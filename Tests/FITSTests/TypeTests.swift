@@ -42,7 +42,7 @@ final class TypeTests: XCTestCase {
         
         XCTAssertEqual(hdu.headerUnit.count, 2)
         XCTAssertEqual(hdu.headerUnit.first?.keyword, "TEST")
-        XCTAssertTrue(hdu.headerUnit.first?.value == "Hello World", "Value: \(hdu.headerUnit.first?.value)")
+        XCTAssertTrue(hdu.headerUnit.first?.value == "Hello World", "Value: \(String(describing: hdu.headerUnit.first?.value))")
         
     
         
