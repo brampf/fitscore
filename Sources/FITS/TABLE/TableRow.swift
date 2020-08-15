@@ -47,15 +47,19 @@ public class TableRow<Field> : Identifiable where Field: FIELD {
             table.columns[col][rowIndex]
         }
         set {
+            guard self.TFORM(col)?.fieldType == type(of: newValue) else {
+                print("Field does not match \(type(of: newValue))")
+                return
+            }
             table.columns[col][rowIndex] = newValue
         }
     }
     
-    func TFORM(_ col: Int) -> Field.TFORM? {
+    func TFORM(_ col: Int) -> Field.FORM? {
         return table.columns[col].TFORM
     }
     
-    func TDISP(_ col: Int) -> Field.TDISP? {
+    func TDISP(_ col: Int) -> Field.DISP? {
         return table.columns[col].TDISP
     }
     

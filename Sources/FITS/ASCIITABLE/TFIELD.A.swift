@@ -49,7 +49,7 @@ extension TFIELD {
             }
         }
 
-        override public func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
+        override func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
             
             guard let val = self.val else {
                 return empty(form, null, "")

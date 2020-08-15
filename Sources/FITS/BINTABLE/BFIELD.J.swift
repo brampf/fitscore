@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- J : Int32
     /// 32-bit integer
-    final public class J : BFIELD, BField, ExpressibleByArrayLiteral{
+    final public class J : BFIELD, ValueBField, ExpressibleByArrayLiteral{
         typealias ValueType = Int32
         
         let name = "J"
@@ -41,13 +41,18 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.J(r: val?.count ?? 0)
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

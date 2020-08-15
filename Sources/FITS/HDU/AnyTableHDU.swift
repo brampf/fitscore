@@ -24,7 +24,7 @@
 
 import Foundation
 
-open class AnyTableHDU<F: FIELD> : AnyHDU, Table  {
+open class AnyTableHDU<F: FIELD> : AnyHDU, Table {
     public typealias Field = F
     
     public internal(set) var columns: [TableColumn<Field>] = []
@@ -65,7 +65,7 @@ extension AnyTableHDU {
     }
     
     /// adds a new column to the table
-    public func addColumn(index: Int? = nil, TFORM: Field.TFORM, TDISP: Field.TDISP? = nil, TUNIT: String? = "", TTYPE: String = "", TNULL: String = "", _ fields: Field...) -> Column {
+    public func addColumn(index: Int? = nil, TFORM: Field.FORM, TDISP: Field.DISP? = nil, TUNIT: String? = "", TTYPE: String = "", TNULL: String = "", _ fields: Field...) -> Column {
         
         let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, TNULL: TNULL, fields: fields)
     
@@ -94,9 +94,9 @@ extension AnyTableHDU {
     }
 }
 
-extension AnyTableHDU {
+extension AnyTableHDU where F : Displayable {
         
-    public func plot(data: inout Data){
+     func plot(data: inout Data){
         
         var dashWidth =  0
         let maxWidths = self.columns.reduce(into: [Int]()) { me, col in

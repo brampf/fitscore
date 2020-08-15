@@ -43,7 +43,7 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.QM(r: val?.count ?? 0)
         }
 
@@ -54,6 +54,11 @@ extension BFIELD {
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

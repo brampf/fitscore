@@ -27,11 +27,10 @@ extension BFIELD {
     
     //MARK:- PA
     /// Array Descriptor (32-bit)
-    final public class PA : BFIELD, VarArray, ExpressibleByArrayLiteral {
+    final public class PA : BFIELD, VarArray, ExpressibleByArrayLiteral, ExpressibleByStringLiteral {
         typealias ArrayType = Int32
         typealias ValueType = CharacterValue
 
-        
         let name = "PA"
         
         var val: [ValueType]?
@@ -52,7 +51,11 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        override public var form: TFORM {
+        public init(stringLiteral: String){
+            self.val = stringLiteral.map{CharacterValue($0) ?? CharacterValue("_")!}
+        }
+        
+        override public var form: BFORM {
             return BFORM.PA(r: val?.count ?? 0)
         }
 
@@ -87,6 +90,11 @@ extension BFIELD {
                 return null
             }
             
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
         
     }

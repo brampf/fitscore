@@ -35,3 +35,9 @@ protocol Reader {
      */
     init(with data: inout Data) throws
 }
+
+protocol Parser {
+    
+    static func parse(_ from: String) -> Self?
+    
+}

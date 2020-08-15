@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- X : BIT
     /// Bit
-    final public class X : BFIELD, BField {
+    final public class X : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = EightBitValue
         
         let name = "X"
@@ -47,17 +47,12 @@ extension BFIELD {
             self.val = arrayLiteral.map{EightBitValue(integerLiteral: $0)}
         }
         
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.X(r: val?.count ?? 0 * MemoryLayout<UInt8>.size)
         }
         
         override public var debugDescription: String {
             return "BFIELD.X(\(val?.description ?? "-/-"))"
-        }
-        
-        override public func hash(into hasher: inout Hasher) {
-            hasher.combine("X")
-            hasher.combine(val)
         }
         
         override public var description: String {
@@ -70,6 +65,11 @@ extension BFIELD {
                 value.format(disp, form, null)
             }).description ?? empty(form, null, "")
             
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
         
     }

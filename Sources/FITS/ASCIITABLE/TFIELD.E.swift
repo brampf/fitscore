@@ -35,12 +35,12 @@ extension TFIELD {
             self.val = floatLiteral
         }
         
-        public override var form: TFORM {
+        override var form: TFORM {
             let string = String(format: "%e",val ?? 0)
             return TFORM.E(w: string.count, d: string.drop(while: {$0 != "."}).count-1)
         }
         
-        override public func write(_ form: TFORM) -> String {
+        override func write(_ form: TFORM) -> String {
             switch form {
             case .E(let w, let d):
                 return String(format: "%\(w).\(d)E", val ?? 0)
@@ -49,7 +49,7 @@ extension TFIELD {
             }
         }
 
-        override public func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
+        override func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
             
             guard let val = self.val else {
                 return empty(form, null, "")
@@ -67,12 +67,12 @@ extension TFIELD {
             return "TFIELD.E(\(val?.description ?? "-/-"))"
         }
         
-        public override func hash(into hasher: inout Hasher) {
+        override public func hash(into hasher: inout Hasher) {
             hasher.combine("E")
             hasher.combine(val)
         }
         
-        public override var description: String {
+        override public var description: String {
             return val != nil ? "\(val!)" : "-/-"
         }
     }

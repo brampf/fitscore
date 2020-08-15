@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- I : Int16
     /// 16-bit integer
-    final public class I : BFIELD, BField {
+    final public class I : BFIELD, ValueBField, ExpressibleByArrayLiteral{
         typealias ValueType = Int16
         
         let name = "I"
@@ -37,13 +37,22 @@ extension BFIELD {
             self.val = val
         }
         
-        public override var form: TFORM {
+        public init(arrayLiteral : Int16...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
             return BFORM.I(r: val?.count ?? 0)
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-            
+
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

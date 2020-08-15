@@ -25,62 +25,70 @@
 import Foundation
 
 /**
+ Supertype to all Bintable Types
+ */
+public protocol BField : FIELD where FORM == BFORM, DISP == BDISP {
+    
+    //subscript(_ index: Int) -> Displayable
+    
+}
+
+protocol _BField: _FIELD {
+
+
+    
+}
+
+extension _BField {
+
+}
+
+//MARK:- PrefixType
+/**
   THE TFIELD data structure as specified for the Bintable extensions
  
  The TFORMn keywords must be present for all values n = 1, ..., TFIELDS and for no other values of n. The value field of this indexed keyword shall contain a char- acter string of the form rTa. The repeat count r is the ASCII representation of a non-negative integer specifying the number of elements in Field n. The default value of r is 1; the repeat count need not be present if it has the default value. A zero el- ement count, indicating an empty field, is permitted. The data type T specifies the data type of the contents of Field n. Only the data types in Table 18 are permitted. The format codes must be specified in upper case. For fields of type P or Q, the only per- mitted repeat counts are 0 and 1. The additional characters a are optional and are not further defined in this Standard. Table 18 lists the number of bytes each data type occupies in a table row. The first field of a row is numbered 1.
  */
-
-open class BFIELD: FIELD {
+public class BFIELD: BField, _BField {
+    public typealias FORM = BFORM
+    public typealias DISP = BDISP
     
-    public typealias TDISP = BDISP
-    public typealias TFORM = BFORM
+    #if DEBUG
+    var raw : Data?
+    #endif
+    
+    public var description: String {
+        return "BFIELD"
+    }
+    
+    public var debugDescription: String {
+        return "BFIELD"
+    }
+
+    func write(_ form: BFORM) -> String {
+        fatalError("Not implemented in BFIELD")
+    }
+    
+    func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+        fatalError("Not implemented in BFIELD")
+    }
+    
+    var form: BFORM {
+        fatalError("Not implemented in BFIELD")
+    }
     
     public static func == (lhs: BFIELD, rhs: BFIELD) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
     
     public func hash(into hasher: inout Hasher) {
-        hasher.combine("ERR")
-    }
-    
-    static let ERR = "ERR"
-    
-    #if DEBUG
-    var raw : Data?
-    #endif
-    
-    open var description: String {
-        if let me = self as? Describalbe {
-            return me.desc
-        } else {
-            return "\(type(of: self))"
-        }
-    }
-    
-    public var debugDescription: String {
-        if let me = self as? Describalbe {
-            return me.debugDesc
-        } else {
-            return String(describing: self)
-        }
-    }
-
-    public var form: TFORM {
-        fatalError("Not implemented on \(self)")
-    }
-
-    public func write(_ form: BFORM) -> String {
-        fatalError("Not implemented on \(self)")
-    }
-
-    public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-        fatalError("Not implemented on \(self)")
+        hasher.combine(UUID())
     }
 }
 
 extension BFIELD {
     
-    public static func parse(data: Data?, type: BFORM) -> BFIELD {
+    static func parse(data: Data?, type: BFORM) -> BFIELD {
         
         //print("PARSE \(type): \(data?.base64EncodedString() ?? "NIL")")
         
@@ -262,48 +270,83 @@ extension BFIELD {
     
 }
 
-protocol Describalbe {
+class _BFIELD<Value: Displayable & Hashable> : BFIELD, ValueBField, ExpressibleByArrayLiteral where Value.DISP == BDISP, Value.FORM == BFORM {
+    typealias ValueType = Value
     
-    var desc: String {get}
+    let name = "Any"
+    var val: [ValueType]?
     
-    var debugDesc: String {get}
-    
-}
-
-protocol WritableBField {
-    
-    func write(to: inout Data)
-}
-
-protocol BField : FIELD, WritableBField, Describalbe where  TFORM == BFORM {
-    associatedtype ValueType : Displayable
-    
-    var name : String {get}
-    var val : [ValueType]? { get set }
-    
-    init(val: [ValueType]?)
-}
-
-extension BField {
-    
-     public var debugDesc: String {
-        return "BFIELD.\(name)(\(val?.description ?? "-/-"))"
+    init(val: [ValueType]?){
+        self.val = val
     }
-
-    public  var desc: String {
+    
+    required public init(arrayLiteral : ValueType...){
+        self.val = arrayLiteral
+    }
+    
+    func write(to: inout Data) {
+        fatalError("Not implemented in _BFIELD")
+    }
+    
+    override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+        
+        var ret = "["
+        if (val?.forEach({ value in
+            ret.append(value.format(disp, form, null))
+            ret.append(",")
+        })) != nil {
+            ret.removeLast()
+        }
+        ret.append("]")
+        
+        return ret
+    }
+    
+    override public var description: String {
         return val != nil ? "\(val!)" : "-/-"
     }
-}
-
-extension BField where ValueType : Hashable {
     
-    func hash(into hasher: inout Hasher) {
+    override public var debugDescription: String {
+        return "BFIELD.\(name)(\(val?.description ?? "-/-"))"
+    }
+    
+    override public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
         hasher.combine(val)
     }
 }
 
-extension BField where Self : Displayable, ValueType.TDISP == BDISP, ValueType.TFORM == BFORM {
+
+protocol ValueBField : _BField, WritableBField {
+    associatedtype ValueType : Displayable & Hashable
+    
+    var name : String {get}
+    var val : [ValueType]? { get set }
+    
+    func form(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String
+
+    var debugDesc : String {get}
+    var desc : String {get}
+}
+
+protocol WritableBField {
+    
+    func write(to: inout Data)
+    
+}
+
+extension ValueBField {
+    
+    var debugDesc: String {
+        return "BFIELD.\(name)(\(val?.description ?? "-/-"))"
+    }
+
+    var desc: String {
+        return val != nil ? "\(val!)" : "-/-"
+    }
+}
+
+extension ValueBField where Self : Displayable, ValueType.DISP == BDISP, ValueType.FORM == BFORM {
     
     func form(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
         
@@ -321,7 +364,7 @@ extension BField where Self : Displayable, ValueType.TDISP == BDISP, ValueType.T
     
 }
 
-extension BField where ValueType == EightBitValue {
+extension ValueBField where ValueType == EightBitValue {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -333,7 +376,7 @@ extension BField where ValueType == EightBitValue {
 }
 
 
-extension BField where ValueType == CharacterValue {
+extension ValueBField where ValueType == CharacterValue {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -344,7 +387,7 @@ extension BField where ValueType == CharacterValue {
     }
 }
 
-extension BField where ValueType == SingleComplexValue {
+extension ValueBField where ValueType == SingleComplexValue {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -354,7 +397,7 @@ extension BField where ValueType == SingleComplexValue {
     }
 }
 
-extension BField where ValueType == DoubleComplexValue {
+extension ValueBField where ValueType == DoubleComplexValue {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -364,7 +407,7 @@ extension BField where ValueType == DoubleComplexValue {
     }
 }
 
-extension BField where ValueType : FixedWidthInteger {
+extension ValueBField where ValueType : FixedWidthInteger {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -374,7 +417,7 @@ extension BField where ValueType : FixedWidthInteger {
     }
 }
 
-extension BField where ValueType == Float {
+extension ValueBField where ValueType == Float {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -384,7 +427,7 @@ extension BField where ValueType == Float {
     }
 }
 
-extension BField where ValueType == Double {
+extension ValueBField where ValueType == Double {
     
     func write(to: inout Data) {
         if let arr = val {
@@ -399,7 +442,7 @@ protocol WritableVarBField {
     func write(to dataUnit: inout Data, heap: inout Data)
 }
 
-protocol VarArray : BField, WritableVarBField {
+protocol VarArray : ValueBField, WritableVarBField {
     associatedtype ArrayType : FixedWidthInteger
     
 
@@ -425,7 +468,7 @@ extension VarArray {
     
 }
 
-struct BoolenValue : ExpressibleByBooleanLiteral, CustomStringConvertible {
+struct BoolenValue : Hashable, ExpressibleByBooleanLiteral, CustomStringConvertible {
     
     var rawValue : Bool
     
@@ -438,7 +481,7 @@ struct BoolenValue : ExpressibleByBooleanLiteral, CustomStringConvertible {
     }
 }
 
-public struct CharacterValue : ExpressibleByIntegerLiteral, LosslessStringConvertible {
+public struct CharacterValue : Hashable, ExpressibleByIntegerLiteral, LosslessStringConvertible {
     
     var rawValue : UInt8
     
@@ -471,7 +514,7 @@ public struct CharacterValue : ExpressibleByIntegerLiteral, LosslessStringConver
     }
 }
 
-public struct EightBitValue : ExpressibleByIntegerLiteral, CustomStringConvertible, Hashable {
+public struct EightBitValue : Hashable, ExpressibleByIntegerLiteral, CustomStringConvertible {
     
     var rawValue : UInt8
     
@@ -485,7 +528,7 @@ public struct EightBitValue : ExpressibleByIntegerLiteral, CustomStringConvertib
 }
 
 
-public struct SingleComplexValue : CustomStringConvertible, Hashable {
+public struct SingleComplexValue : Hashable, CustomStringConvertible {
     
     var rawValue : (r: Float, i: Float)
     
@@ -507,7 +550,7 @@ public struct SingleComplexValue : CustomStringConvertible, Hashable {
     }
 }
 
-public struct DoubleComplexValue : CustomStringConvertible, Hashable {
+public struct DoubleComplexValue : Hashable, CustomStringConvertible {
     
     var rawValue : (r: Double, i: Double)
     

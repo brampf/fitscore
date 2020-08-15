@@ -214,7 +214,7 @@ final class TableTests: XCTestCase {
     
     //MARK:-
     
-    func plotTable<Field: FIELD>(_ hdu: AnyTableHDU<Field>){
+    func plotTable<Field: FIELD>(_ hdu: AnyTableHDU<Field>) where Field : Displayable {
         var data = Data()
         hdu.plot(data: &data)
         if let out = String(data: data, encoding: .ascii) {

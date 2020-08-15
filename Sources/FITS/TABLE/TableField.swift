@@ -21,45 +21,41 @@
  SOFTWARE.
  
  */
-import Foundation
 
-extension BFIELD {
+//MARK:- FIELD
+/// Public interface for Table Values
+public protocol FIELD : CustomStringConvertible, CustomDebugStringConvertible {
+    associatedtype FORM : FITS.FORM
+    associatedtype DISP : FITS.DISP
+}
+
+/// Internal interface for Table Values
+protocol _FIELD : Hashable, Displayable {
     
-    //MARK:- PC
-    /// Array Descriptor (32-bit)
-    final public class PC : BFIELD, VarArray, ExpressibleByArrayLiteral {
-        typealias ArrayType = Int32
-        typealias ValueType = SingleComplexValue
-        
-        let name = "PC"
-        
-        var val: [ValueType]?
-        
-        init(val: [ValueType]?){
-            self.val = val
-        }
-        
-        public init(arrayLiteral : SingleComplexValue...){
-            self.val = arrayLiteral
-        }
-        
-        override public var form: BFORM {
-            return BFORM.PC(r: val?.count ?? 0)
-        }
+    func write(_ form: FORM) -> String
+    
+    var form : FORM {get}
+}
 
-        func write(to: inout Data) {
-            //
-        }
-        
-        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-            
-            self.form(disp, form, null)
-        }
-        
-        override public func hash(into hasher: inout Hasher) {
-            hasher.combine(name)
-            hasher.combine(val)
-        }
-    }
+//MARK:- DISP
+public protocol DISP : Hashable, FITSSTRING, HDUValue {
+    
+    var length : Int {get}
+}
+
+// MARK:- FORM
+public protocol FORM : Hashable, FITSSTRING, HDUValue {
+    associatedtype FIELD : FITS.FIELD
+    
+    var length : Int {get}
+    
+    var fieldType : FIELD.Type {get}
+}
+
+public protocol UNIT {
+    
+}
+
+public protocol TTYPE {
     
 }

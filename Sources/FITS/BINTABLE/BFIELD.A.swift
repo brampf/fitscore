@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- A : Character
     // Character
-    final public class A : BFIELD, BField, ExpressibleByArrayLiteral, ExpressibleByStringLiteral {
+    final public class A : BFIELD, ValueBField, ExpressibleByArrayLiteral, ExpressibleByStringLiteral {
         
         typealias ValueType = CharacterValue
         
@@ -54,12 +54,8 @@ extension BFIELD {
             self.val = stringLiteral.map{CharacterValue($0) ?? CharacterValue("_")!}
         }
         
-        override public var form: TFORM {
+        override public var form: BFORM {
             return BFORM.A(r: val?.count ?? 0)
-        }
-        
-        public var debugDesc: String {
-            return "BFIELD.\(name)(\(String(val) ?? "-/-"))"
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
@@ -89,6 +85,19 @@ extension BFIELD {
                 return null
             }
             
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
    }
     

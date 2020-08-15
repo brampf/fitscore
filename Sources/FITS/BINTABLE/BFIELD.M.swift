@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- M : Double-precision complex
     /// Double-precision complex
-    final public class M : BFIELD, BField, ExpressibleByArrayLiteral {
+    final public class M : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = DoubleComplexValue
         
         let name = "M"
@@ -41,7 +41,7 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        override public var form: TFORM {
+        override public var form: BFORM {
             return BFORM.M(r: val?.count ?? 0)
         }
         
@@ -56,6 +56,11 @@ extension BFIELD {
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

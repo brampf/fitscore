@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- D : Double-precision floating point
     /// Double-precision floating point
-    final public class D : BFIELD, BField, ExpressibleByArrayLiteral {
+    final public class D : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = Float64
         
         let name = "D"
@@ -41,13 +41,26 @@ extension BFIELD {
             self.val = arrayLiteral
         }
 
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.D(r: val?.count ?? 0)
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

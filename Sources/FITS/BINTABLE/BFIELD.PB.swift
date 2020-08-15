@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- PB
     /// Array Descriptor (32-bit)
-    final public class PB : BFIELD, BField, VarArray, ExpressibleByArrayLiteral {
+    final public class PB : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = UInt8
         
@@ -42,7 +42,7 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.PB(r: val?.count ?? 0)
         }
         
@@ -53,6 +53,11 @@ extension BFIELD {
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

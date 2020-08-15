@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- K : Int64
     /// 64-bit integer
-    final public class K : BFIELD, BField, ExpressibleByArrayLiteral {
+    final public class K : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = Int64
         
         let name = "K"
@@ -41,13 +41,18 @@ extension BFIELD {
             self.val = arrayLiteral
         }
         
-        public override var form: TFORM {
+        override public var form: BFORM {
             return BFORM.K(r: val?.count ?? 0)
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
             self.form(disp, form, null)
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

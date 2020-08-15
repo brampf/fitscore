@@ -27,7 +27,7 @@ extension BFIELD {
     
     //MARK:- L : Logical
     /// Logical
-    final public class L : BFIELD, BField , ExpressibleByArrayLiteral {
+    final public class L : BFIELD, ValueBField, ExpressibleByArrayLiteral {
 
         typealias ValueType = Bool
         
@@ -49,7 +49,7 @@ extension BFIELD {
             to.append(string)
         }
         
-        override public var form: TFORM {
+        override public var form: BFORM {
             return BFORM.L(r: val?.count ?? 0)
         }
         
@@ -59,6 +59,11 @@ extension BFIELD {
                 value.format(disp, form, null)
             }).description ?? empty(form, null, "")
             
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
         }
     }
     

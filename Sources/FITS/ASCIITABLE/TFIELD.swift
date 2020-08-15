@@ -26,53 +26,61 @@ import Foundation
 /**
  Supertype to all ASCII Table Types
  */
-open class TFIELD : FIELD {
-    public typealias TDISP = FITS.TDISP
-    public typealias TFORM = FITS.TFORM
+public protocol TField : FIELD where Self.FORM == TFORM, Self.DISP == TDISP{
+
+}
+
+
+//MARK:- Internal Type
+protocol _TField : _FIELD {
+    
+}
+
+extension _TField {
+    
+}
+
+//MARK:- PrefixType
+public class TFIELD : TField, _TField {
+    public typealias FORM = TFORM
+    public typealias DISP = TDISP
+    
+    #if DEBUG
+    public var raw : String = ""
+    #endif
+    
+    public var description: String {
+        return "TFIELD"
+    }
+    
+    public var debugDescription: String {
+        return "TFIELD"
+    }
+    
+    func write(_ form: TFORM) -> String {
+        fatalError("Not implemented in TFIELD")
+    }
+    
+    func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
+        fatalError("Not implemented in TFIELD")
+    }
+    
+    var form: TFORM {
+        fatalError("Not implemented in TFIELD")
+    }
     
     public static func == (lhs: TFIELD, rhs: TFIELD) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
     
     public func hash(into hasher: inout Hasher) {
-        hasher.combine("ERR")
+        hasher.combine(UUID())
     }
-    
-    static let ERR = "ERR"
-    
-    #if DEBUG
-    var raw : String?
-    #endif
-    
-    public func write(_ form: TFORM) -> String {
-        fatalError("Not Implemented on supertype")
-    }
-    
-    public func write(to: inout Data) {
-        fatalError("Not Implemented on supertype")
-    }
-    
-    public var description: String {
-        return  "TFIELD"
-    }
-    
-    public var debugDescription: String {
-        return String(describing: self)
-    }
-    
-    public var form: TFORM {
-        fatalError("Not Implemented on supertype")
-    }
-    
-    public func format(_ disp: TDISP?, _ form: TFORM?, _ null: String?) -> String {
-        fatalError("Not Implemented on supertype")
-    }
-  
 }
 
 extension TFIELD {
     
-    public static func parse(string: String?, type: TFORM) -> TFIELD {
+    static func parse(string: String?, type: TFORM) -> TFIELD {
         
         switch type {
         case .A:

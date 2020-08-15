@@ -35,14 +35,8 @@ public struct TableValueFormatter<Field> where Field: FIELD  {
     }
     
     /// format the given value according the properties provided by the table column
-    func string<D: Displayable>(_ value: D) -> String where D.TDISP == Field.TDISP, D.TFORM == Field.TFORM {
+    func string<D: Displayable>(_ value: D) -> String where D.DISP == Field.DISP, D.FORM == Field.FORM {
         
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
-    }
-    
-    /// format the given value according the properties provided by the table column
-    public func string(_ value: Field) -> String where Field : Displayable {
-        
-        return value.format(column.TDISP, column.TFORM, column.TNULL)
+        return value.format(column.TDISP, column.TFORM, "")
     }
 }
