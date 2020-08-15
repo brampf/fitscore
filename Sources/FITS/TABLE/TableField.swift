@@ -22,22 +22,40 @@
  
  */
 
-import Foundation
-
-protocol Reader {
-    
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
-
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
+//MARK:- FIELD
+/// Public interface for Table Values
+public protocol FIELD : CustomStringConvertible, CustomDebugStringConvertible {
+    associatedtype FORM : FITS.FORM
+    associatedtype DISP : FITS.DISP
 }
 
-protocol Parser {
+/// Internal interface for Table Values
+protocol _FIELD : Hashable, Displayable {
     
-    static func parse(_ from: String) -> Self?
+    func write(_ form: FORM) -> String
+    
+    var form : FORM {get}
+}
+
+//MARK:- DISP
+public protocol DISP : Hashable, FITSSTRING, HDUValue {
+    
+    var length : Int {get}
+}
+
+// MARK:- FORM
+public protocol FORM : Hashable, FITSSTRING, HDUValue {
+    associatedtype FIELD : FITS.FIELD
+    
+    var length : Int {get}
+    
+    var fieldType : FIELD.Type {get}
+}
+
+public protocol UNIT {
+    
+}
+
+public protocol TTYPE {
     
 }

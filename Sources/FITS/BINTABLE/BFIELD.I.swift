@@ -21,23 +21,47 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-protocol Reader {
+extension BFIELD {
     
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
+    //MARK:- I : Int16
+    /// 16-bit integer
+    final public class I : BFIELD, ValueBField, ExpressibleByArrayLiteral{
+        typealias ValueType = Int16
+        
+        let name = "I"
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : Int16...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
+            return BFORM.I(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
 
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
-}
-
-protocol Parser {
-    
-    static func parse(_ from: String) -> Self?
+            self.form(disp, form, null)
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
+        }
+    }
     
 }

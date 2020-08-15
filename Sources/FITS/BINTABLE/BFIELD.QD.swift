@@ -21,49 +21,49 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-public protocol RandomGroup {
+extension BFIELD {
     
-}
-
-public struct Group : RandomGroup {
-
-    public var hdu = PrimaryHDU()
-    
-    /// 
-    init(_ hdu: PrimaryHDU){
-        self.hdu = hdu
+    //MARK:- Q : Array Descriptor (64-bit)
+    /// Array Descriptor (64-bit)
+    final public class QD : BFIELD, VarArray, ExpressibleByArrayLiteral {
+        typealias ArrayType = Int64
+        typealias ValueType = Double
+        
+        let name = "QD"
+        
+        var val: [ValueType]?
+        
+        init(val: [ValueType]?){
+            self.val = val
+        }
+        
+        public init(arrayLiteral : Double...){
+            self.val = arrayLiteral
+        }
+        
+        override public var form: BFORM {
+            return BFORM.QD(r: val?.count ?? 0)
+        }
+        
+        override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
+            
+            self.form(disp, form, null)
+        }
+        
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
+        override public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(val)
+        }
     }
     
-    
-    
-    public subscript<Byte: FITSByte>(_ group: Int) -> [Byte] {
-        
-        guard let axis = hdu.naxis, let gcount = hdu.gcount, group < gcount && group >= 0 else {
-            return []
-        }
-        
-        guard let data = hdu.dataUnit else {
-            return []
-        }
-        
-        var groupSize = 1
-        for dim in 2..<axis {
-            groupSize *= hdu.naxis(dim) ?? 1
-        }
-        groupSize *= abs(Byte.bitpix.size)
-        
-        let start = groupSize * group + (hdu.pcount ?? 0) * abs(Byte.bitpix.size)
-        let stop = start + groupSize
-        
-        print("Group \(group): \(start)...\(stop)")
-        
-        var sub = data.subdata(in: start..<stop)
-        return sub.withUnsafeMutableBytes { mptr8 in
-            mptr8.bindMemory(to: Byte.self).map{$0.bigEndian}
-        }
-        
-    }
 }

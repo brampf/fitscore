@@ -110,7 +110,7 @@ extension HeaderBlock {
     
     static func parse(form raw: String, context: Context? = nil) -> HeaderBlock {
     
-        let keyword = raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces)
+        let keyword : HDUKeyword = HDUKeyword(rawValue: raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces))
         let block = HeaderBlock(keyword: keyword, raw: raw)
         
         let remainer = raw.dropFirst(9).trimmingCharacters(in: CharacterSet.whitespaces)
@@ -161,7 +161,7 @@ extension HeaderBlock : Writer{
         
         var out = ""
         if !keyword.isEmpty {
-            out += self.keyword
+            out += self.keyword.rawValue
             self.pad(string: &out, toSize: 8, char: " ")
             if !isEmpty && !isComment && !isEnd{
                 out += "= "

@@ -193,13 +193,16 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(file.prime.bitpix, BITPIX.FLOAT32)
         XCTAssertEqual(file.prime.gcount, 7956)
         XCTAssertEqual(file.prime.pcount, 6)
+        XCTAssertEqual(file.prime.naxis, 6)
         
         let group = Group(file.prime)
         for groupIndex in 0..<(file.prime.gcount ?? 1){
-            let val : [FITSByte_8] = group[groupIndex]
+            let val : [FITSByte_F] = group[groupIndex]
             
             print(val)
         }
+        
+        
         
         
         /*

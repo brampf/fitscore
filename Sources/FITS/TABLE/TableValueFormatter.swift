@@ -24,20 +24,19 @@
 
 import Foundation
 
-protocol Reader {
+/// Value formatter for table fields
+public struct TableValueFormatter<Field> where Field: FIELD  {
     
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
-
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
-}
-
-protocol Parser {
+    /// table column the value formatting is based on
+    var column : TableColumn<Field>
     
-    static func parse(_ from: String) -> Self?
+    public init(column : TableColumn<Field>){
+        self.column = column
+    }
     
+    /// format the given value according the properties provided by the table column
+    func string<D: Displayable>(_ value: D) -> String where D.DISP == Field.DISP, D.FORM == Field.FORM {
+        
+        return value.format(column.TDISP, column.TFORM, "")
+    }
 }
