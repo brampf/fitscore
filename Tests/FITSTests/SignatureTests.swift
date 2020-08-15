@@ -13,43 +13,43 @@ final class SignatureTests: XCTestCase {
         ("testFitsFile",testFitsFile)
     ]
     
-    func XCSignature<A,B>(_ signature : (A) -> (B), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<A,B>(_ signature : (A) -> (B), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature<B>(_ signature : () -> (B), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<B>(_ signature : () -> (B), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature<A>(_ signature : (A) -> (Void), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<A>(_ signature : (A) -> (Void), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature(_ signature : () -> (Void), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature(_ signature : () -> (Void), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignatureThrows<X,Y>(_ signature : (X) -> (Y), file: StaticString = #filePath, line: UInt = #line) throws {
+    func XCSignatureThrows<X,Y>(_ signature : (X) -> (Y), file: StaticString = #file, line: UInt = #line) throws {
         // true
     }
 
-    func XCSignatureThrows<X,Y>(_ signature : (inout X) throws -> (Y) , file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignatureThrows<X,Y>(_ signature : (inout X) throws -> (Y) , file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature<A1,A2,B>(_ signature : (A1,A2) -> (B), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<A1,A2,B>(_ signature : (A1,A2) -> (B), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature<A1,A2,A3,B>(_ signature : (A1,A2,A3) -> (B), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<A1,A2,A3,B>(_ signature : (A1,A2,A3) -> (B), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCSignature<A1,A2,A3,B>(_ signature : (A1,A2,A3...) throws -> (B), file: StaticString = #filePath, line: UInt = #line) {
+    func XCSignature<A1,A2,A3,B>(_ signature : (A1,A2,A3...) throws -> (B), file: StaticString = #file, line: UInt = #line) {
         // true
     }
     
-    func XCProperty<P,V>(_ property: KeyPath<P,V>, file: StaticString = #filePath, line: UInt = #line){
+    func XCProperty<P,V>(_ property: KeyPath<P,V>, file: StaticString = #file, line: UInt = #line){
         // true
     }
 

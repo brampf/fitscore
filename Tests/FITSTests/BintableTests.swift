@@ -2,7 +2,7 @@
 import XCTest
 @testable import FITS
 
-func XCTAssertIdent<B: ValueBField>(_ field: B, file: StaticString = #filePath, line: UInt = #line) where B.FORM == BFORM {
+func XCTAssertIdent<B: ValueBField>(_ field: B, file: StaticString = #file, line: UInt = #line) where B.FORM == BFORM {
     
     var data = Data()
     field.write(to: &data)
@@ -27,7 +27,7 @@ func XCTAssertLength<B: ValueBField>(_ field: B, _ expectedLenght: Int, file: St
     XCTAssertEqual(data.count, expectedLenght, file: (file), line: line)
 }
 
-func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #filePath, line: UInt = #line) {
+func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
     
     var data = Data()
     var heap = Data()
