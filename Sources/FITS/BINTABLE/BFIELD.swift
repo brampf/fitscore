@@ -270,53 +270,6 @@ extension BFIELD {
     
 }
 
-class _BFIELD<Value: Displayable & Hashable> : BFIELD, ValueBField, ExpressibleByArrayLiteral where Value.DISP == BDISP, Value.FORM == BFORM {
-    typealias ValueType = Value
-    
-    let name = "Any"
-    var val: [ValueType]?
-    
-    init(val: [ValueType]?){
-        self.val = val
-    }
-    
-    required public init(arrayLiteral : ValueType...){
-        self.val = arrayLiteral
-    }
-    
-    func write(to: inout Data) {
-        fatalError("Not implemented in _BFIELD")
-    }
-    
-    override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-        
-        var ret = "["
-        if (val?.forEach({ value in
-            ret.append(value.format(disp, form, null))
-            ret.append(",")
-        })) != nil {
-            ret.removeLast()
-        }
-        ret.append("]")
-        
-        return ret
-    }
-    
-    override public var description: String {
-        return val != nil ? "\(val!)" : "-/-"
-    }
-    
-    override public var debugDescription: String {
-        return "BFIELD.\(name)(\(val?.description ?? "-/-"))"
-    }
-    
-    override public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(val)
-    }
-}
-
-
 protocol ValueBField : _BField, WritableBField {
     associatedtype ValueType : Displayable & Hashable
     
