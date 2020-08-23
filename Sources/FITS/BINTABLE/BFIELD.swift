@@ -30,6 +30,8 @@ import Foundation
 public protocol BField : FIELD where FORM == BFORM, DISP == BDISP {
     
     subscript(_ index: Int) -> BFIELD.VALUE? { get set }
+    
+    var all : [BFIELD.VALUE] { get }
 }
 
 /// internal representation of 'BField'
@@ -79,6 +81,10 @@ public class BFIELD: BField, _BField {
         set {
             //
         }
+    }
+    
+    public var all: [VALUE] {
+        return []
     }
     
     public static func == (lhs: BFIELD, rhs: BFIELD) -> Bool {

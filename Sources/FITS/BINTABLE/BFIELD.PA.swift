@@ -117,6 +117,10 @@ extension BFIELD {
             }
         }
         
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
+        }
+        
     }
     
 }
