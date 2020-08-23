@@ -29,7 +29,8 @@ extension BFIELD {
     /// Array Descriptor (64-bit)
     final public class QD : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int64
-        typealias ValueType = Double
+        typealias ValueType = DoubleValue
+        typealias BaseType = Double
         
         let name = "QD"
         
@@ -39,7 +40,11 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : Double...){
+        public init(val : [Double]){
+            self.val = val.map{DoubleValue(floatLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : DoubleValue...){
             self.val = arrayLiteral
         }
         
@@ -63,6 +68,17 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
         }
     }
     

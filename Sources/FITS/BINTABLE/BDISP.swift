@@ -29,7 +29,7 @@ import Foundation
 public enum BDISP : DISP {
     
     /// Character
-    case A(w: Int)
+    case A(w: Int) 
     
     /// Logical
     case L(w: Int)

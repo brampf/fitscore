@@ -23,7 +23,7 @@ func XCTAssertLength<B: ValueBField>(_ field: B, _ expectedLenght: Int, file: St
     
     let count = field.val?.count ?? 0
     
-    XCTAssertEqual(data.count, count * MemoryLayout<B.ValueType>.size, file: (file), line: line)
+    XCTAssertEqual(data.count, count * MemoryLayout<B.BaseType>.size, file: (file), line: line)
     XCTAssertEqual(data.count, expectedLenght, file: (file), line: line)
 }
 
@@ -35,10 +35,10 @@ func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: Stati
     
     let count = field.val?.count ?? 0
     
-    XCTAssertEqual(data.count, 8, file: file, line: line)
+    XCTAssertEqual(data.count, 8, file: (file), line: line)
     //XCTAssertEqual(Array(data), [UInt8](arrayLiteral: 0,0,0,UInt8(count),0,0,0,0), file: file, line: line)
-    XCTAssertEqual(heap.count, count * MemoryLayout<V.ValueType>.size, file: file, line: line)
-    XCTAssertEqual(heap.count, expectedLenght, file: file, line: line)
+    XCTAssertEqual(heap.count, count * MemoryLayout<V.BaseType>.size, file: (file), line: line)
+    XCTAssertEqual(heap.count, expectedLenght, file: (file), line: line)
 }
 
 final class BintableTests: XCTestCase {

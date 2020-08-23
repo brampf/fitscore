@@ -28,8 +28,8 @@ extension BFIELD {
     //MARK:- A : Character
     // Character
     final public class A : BFIELD, ValueBField, ExpressibleByArrayLiteral, ExpressibleByStringLiteral {
-        
         typealias ValueType = CharacterValue
+        typealias BaseType = UInt8
         
         let name = "A"
         var val: [ValueType]?
@@ -98,6 +98,17 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
         }
    }
     

@@ -29,6 +29,7 @@ extension BFIELD {
     /// Double-precision complex
     final public class M : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = DoubleComplexValue
+        typealias BaseType = (Double,Double)
         
         let name = "M"
         var val: [ValueType]?
@@ -61,6 +62,17 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
         }
     }
     

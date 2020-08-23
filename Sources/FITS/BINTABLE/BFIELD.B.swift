@@ -28,7 +28,8 @@ extension BFIELD {
     //MARK:- B : (U)Byte
     /// Unsigned byte
     final public class B : BFIELD, ValueBField, ExpressibleByArrayLiteral {
-        typealias ValueType = UInt8
+        typealias ValueType = UInt8Value
+        typealias BaseType = UInt8
         
         let name = "B"
         var val: [ValueType]?
@@ -37,7 +38,11 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : UInt8...){
+        public init(val : [UInt8]){
+            self.val = val.map{UInt8Value(integerLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : UInt8Value...){
             self.val = arrayLiteral
         }
         
@@ -61,6 +66,17 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
         }
     }
     

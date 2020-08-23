@@ -42,7 +42,7 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
     }
     
     /// initializes the a new HDU with all default headers
-    required init() {
+    public required init() {
         super.init()
         // The value field shall contain the integer 2, de- noting that the included data array is two-dimensional: rows and columns.
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.XTENSION, value: "TABLE   ", comment: "Table extension"))
