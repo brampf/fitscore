@@ -43,6 +43,7 @@ public final class HeaderBlock {
         self.keyword = keyword
         self.value = value
         self.comment = comment
+        self.raw = raw
     }
     
     public var raw : String? = nil
