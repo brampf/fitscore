@@ -24,13 +24,13 @@
 
 //MARK:- FIELD
 /// Public interface for Table Values
-public protocol FIELD : CustomStringConvertible, CustomDebugStringConvertible {
+public protocol FIELD : CustomStringConvertible, CustomDebugStringConvertible, Hashable {
     associatedtype FORM : FITS.FORM
     associatedtype DISP : FITS.DISP
 }
 
 /// Internal interface for Table Values
-protocol _FIELD : Hashable, Displayable {
+protocol _FIELD : _Displayable {
     
     func write(_ form: FORM) -> String
     

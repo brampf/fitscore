@@ -28,9 +28,9 @@ extension BFIELD {
     //MARK:- PJ
     /// Array Descriptor (32-bit)
     final public class PJ : BFIELD, VarArray, ExpressibleByArrayLiteral {
-        
         typealias ArrayType = Int32
-        typealias ValueType = Int32
+        typealias ValueType = Int32Value
+        typealias BaseType = Int32
         
         let name = "PJ"
         
@@ -40,7 +40,11 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : Int32...){
+        public init(val : [Int32]){
+            self.val = val.map{Int32Value(integerLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : Int32Value...){
             self.val = arrayLiteral
         }
 
@@ -53,9 +57,32 @@ extension BFIELD {
             self.form(disp, form, null)
         }
         
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
+        }
+        
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
         }
     }
     

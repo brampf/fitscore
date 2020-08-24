@@ -29,6 +29,7 @@ extension BFIELD {
     /// Bit
     final public class X : BFIELD, ValueBField, ExpressibleByArrayLiteral {
         typealias ValueType = EightBitValue
+        typealias BaseType = UInt8
         
         let name = "X"
         var val: [ValueType]?
@@ -51,25 +52,33 @@ extension BFIELD {
             return BFORM.X(r: val?.count ?? 0 * MemoryLayout<UInt8>.size)
         }
         
-        override public var debugDescription: String {
-            return "BFIELD.X(\(val?.description ?? "-/-"))"
-        }
-        
         override public var description: String {
             return val != nil ? "\(val!.reduce(into: "", { $0 += "["+String($1.rawValue, radix: 2).padPrefix(toSize: 8, char: "0")+"]" }))" : "-/-"
         }
         
         override public func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
             
-            self.val?.map({ value in
-                value.format(disp, form, null)
-            }).description ?? empty(form, null, "")
-            
+            self.form(disp, form, null)
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
         }
         
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
         }
         
     }

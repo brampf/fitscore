@@ -25,7 +25,7 @@
 import Foundation
 
 /// Value formatter for table fields
-public struct TableValueFormatter<Field> where Field: FIELD  {
+public final class TableValueFormatter<Field> where Field: FIELD  {
     
     /// table column the value formatting is based on
     var column : TableColumn<Field>
@@ -35,8 +35,8 @@ public struct TableValueFormatter<Field> where Field: FIELD  {
     }
     
     /// format the given value according the properties provided by the table column
-    func string<D: Displayable>(_ value: D) -> String where D.DISP == Field.DISP, D.FORM == Field.FORM {
+    public func string<D: Displayable>(_ value: D) -> String? {
         
-        return value.format(column.TDISP, column.TFORM, "")
+        value.string(column.TDISP, column.TFORM)
     }
 }

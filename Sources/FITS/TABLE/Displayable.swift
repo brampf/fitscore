@@ -25,7 +25,12 @@
 import Foundation
 
 /// Ability to display a value
-protocol Displayable {
+public protocol Displayable: Hashable {
+
+    func string<DISP: FITS.DISP, FORM: FITS.FORM>(_ disp: DISP?, _ form: FORM?) -> String?
+}
+
+protocol _Displayable : Displayable {
     associatedtype DISP : FITS.DISP
     associatedtype FORM : FITS.FORM
     
@@ -37,9 +42,19 @@ protocol Displayable {
      - Parameter null: `TNULL` value to use
      */
     func format(_ disp: DISP?, _ form: FORM?, _ null: String?) -> String
+
 }
 
-extension Displayable {
+extension _Displayable {
+    
+    public func string<DISP: FITS.DISP, FORM: FITS.FORM>(_ disp: DISP?,_ form: FORM?) -> String? {
+        
+        if let thisForm = form as? Self.FORM?, let thisDisp = disp as? Self.DISP? {
+            return self.format(thisDisp, thisForm, "")
+        } else {
+            return nil
+        }
+    }
     
     /// compute a string for a missing value
     func empty(_ form: FORM?, _ null: String?, _ fallback: String) -> String {
@@ -49,7 +64,7 @@ extension Displayable {
 }
 
 //MARK:- Optional (Null Value)
-extension Optional : Displayable where Wrapped : Displayable {
+extension Optional : _Displayable, Displayable where Wrapped : _Displayable {
     typealias DISP = Wrapped.DISP
     typealias FORM = Wrapped.FORM
     
@@ -61,75 +76,5 @@ extension Optional : Displayable where Wrapped : Displayable {
             return null ?? ""
         }
         
-    }
-}
-
-
-//MARK:- Integer
-protocol DisplayableInteger : Displayable, BinaryInteger {
-
-}
-
-extension DisplayableInteger where FORM == BFORM, DISP == BDISP {
-    
-    func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-        
-        switch disp {
-        case .I(let w, let m):
-            return String(self, radix: 10, min: m ?? 1, max: w)
-        case .O(let w, let m):
-            return String(self, radix: 8, min: m ?? 1, max: w)
-        case .Z(let w, let m):
-            return String(self, radix: 16, min: m ?? 1, max: w)
-        case .G(let w,_,_):
-            return String(self, radix: 10, min: 1, max: w)
-        default:
-            return empty(form, null, String(self))
-        }
-    }
-}
-
-//MARK:- FloatingPoint
-protocol DisplayableFloatingPoint : Displayable, BinaryFloatingPoint {
-    
-}
-
-extension DisplayableFloatingPoint where FORM == BFORM, DISP == BDISP, Self : CVarArg & LosslessStringConvertible {
-    
-    func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-        
-        //let formatter = NumberFormatter()
-        
-        switch disp {
-        case .F(let w, let d):
-            return String(format: "%\(w-d).\(d)F", self)
-        case .E(let w, let d, _):
-            return String(format: "%\(w-d).\(d)E", self)
-        case .EN(let w, let d):
-            return String(format: "%\(w-d).\(d)E", self)
-        case .ES(let w, let d):
-            return String(format: "%\(w-d).\(d)A", self)
-        case .G(let w, let d, _):
-            return String(format: "%\(w-d).\(d)G", self)
-        default:
-            return empty(form, null, String(self))
-        }
-    }
-}
-
-protocol DisplayableCharacter : Displayable, LosslessStringConvertible {
-    
-}
-
-extension DisplayableCharacter where FORM == BFORM, DISP == BDISP {
-    
-    func format(_ disp: BDISP?, _ form: BFORM?, _ null: String?) -> String {
-        
-        switch disp {
-        case .A(let w), .G(let w,_,_):
-            return String(self).padPrefix(toSize: w, char: " ")
-        default:
-            return empty(form, null, String(self))
-        }
     }
 }

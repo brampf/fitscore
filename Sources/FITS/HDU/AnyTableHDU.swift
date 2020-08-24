@@ -92,11 +92,12 @@ extension AnyTableHDU {
     public func removeColum(index: Int) {
         self.columns.remove(at: index)
     }
+    
 }
 
-extension AnyTableHDU where F : Displayable {
+extension AnyTableHDU {
         
-     func plot(data: inout Data){
+     public func plot(data: inout Data){
         
         var dashWidth =  0
         let maxWidths = self.columns.reduce(into: [Int]()) { me, col in
@@ -132,9 +133,7 @@ extension AnyTableHDU where F : Displayable {
                 var value = ""
                 if row < self.columns[col].values.count {
                     let field = self.columns[col].values[row]
-    
-                    let formatter = TableValueFormatter(column: self.columns[col])
-                    value = formatter.string(field)
+                    value = field.description
                 }
                 if col == 0 {
                     out.append("|")

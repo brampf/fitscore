@@ -30,6 +30,7 @@ extension BFIELD {
     final public class PC : BFIELD, VarArray, ExpressibleByArrayLiteral {
         typealias ArrayType = Int32
         typealias ValueType = SingleComplexValue
+        typealias BaseType = (Float,Float)
         
         let name = "PC"
         
@@ -56,9 +57,32 @@ extension BFIELD {
             self.form(disp, form, null)
         }
         
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
+        }
+        
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
         }
     }
     

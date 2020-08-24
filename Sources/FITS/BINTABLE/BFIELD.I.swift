@@ -28,7 +28,8 @@ extension BFIELD {
     //MARK:- I : Int16
     /// 16-bit integer
     final public class I : BFIELD, ValueBField, ExpressibleByArrayLiteral{
-        typealias ValueType = Int16
+        typealias ValueType = Int16Value
+        typealias BaseType = Int16
         
         let name = "I"
         var val: [ValueType]?
@@ -37,7 +38,11 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : Int16...){
+        public init(val : [Int16]){
+            self.val = val.map{Int16Value(integerLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : Int16Value...){
             self.val = arrayLiteral
         }
         
@@ -50,9 +55,32 @@ extension BFIELD {
             self.form(disp, form, null)
         }
         
+        override public var description: String {
+            self.desc
+        }
+        
+        override public var debugDescription: String {
+            self.debugDesc
+        }
+        
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
+        }
+        
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
         }
     }
     
