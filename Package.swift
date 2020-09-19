@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -23,6 +23,10 @@ let package = Package(
             dependencies: [.product(name: "Numerics", package: "swift-numerics")]),
         .testTarget(
             name: "FITSTests",
-            dependencies: ["FITS"]),
-    ]
+            dependencies: ["FITS"],
+            resources: [
+                .process("Samples")
+            ]),
+    ],
+    swiftLanguageVersions: [SwiftVersion.version("5.3")]
 )

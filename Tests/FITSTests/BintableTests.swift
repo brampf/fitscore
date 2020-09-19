@@ -45,7 +45,6 @@ final class BintableTests: XCTestCase {
     
     static var allTests = [
         ("testTField",testBField),
-        ("testReadTable",testReadTable),
         ("testCreateTable",testCreateTable),
         ("testModifyTable",testModifyTable),
         ("testWriteTable",testWriteTable),
@@ -119,41 +118,6 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(pb.form, BFORM.PB(r: 11))
         XCTAssertLength(pb, 11)
         XCTAssertIdent(pb)
-        
-    }
-    
-    func testReadTable() {
-        
-        guard var data = Data(base64Encoded: Bintable) else {
-            return XCTFail("Unable to read sample")
-        }
-        
-        guard let hdu = try? BintableHDU(with: &data) else {
-            XCTFail("HDU must not be null")
-            return
-        }
-        
-        XCTAssertEqual(hdu.modified, false)
-        XCTAssertEqual(hdu.tfields, 9)
-        XCTAssertEqual(hdu.naxis, 2)
-        XCTAssertEqual(hdu.naxis(1), 11535)
-        XCTAssertEqual(hdu.naxis(2), 1)
-        XCTAssertEqual(hdu.lookup("TFORM1"), BFORM.A(r: 5))
-        XCTAssertEqual(hdu.lookup("TFORM2"), BFORM.I(r: 1))
-        XCTAssertEqual(hdu.lookup("TFORM3"), BFORM.E(r: 1))
-        XCTAssertEqual(hdu.lookup("TFORM4"), BFORM.E(r: 1))
-        XCTAssertEqual(hdu.lookup("TFORM5"), BFORM.E(r: 640))
-        XCTAssertEqual(hdu.lookup("TFORM6"), BFORM.E(r: 640))
-        XCTAssertEqual(hdu.lookup("TFORM7"), BFORM.E(r: 640))
-        XCTAssertEqual(hdu.lookup("TFORM8"), BFORM.I(r: 640))
-        XCTAssertEqual(hdu.lookup("TFORM9"), BFORM.E(r: 640))
-        XCTAssertEqual(hdu.columns.count, hdu.tfields)
-        XCTAssertEqual(hdu.rows.count, hdu.naxis(2))
-        XCTAssertEqual(hdu.columns.first?.values.count, hdu.naxis(2))
-        
-        XCTAssertEqual(hdu.rows[0][3], BFIELD.E(val: [2.6627994]))
-        
-        //plotTable(hdu)
         
     }
     

@@ -7,7 +7,6 @@ final class TableTests: XCTestCase {
 
     static var allTests = [
         ("testTField",testTField),
-        ("testReadTable",testReadTable),
         ("testCreateTable",testCreateTable),
         ("testModifyTable",testModifyTable),
         ("testWriteTable",testWriteTable)
@@ -43,34 +42,6 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(e1.write(et), "    2.03922E+04")
         XCTAssertEqual(e2.write(et), "    3.93933E+03")
         XCTAssertEqual(e3.write(et), "    9.39322E+03")
-    }
-    
-    
-    func testReadTable() {
-        
-        guard var data = Data(base64Encoded: Table) else {
-            return XCTFail("Unable to read sample")
-        }
-        
-        guard let hdu = try? TableHDU(with: &data) else {
-            XCTFail("HDU must not be null")
-            return
-        }
-        
-        XCTAssertEqual(hdu.modified, false)
-        XCTAssertEqual(hdu.lookup("TFORM1"), TFORM.E(w: 15, d: 7))
-        XCTAssertEqual(hdu.columns.count, hdu.tfields)
-        XCTAssertEqual(hdu.columns.first?.values.count, hdu.naxis(2))
-        
-        for _ in 0..<(hdu.tfields ?? 0) {
-            let dat = hdu.dataUnit!.subdata(in: 0..<(hdu.naxis(1) ?? 0))
-            if let row = String(data: dat, encoding: .ascii) {
-                print(row)
-            }
-        }
-        
-        plotTable(hdu)
-        
     }
     
     func testCreateTable() {

@@ -13,7 +13,6 @@ final class ParserTests: XCTestCase {
         ("testReadExtend", testReadExtend),
         ("testReadComment", testReadComment),
         ("testReadDate", testReadDate),
-        ("testReadHDU", testReadHDU),
         ("testReadTDISP", testReadTDISP),
         ("testReadTFORM", testReadTFORM),
         ("testReadTFIELD", testReadTFIELD),
@@ -102,26 +101,6 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(block.keyword, "ANY")
         XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value.debugDescription)")
         XCTAssertEqual(block.comment, "And acomment as well")
-    }
-
-    func testReadHDU() {
-        var data = Data(base64Encoded: SiriLSample)!
-
-        guard let hdu = try? AnyHDU(with: &data) else {
-            XCTFail("HDU must not be null")
-            return
-        }
-        
-        XCTAssertEqual(hdu.modified, false)
-        XCTAssertEqual(hdu.headerUnit.count, 16)
-        XCTAssertNotNil(hdu.dataUnit)
-        XCTAssertEqual(hdu.bitpix, BITPIX.UINT8)
-        XCTAssertEqual(hdu.naxis, 3)
-        XCTAssertEqual(hdu.naxis(1), 480)
-        XCTAssertEqual(hdu.naxis(2), 360)
-        XCTAssertEqual(hdu.naxis(3), 3)
-        XCTAssertEqual(hdu.dataSize, 518400)
-        
     }
     
     func testReadTDISP() {
