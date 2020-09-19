@@ -27,6 +27,6 @@ let package = Package(
             resources: [
                 .process("Samples")
             ]),
-    ],
-    swiftLanguageVersions: [SwiftVersion.version("5.3")]
+    ]
+    //swiftLanguageVersions: [SwiftVersion.version("5.3")]
 )
