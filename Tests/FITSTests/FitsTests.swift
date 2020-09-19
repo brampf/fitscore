@@ -15,30 +15,23 @@ final class FitsTests: XCTestCase {
     
     func testReadFile() {
         
-        guard var data = Data(base64Encoded: SiriLSample) else {
-            XCTFail("No Data")
-            return
-        }
-        
-        let fits = try! FitsFile.read(from: &data)
+        let url = Bundle.module.url(forResource: "HRSz0yd020fm_c2f", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
 
-        XCTAssertNotNil(fits)
-        
-        XCTAssertEqual(fits.prime.isSimple, true)
-        XCTAssertEqual(fits.prime.bitpix, BITPIX.UINT8)
-        XCTAssertEqual(fits.prime.naxis, 3)
-        XCTAssertEqual(fits.prime.naxis(1), 480)
-        XCTAssertEqual(fits.prime.naxis(2), 360)
-        XCTAssertEqual(fits.prime.naxis(3), 3)
+        XCTAssertEqual(file.prime.isSimple, true)
+        XCTAssertEqual(file.prime.bitpix, BITPIX.FLOAT32)
+        XCTAssertEqual(file.prime.naxis, 2)
+        XCTAssertEqual(file.prime.naxis(1), 2000)
+        XCTAssertEqual(file.prime.naxis(2), 4)
+        XCTAssertEqual(file.prime.naxis(3), nil)
     }
     
     func testReadImage() {
         
-        guard var data = Data(base64Encoded: Image) else {
-            return XCTFail("Unable to read sample")
-        }
+        let url = Bundle.module.url(forResource: "EUVEngc4151imgx", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
-        guard let hdu = try? TableHDU(with: &data) else {
+        guard let hdu = file.HDUs[0] as? ImageHDU else {
             XCTFail("HDU must not be null")
             return
         }
@@ -60,11 +53,10 @@ final class FitsTests: XCTestCase {
     
     func testReadTable() {
         
-        guard var data = Data(base64Encoded: Table) else {
-            return XCTFail("Unable to read sample")
-        }
+        let url = Bundle.module.url(forResource: "FGSf64y0106m_a1f", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
-        guard let hdu = try? TableHDU(with: &data) else {
+        guard let hdu = file.HDUs[0] as? TableHDU else {
             XCTFail("HDU must not be null")
             return
         }
@@ -132,11 +124,10 @@ final class FitsTests: XCTestCase {
     
     func testReadBintable() {
         
-        guard var data = Data(base64Encoded: Bintable) else {
-            return XCTFail("Unable to read sample")
-        }
+        let url = Bundle.module.url(forResource: "IUElwp25637mxlo", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
-        guard let hdu = try? BintableHDU(with: &data) else {
+        guard let hdu = file.HDUs[0] as? BintableHDU else {
             XCTFail("HDU must not be null")
             return
         }
@@ -183,12 +174,8 @@ final class FitsTests: XCTestCase {
 
     func testReadGroups() {
         
-        guard var data = Data(base64Encoded: DDTSUVDATA) else {
-            return XCTFail("Unable to read sample")
-        }
-        
-        
-        let file = try! FitsFile.read(from: &data)
+        let url = Bundle.module.url(forResource: "DDTSUVDATA", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, BITPIX.FLOAT32)
         XCTAssertEqual(file.prime.gcount, 7956)

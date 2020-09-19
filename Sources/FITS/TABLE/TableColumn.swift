@@ -78,6 +78,10 @@ public class TableColumn<Field> : Identifiable where Field: FIELD  {
             values[row] = newValue
         }
     }
+    
+    public var formatter: TableValueFormatter<Field> {
+        return TableValueFormatter(column: self)
+    }
 }
 
 extension TableColumn : CustomDebugStringConvertible {

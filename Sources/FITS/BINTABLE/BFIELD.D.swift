@@ -28,7 +28,8 @@ extension BFIELD {
     //MARK:- D : Double-precision floating point
     /// Double-precision floating point
     final public class D : BFIELD, ValueBField, ExpressibleByArrayLiteral {
-        typealias ValueType = Float64
+        typealias ValueType = DoubleValue
+        typealias BaseType = Double
         
         let name = "D"
         var val: [ValueType]?
@@ -37,7 +38,11 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : Float64...){
+        public init(val : [Double]){
+            self.val = val.map{DoubleValue(floatLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : DoubleValue...){
             self.val = arrayLiteral
         }
 
@@ -61,6 +66,21 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
+        }
+        
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
         }
     }
     

@@ -25,10 +25,9 @@ final class PG93Tests: XCTestCase {
     /// Simple 8-bit integer ramp
     func test_pg93_read00001() {
         
-        var data = Data(base64Encoded: tst0001)!
-        
-        let file = try! FitsFile(with: &data)
-        
+        let url = Bundle.module.url(forResource: "tst0001", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
+
         XCTAssertEqual(file.prime.bitpix, .UINT8)
         
         XCTAssertEqual(file.HDUs.count, 0)
@@ -38,10 +37,9 @@ final class PG93Tests: XCTestCase {
     /// Simple 16-bit integer file with 3 axes
     func test_pg93_read00002() {
         
-        var data = Data(base64Encoded: tst0002)!
-        
-        let file = try! FitsFile(with: &data)
-        
+        let url = Bundle.module.url(forResource: "tst0002", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
+         
         XCTAssertEqual(file.prime.bitpix, .INT16)
         
         XCTAssertEqual(file.HDUs.count, 0)
@@ -51,9 +49,8 @@ final class PG93Tests: XCTestCase {
     /// Simple 32-bit integer file
     func test_pg93_read00003() {
         
-        var data = Data(base64Encoded: tst0003)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0003", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .INT32)
         
@@ -64,10 +61,9 @@ final class PG93Tests: XCTestCase {
     /// Simple 32-bit integer file with scaling
     func test_pg93_read00004() {
         
-        var data = Data(base64Encoded: tst0004)!
-        
-        let file = try! FitsFile(with: &data)
-        
+        let url = Bundle.module.url(forResource: "tst0004", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
+
         XCTAssertEqual(file.prime.bitpix, .INT32)
         
         XCTAssertEqual(file.HDUs.count, 0)
@@ -77,9 +73,8 @@ final class PG93Tests: XCTestCase {
     /// Simple 32-bit IEEE Floating Point file
     func test_pg93_read00005() {
         
-        var data = Data(base64Encoded: tst0005)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0005", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .FLOAT32)
         
@@ -90,9 +85,8 @@ final class PG93Tests: XCTestCase {
     /// Simple 64-bit IEEE Floating Point file
     func test_pg93_read00006() {
         
-        var data = Data(base64Encoded: tst0006)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0006", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .FLOAT64)
         
@@ -103,9 +97,8 @@ final class PG93Tests: XCTestCase {
     /// Test 32-bit IEEE Fp special values
     func test_pg93_read00007() {
         
-        var data = Data(base64Encoded: tst0007)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0007", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .FLOAT32)
         
@@ -116,9 +109,8 @@ final class PG93Tests: XCTestCase {
     /// Test 64-bit IEEE Fp special values
     func test_pg93_read00008() {
         
-        var data = Data(base64Encoded: tst0008)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0008", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .FLOAT64)
         
@@ -129,9 +121,8 @@ final class PG93Tests: XCTestCase {
     /// TABLE + IMAGE
     func test_pg93_read00009() {
         
-        var data = Data(base64Encoded: tst0009)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0009", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .UINT8)
         
@@ -168,9 +159,8 @@ final class PG93Tests: XCTestCase {
     /// BINTABLE + IMAGE
     func test_pg93_read00010() {
         
-        var data = Data(base64Encoded: tst0010)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0010", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.HDUs.count, 2)
         
@@ -317,9 +307,8 @@ final class PG93Tests: XCTestCase {
     /// IMAGE + TABLE
     func test_pg93_read00011() {
         
-        var data = Data(base64Encoded: tst0011)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0011", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .UINT8)
         
@@ -330,9 +319,8 @@ final class PG93Tests: XCTestCase {
     /// 32+BNTBL+UNKNWN+IMGE+TBLE
     func test_pg93_read00012() {
         
-        var data = Data(base64Encoded: tst0012)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0012", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.HDUs.count, 4)
         XCTAssertTrue(file.HDUs[0] is BintableHDU)
@@ -345,9 +333,8 @@ final class PG93Tests: XCTestCase {
     /// Image with ESO HIERARCH keywords
     func test_pg93_read00013() {
         
-        var data = Data(base64Encoded: tst0013)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0013", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .FLOAT32)
         
@@ -358,9 +345,8 @@ final class PG93Tests: XCTestCase {
     /// Sample of ESO-MIDAS BINTABLE
     func test_pg93_read00014() {
         
-        var data = Data(base64Encoded: tst0014)!
-        
-        let file = try! FitsFile(with: &data)
+        let url = Bundle.module.url(forResource: "tst0014", withExtension: "fits")
+        let file = try! FitsFile.read(from: url!)
         
         XCTAssertEqual(file.prime.bitpix, .UINT8)
         

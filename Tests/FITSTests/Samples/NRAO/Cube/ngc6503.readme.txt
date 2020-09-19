@@ -1,0 +1,84 @@
+% TEX version of NRAO Radio CD-ROM image submission form 
+% Version 91/3/28    J. J. Condon
+
+\nopagenumbers
+
+\centerline{\bf NRAO CD-ROM IMAGE SUBMISSION FORM}
+
+\bigskip
+
+\noindent Image Donor(s): Donald C.~Wells
+
+\bigskip
+
+\noindent Contact donor: Donald C.~Wells
+
+Mailing address: National Radio Astronomy Observatory, Edgemont Road,
+Charlottesville, Virginia 22903-2475 USA 
+
+\bigskip
+\bigskip
+
+Telephone: 1-804-296-0277
+
+E-mail address: dwells@nrao.edu
+
+\bigskip
+
+\noindent Source or Image Name: NGC~6503
+
+\noindent Alternate Names: 
+
+\noindent Description of Observation: (e.g., date of observation,
+telescope(s) used, frequencies, polarization type, resolution, 
+deconvolution method) 
+
+NGC~6503 (17:49:57.7, +70:09:25.7 [1950], L=100, b=30.5) is a normal
+spiral galaxy, with morphological type SA(s)cd (de~Vaucouleurs). The
+observation had a total duration of 4~hours, on 12-April-1983, and
+used 21 antennas in C array, with 32 channels at 48~KHz spacing
+(10~km/s), and integration time 60~sec.  Exposure time on the galaxy
+was about 2~hours.
+
+\vfill
+
+\noindent Description of Image: (e.g., type of source, scientific reason
+for observing, notable source features)
+
+This 21~cm cube is a {\it textbook case} of a spiral galaxy rotation
+curve. The AIPS task {\tt GAL} was developed and debugged using this
+observation as the test data. The cube has also been used extensively
+by the AIPS Group for testing ``movie loop'' display code and for
+various visualization experiments.
+
+The 1.1~Jy quasar 1749+70.1 was within the primary beam at L band.
+The quasar totally dominated the dirty maps, its sidelobes being about
+10x brighter than the 21~cm galaxy emission.  The 6~MHz continuum map
+delivered with the cube was subtracted from each of the 31 planes of
+the cube, and the quasar disappeared completely.
+
+\vfill
+\vfill
+
+\noindent Publication Reference(s): 
+van Moorsel, G. A., and Wells, D. C., "Analysis of High Resolution
+Velocity Fields --- NGC~6503", AJ~{\bf 90}, 1038 (1985).
+
+\bigskip
+\bigskip
+
+\noindent Permission is granted to NRAO/AUI to use, distribute, sell, reproduce
+or authorize others to use, distribute, sell or reproduce the
+images listed above without reservation or restriction.  The donor
+whose signature appears below agrees to inform all co-authors of this
+release.
+
+\bigskip
+\noindent Signed:
+
+\medskip
+
+\noindent Date: 29~August~1991
+
+\eject
+\end

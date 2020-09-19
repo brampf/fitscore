@@ -28,8 +28,8 @@ extension BFIELD {
     //MARK:- L : Logical
     /// Logical
     final public class L : BFIELD, ValueBField, ExpressibleByArrayLiteral {
-
-        typealias ValueType = Bool
+        typealias ValueType = BoolenValue
+        typealias BaseType = Bool
         
         let name = "L"
         var val: [ValueType]?
@@ -38,13 +38,17 @@ extension BFIELD {
             self.val = val
         }
         
-        public init(arrayLiteral : Bool...){
+        public init(val : [Bool]){
+            self.val = val.map{BoolenValue(booleanLiteral: $0)}
+        }
+        
+        public init(arrayLiteral : BoolenValue...){
             self.val = arrayLiteral
         }
         
         public func write(to: inout Data) {
             let string = val?.reduce(into: "", { r, v in
-                r.append(v ? "T" : "F")
+                r.append(v.rawValue ? "T" : "F")
             }) ?? ""
             to.append(string)
         }
@@ -72,6 +76,21 @@ extension BFIELD {
         override public func hash(into hasher: inout Hasher) {
             hasher.combine(name)
             hasher.combine(val)
+        }
+        
+        override public subscript(_ index: Int) -> BFIELD.VALUE? {
+            get {
+                return val?[index]
+            }
+            set {
+                if let new = newValue as? ValueType {
+                    val?.insert(new, at: index)
+                }
+            }
+        }
+        
+        override public var all: [BFIELD.VALUE] {
+            return val ?? []
         }
     }
     

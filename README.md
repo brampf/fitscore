@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT License">
 </a>
 <a href="https://swift.org">
-<img src="https://img.shields.io/badge/swift-5.2-brightgreen.svg" alt="Swift 5.2">
+<img src="https://img.shields.io/badge/swift-5.3-brightgreen.svg" alt="Swift 5.3">
 </a>
 <img src="https://img.shields.io/github/languages/top/brampf/fitscore?color=bright" alt="Language">
 <img src="https://img.shields.io/github/workflow/status/brampf/fitscore/Swift" alt="Swift">
@@ -38,7 +38,7 @@ FITSCore is the plattform independend base library. It compiles and runs on iOS 
     * [x] ASCII Table Extensions
     * [x] Binary Table
 * Native code
-    * Swift 5.2
+    * Swift 5.3
     * Compiles for macCatalyst
     * Compiles for iPadOS
     * Compiles for Linux

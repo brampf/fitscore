@@ -24,6 +24,9 @@ let package = Package(
         .testTarget(
             name: "FITSTests",
             dependencies: ["FITS"],
-            resources: [.process("Samples/aeff_P6_v1_diff_back.fits")]),
+            resources: [
+                .process("Samples")
+            ]),
     ]
+    //swiftLanguageVersions: [SwiftVersion.version("5.3")]
 )
