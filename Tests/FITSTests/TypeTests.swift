@@ -7,6 +7,8 @@ final class TypeTests: XCTestCase {
     
     static var allTests = [
         ("testTFIELD", testTFIELD),
+        ("testBFIELD_A", testBFIELD_A),
+        ("testBFIELD_VarArray", testBFIELD_VarArray),
         ("testKeyword",testKeyword)
 ]
     

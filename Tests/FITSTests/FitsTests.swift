@@ -9,7 +9,8 @@ final class FitsTests: XCTestCase {
         ("testReadFile", testReadFile),
         ("testReadImage", testReadImage),
         ("testReadTable", testReadTable),
-        ("testReadBintable", testReadBintable)
+        ("testReadBintable", testReadBintable),
+        ("testReadGoups", testReadGroups)
         
     ]
     

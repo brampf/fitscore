@@ -11,6 +11,14 @@ final class WriterTests: XCTestCase {
         ("testWriteSimple", testWriteSimple),
         ("testWriteComment", testWriteComment),
         ("testWriteBitpix", testWriteBitpix),
+        ("testWriteEmpty", testEmpty),
+        ("testMinimal", testMinimal),
+        ("testSample8", testSample8),
+        ("testSample16", testSample16),
+        ("testSample32", testSample32),
+        ("testSampleF", testSampleF),
+        ("testSampleD", testSampleD),
+        ("testWriteFile", testWriteFile),
 ]
  
     func testPadding() {
