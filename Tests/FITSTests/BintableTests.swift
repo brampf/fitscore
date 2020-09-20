@@ -2,45 +2,6 @@
 import XCTest
 @testable import FITS
 
-func XCTAssertIdent<B: ValueBField>(_ field: B, file: StaticString = #file, line: UInt = #line) where B.FORM == BFORM {
-    
-    var data = Data()
-    field.write(to: &data)
-    
-    if let new = BFIELD.parse(data: data, type: field.form) as? B {
-    
-        XCTAssertEqual(field.form, new.form, file: (file), line: line)
-        XCTAssertEqual(field, new, file: (file), line: line)
-    } else {
-        XCTFail()
-    }
-}
-
-func XCTAssertLength<B: ValueBField>(_ field: B, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
-    
-    var data = Data()
-    field.write(to: &data)
-    
-    let count = field.val?.count ?? 0
-    
-    XCTAssertEqual(data.count, count * MemoryLayout<B.BaseType>.size, file: (file), line: line)
-    XCTAssertEqual(data.count, expectedLenght, file: (file), line: line)
-}
-
-func XCTAssertLength<V: VarArray>(_ field: V, _ expectedLenght: Int, file: StaticString = #file, line: UInt = #line) {
-    
-    var data = Data()
-    var heap = Data()
-    field.write(to: &data, heap: &heap)
-    
-    let count = field.val?.count ?? 0
-    
-    XCTAssertEqual(data.count, 8, file: (file), line: line)
-    //XCTAssertEqual(Array(data), [UInt8](arrayLiteral: 0,0,0,UInt8(count),0,0,0,0), file: file, line: line)
-    XCTAssertEqual(heap.count, count * MemoryLayout<V.BaseType>.size, file: (file), line: line)
-    XCTAssertEqual(heap.count, expectedLenght, file: (file), line: line)
-}
-
 final class BintableTests: XCTestCase {
     
     static var allTests = [
@@ -49,6 +10,7 @@ final class BintableTests: XCTestCase {
         ("testModifyTable",testModifyTable),
         ("testWriteTable",testWriteTable),
         ("testWriteVarArray",testWriteVarArray),
+        ("testWriteVarArray",testFormatA),
     ]
 
     func testBField() {
