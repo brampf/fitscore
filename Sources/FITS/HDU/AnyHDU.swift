@@ -170,16 +170,18 @@ open class AnyHDU : HDU, Reader {
     }
     
     /// sets value and comment for `HDUKeyworld`
-    public func header<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String?) {
+    public func header<Value: HDUValue>(_ keyword: HDUKeyword, value: Value, comment: String? = nil) {
         
         //print("SET> \(keyword): \(value.description)")
         
         if let block = headerUnit.first(where: {$0.keyword == keyword}) {
             // modify existing header if present
             block.value = value
-            block.comment = comment
+            if let comment = comment {
+                block.comment = comment
+            }
         } else {
-            // add keyworld otherwise
+            // add keyword otherwise
             headerUnit.append(HeaderBlock(keyword: keyword, value: value, comment: comment))
         }
         self.modified = true
