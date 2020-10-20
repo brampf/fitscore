@@ -26,6 +26,7 @@ import Foundation
 
 extension FitsFile {
     
+    
     public static func read(contentsOf url: URL) throws -> FitsFile? {
         
         let data = try Data(contentsOf: url)
@@ -60,12 +61,12 @@ extension FitsFile : FITSReader {
         
         while context.offset < context.dataLenght {
         
-            guard let xtension = String(bytes: data[context.offset..<context.offset+CARD_LENGTH], encoding: .ascii) else {
+            // continue reading the data as header
+            guard let card = HeaderBlock.read(data, context: &context) else {
                 context.msg.append("Malformatted HDU found at offset \(context.offset)")
                 return new
             }
             
-            let card = HeaderBlock.parse(form: xtension)
             var newHDU : AnyHDU?
             if !card.isXtension {
                 // also not supposed to happen

@@ -63,7 +63,7 @@ open class AnyHDU : HDU {
     @Keyword(.BUNIT) public var bunit : String?
     
     public func naxis(_ dimension: Naxis) -> Int? {
-        return self.lookup("NAXIS\(dimension)")
+        return self.headerUnit["NAXIS\(dimension)"]
     }
     
     /// initilaize the keyword wrapper
@@ -213,10 +213,10 @@ open class AnyHDU : HDU {
     public var description: String {
         
         var result = "-\(type(of: self)): \(self.extname ?? "")".padSuffix(toSize: 80, char: "-")+"\n"
-        for index in 1..<(lookup(HDUKeyword.NAXIS) ?? 0) + 1 {
-            result.append("\(lookup("NAXIS\(index)") ?? 0) x ")
+        for index in 1..<(headerUnit[HDUKeyword.NAXIS] ?? 0) + 1 {
+            result.append("\(headerUnit["NAXIS\(index)"] ?? 0) x ")
         }
-        result.append("\(lookup(HDUKeyword.BITPIX) ?? BITPIX.UINT8)-bit")
+        result.append("\(headerUnit[HDUKeyword.BITPIX] ?? BITPIX.UINT8)-bit")
         result.append(" \(self.dataUnit?.count ?? 0) bytes")
         
         return result

@@ -61,18 +61,18 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
      */
     public func readTable() {
         
-        let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
+        let fieldCount = self.headerUnit[HDUKeyword.TFIELDS] ?? 0
         
         var format : [Int:(Int,Int)] = [:]
         
         // pre-fetch field properties
         for col in 0..<fieldCount {
             
-            let rawTBCOL : Int = self.lookup("TBCOL\(col+1)") ?? 1
-            let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
-            let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
-            let rawTFORM : TFORM? = self.lookup("TFORM\(col+1)")
-            let rawTDISP : TDISP? = self.lookup("TDISP\(col+1)")
+            let rawTBCOL : Int = self.headerUnit["TBCOL\(col+1)"] ?? 1
+            let rawTTYPE : String? = self.headerUnit["TTYPE\(col+1)"]
+            let rawTUNIT : String? = self.headerUnit["TUNIT\(col+1)"]
+            let rawTFORM : TFORM? = self.headerUnit["TFORM\(col+1)"]
+            let rawTDISP : TDISP? = self.headerUnit["TDISP\(col+1)"]
 
             if let tform = rawTFORM {
                 self.columns.append(TableColumn(self.headerUnit, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))

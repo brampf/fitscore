@@ -80,7 +80,7 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 99)
         XCTAssertEqual(hdu.naxis(2), 7)
-        XCTAssertEqual(hdu.lookup(HDUKeyword.TFIELDS), 6)
+        XCTAssertEqual(hdu.headerUnit[HDUKeyword.TFIELDS], 6)
         XCTAssertEqual(hdu.columns.count, 6)
         XCTAssertEqual(hdu.columns[0].values.count, 7)
         XCTAssertEqual(hdu.columns[1].values.count, 7)
@@ -155,7 +155,7 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 11535)
         XCTAssertEqual(hdu.naxis(2), 1)
-        XCTAssertEqual(hdu.lookup(HDUKeyword.TFIELDS), 9)
+        XCTAssertEqual(hdu.headerUnit[HDUKeyword.TFIELDS], 9)
         
         XCTAssertEqual(hdu.columns[0].values.count, 1)
         XCTAssertEqual(hdu.columns[1].values.count, 1)

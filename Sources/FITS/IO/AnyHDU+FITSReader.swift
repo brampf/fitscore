@@ -87,16 +87,18 @@ extension AnyHDU : FITSReader {
         return du
     }
     
-    internal static func readTable(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> DataUnit? {
-     
-        let new = TableHDU()
+}
+
+extension TableHDU {
+    
+    internal func readTable(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> DataUnit? {
         
         let fieldCount = context.currentHeader?[HDUKeyword.TFIELDS] ?? 0
         let rowLength = context.currentHeader?["NAXIS1"] ?? 1
         let rows = context.currentHeader?["NAXIS2"] ?? 0
         
         for _ in 0..<rows {
-            let row = data[context.offset..<context.offset+rowLength]
+            // let row = data[context.offset..<context.offset+rowLength]
             for columnIndex in 0..<fieldCount {
                 
                 if let tform : TFORM  = context.currentHeader?["TFORM\(columnIndex+1)"] {
@@ -107,7 +109,7 @@ extension AnyHDU : FITSReader {
                     // append the table column
                     
                     let column = TableColumn<TFIELD>(context.currentHeader!, (columnIndex+1), TDISP: tdisp, TFORM: tform, TUNIT: tunit, TTYPE: ttype ?? "")
-                    new.columns.append(column)
+                    self.columns.append(column)
                    
                     let start = context.offset+tbcol-1
                     let end = context.offset+tbcol+tform.length-1

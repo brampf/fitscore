@@ -23,7 +23,7 @@ final class ParserTests: XCTestCase {
     
     func testReadSimple() {
         let text = "SIMPLE  =                    T / file does conform to FITS standard             "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, HDUKeyword.SIMPLE)
         XCTAssertTrue(block.value == true)
@@ -33,7 +33,7 @@ final class ParserTests: XCTestCase {
     
     func testReadBitpix() {
         let text = "BITPIX  =                    8 / number of bits per data pixel                  "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, HDUKeyword.BITPIX)
         XCTAssertTrue(block.value == BITPIX.UINT8)
@@ -42,7 +42,7 @@ final class ParserTests: XCTestCase {
     
     func testReadNaxis() {
         let text = "NAXIS   =                    3 / number of data axes                            "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, HDUKeyword.NAXIS)
         XCTAssertTrue(block.value == 3)
@@ -51,14 +51,14 @@ final class ParserTests: XCTestCase {
     
     func testReadNaxisN() {
         let text = "NAXIS1  =                  480 / length of data axis 1                          "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, "NAXIS\(1)")
         XCTAssertTrue(block.value == 480)
         XCTAssertEqual(block.comment, "length of data axis 1")
         
         let text2 = "NAXIS1  =                89688 / length of first data axis                      "
-        let block2 = HeaderBlock.parse(form: text2)
+        let block2 = HeaderBlock.parse(form: text2)!
         
         XCTAssertEqual(block2.keyword, "NAXIS\(1)")
         XCTAssertTrue(block2.value == 89688)
@@ -67,7 +67,7 @@ final class ParserTests: XCTestCase {
     
     func testReadExtend() {
         let text = "EXTEND  =                    T / FITS dataset may contain extensions            "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, "EXTEND")
         XCTAssertTrue(block.value == true)
@@ -77,7 +77,7 @@ final class ParserTests: XCTestCase {
     func testReadComment() {
         let text = "COMMENT   FITS (Flexible Image Transport System) format is defined in 'Astronomy"
         
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, HDUKeyword.COMMENT)
         XCTAssertTrue(block.value == nil)
@@ -87,7 +87,7 @@ final class ParserTests: XCTestCase {
     
     func testReadDate()  {
         let text = "DATE    = '2020-05-21T09:33:13' / UTC date that FITS file was created           "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, HDUKeyword.DATE)
         XCTAssertTrue(block.value == "2020-05-21T09:33:13", "\(block.value.debugDescription)")
@@ -96,7 +96,7 @@ final class ParserTests: XCTestCase {
     
     func testReadAny()  {
         let text = "ANY     = 'Some Random Wording  ' / And acomment as well                           "
-        let block = HeaderBlock.parse(form: text)
+        let block = HeaderBlock.parse(form: text)!
         
         XCTAssertEqual(block.keyword, "ANY")
         XCTAssertTrue(block.value == "Some Random Wording  ", "\(block.value.debugDescription)")
@@ -238,4 +238,20 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(BFIELD.PA(val: "0123456789").form, BFORM.PA(r: 10))
     }
 
+}
+
+
+extension HeaderBlock {
+    
+    static func parse(form: String) -> HeaderBlock? {
+        
+        guard let data = form.data(using: .ascii) else {
+            return nil
+        }
+        var context = ReaderContext(dataLenght: data.count, offset: 0)
+            return data.withUnsafeBytes { ptr in
+                Self.read(ptr, context: &context)
+            }
+    }
+    
 }

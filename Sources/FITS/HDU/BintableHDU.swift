@@ -74,7 +74,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
      */
     public func buildTable() {
         
-        let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
+        let fieldCount = self.headerUnit[HDUKeyword.TFIELDS] ?? 0
         // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.
         let rowLength = self.naxis(1) ?? 1
         // The value field shall contain a non-negative integer, giving the number of rows in the table
@@ -85,11 +85,11 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         
         // pre-fetch field properties
         for col in 0..<fieldCount {
-            let rawTDISP : BDISP? = self.lookup("TDISP\(col+1)")
-            let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
-            let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
-            let rawTFORM : BFORM? = self.lookup("TFORM\(col+1)")
-            //let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
+            let rawTDISP : BDISP? = self.headerUnit["TDISP\(col+1)"]
+            let rawTTYPE : String? = self.headerUnit["TTYPE\(col+1)"]
+            let rawTUNIT : String? = self.headerUnit["TUNIT\(col+1)"]
+            let rawTFORM : BFORM? = self.headerUnit["TFORM\(col+1)"]
+            //let rawTSCAL : String? = self.headerUnit["TSCAL\(col+1)"]
             
             if let tform = rawTFORM {
                 self.columns.append(TableColumn(self.headerUnit, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))

@@ -65,48 +65,6 @@ extension FitsFile : CustomDebugStringConvertible {
     }
 }
 
-//MARK:- Reader
-extension FitsFile {
-    
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public static func read(from  url: URL, onError: ((Error) -> Void)?, onCompletion: (FitsFile) -> Void) {
-        
-        guard let data = try? Data(contentsOf: url) else {
-            return
-        }
-        if let file = FitsFile.read(data) {
-            onCompletion(file)
-        } else {
-            onError?(FitsFail.malformattedFile)
-        }
-    }
-    
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public static func read(from data: inout Data) throws -> FitsFile {
-      
-        guard let file = FitsFile.read(data) else {
-            throw FitsFail.malformattedFile
-        }
-        
-        return file
-    }
-    
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public static func read(from url: URL) throws -> FitsFile {
-        
-        guard let data = try? Data(contentsOf: url) else {
-            throw FitsFail.malformattedFile
-        }
-        
-        guard let file = FitsFile.read(data) else {
-            throw FitsFail.malformattedFile
-        }
-        
-        return file
-    }
-    
-}
-
 //MARK:- Writer
 extension FitsFile : Writer {
     

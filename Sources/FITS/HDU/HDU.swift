@@ -50,13 +50,3 @@ extension HDU where Self: CustomDebugStringConvertible {
     }
     
 }
-
-extension HDU {
-
-    /// fetches concrete value for specific `HDUKeyworld`
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public func lookup<VAL: HDUValue>(_ keyword: HDUKeyword) -> VAL? {
-        headerUnit[keyword]
-    }
-    
-}
