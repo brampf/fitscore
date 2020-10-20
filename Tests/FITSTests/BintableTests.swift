@@ -166,7 +166,7 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(hdu.naxis(2), 3)
         XCTAssertEqual(hdu.pcount, 0)
         XCTAssertEqual(hdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(hdu.dataSize, 114)
+        XCTAssertEqual(hdu.headerUnit.dataSize, 114)
         XCTAssertEqual(hdu.dataUnit, nil)
         
         file.validate { message in
@@ -201,7 +201,7 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(thdu.naxis(2), 3)
         XCTAssertEqual(thdu.pcount, 0)
         XCTAssertEqual(thdu.gcount, 1)
-        XCTAssertEqual(thdu.dataSize, 114)
+        XCTAssertEqual(thdu.headerUnit.dataSize, 114)
         XCTAssertEqual(thdu.dataUnit?.count, 114)
         
         
@@ -255,8 +255,8 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(bintable.pcount, 0)
         XCTAssertEqual(bintable.gcount, 1)
 
-        XCTAssertEqual(bintable.dataArraySize, 68)
-        XCTAssertEqual(bintable.dataSize, 68)
+        XCTAssertEqual(bintable.headerUnit.dataArraySize, 68)
+        XCTAssertEqual(bintable.headerUnit.dataSize, 68)
         XCTAssertEqual(bintable.dataUnit, nil)
         
         _ = bintable.validate()
@@ -287,8 +287,8 @@ final class BintableTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(btable.dataArraySize, 68)
-        XCTAssertEqual(btable.dataSize, 150)
+        XCTAssertEqual(btable.headerUnit.dataArraySize, 68)
+        XCTAssertEqual(btable.headerUnit.dataSize, 150)
         
         XCTAssertEqual(btable.pcount, 82)
         XCTAssertEqual(btable.theap, 68)

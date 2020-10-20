@@ -31,12 +31,6 @@ import Foundation
  */
 public final class ImageHDU : AnyImageHDU {
     
-    public required init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.initializeWrapper()
-    }
-    
     /// initializes the a new HDU with all default headers
     required init() {
         super.init()

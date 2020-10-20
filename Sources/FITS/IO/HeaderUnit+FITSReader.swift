@@ -22,41 +22,27 @@
  
  */
 
-
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible{
+extension HeaderUnit : FITSReader {
     
-    var headerUnit : HeaderUnit {get}
-    var dataUnit : DataUnit? {get}
-    
-    func validate(onMessage:( (String) -> Void)?) -> Bool
-}
-
-extension HDU where Self: CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
+    static func read(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> Self? {
         
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
-        result.append(headerUnit.debugDescription)
-        result.append(String(repeating: "-", count: 80)+"\n")
-        if let data = dataUnit {
-            result.append("\(data.debugDescription)\n")
-        } else {
-            result.append("No Data Unit!\n")
+        var new = Self.init()
+        var end = false
+        
+        while end == false && context.offset < context.dataLenght {
+            
+            if let block = HeaderBlock.read(data, context: &context) {
+                new.append(block)
+                if block.isEnd {
+                    end = true
+                }
+            }
+            context.offset += CARD_LENGTH
+
         }
         
-        return result
+        return new
     }
-    
-}
-
-extension HDU {
-
-    /// fetches concrete value for specific `HDUKeyworld`
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public func lookup<VAL: HDUValue>(_ keyword: HDUKeyword) -> VAL? {
-        headerUnit[keyword]
-    }
-    
 }

@@ -33,14 +33,6 @@ import Foundation
  */
 public final class TableHDU : AnyTableHDU<TFIELD> {
     
-    public required init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.initializeWrapper()
-        
-        self.readTable()
-    }
-    
     /// initializes the a new HDU with all default headers
     public required init() {
         super.init()
@@ -81,9 +73,9 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
             let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
             let rawTFORM : TFORM? = self.lookup("TFORM\(col+1)")
             let rawTDISP : TDISP? = self.lookup("TDISP\(col+1)")
-            
+
             if let tform = rawTFORM {
-                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
+                self.columns.append(TableColumn(self.headerUnit, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
                 //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
                 format[col]  = (rawTBCOL,tform.length)
             }

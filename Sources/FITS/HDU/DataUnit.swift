@@ -22,41 +22,6 @@
  
  */
 
-
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible{
-    
-    var headerUnit : HeaderUnit {get}
-    var dataUnit : DataUnit? {get}
-    
-    func validate(onMessage:( (String) -> Void)?) -> Bool
-}
-
-extension HDU where Self: CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
-        
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
-        result.append(headerUnit.debugDescription)
-        result.append(String(repeating: "-", count: 80)+"\n")
-        if let data = dataUnit {
-            result.append("\(data.debugDescription)\n")
-        } else {
-            result.append("No Data Unit!\n")
-        }
-        
-        return result
-    }
-    
-}
-
-extension HDU {
-
-    /// fetches concrete value for specific `HDUKeyworld`
-    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
-    public func lookup<VAL: HDUValue>(_ keyword: HDUKeyword) -> VAL? {
-        headerUnit[keyword]
-    }
-    
-}
+public typealias DataUnit = Data

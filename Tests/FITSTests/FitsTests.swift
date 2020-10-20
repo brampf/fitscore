@@ -17,7 +17,10 @@ final class FitsTests: XCTestCase {
     func testReadFile() {
         
         let url = Bundle.module.url(forResource: "HRSz0yd020fm_c2f", withExtension: "fits")
-        let file = try! FitsFile.read(from: url!)
+        guard let file = try! FitsFile.read(contentsOf: url!) else {
+            XCTFail("FitsFile must not be null")
+            return
+        }
 
         XCTAssertEqual(file.prime.isSimple, true)
         XCTAssertEqual(file.prime.bitpix, BITPIX.FLOAT32)
@@ -30,7 +33,10 @@ final class FitsTests: XCTestCase {
     func testReadImage() {
         
         let url = Bundle.module.url(forResource: "EUVEngc4151imgx", withExtension: "fits")
-        let file = try! FitsFile.read(from: url!)
+        guard let file = try! FitsFile.read(contentsOf: url!) else {
+            XCTFail("FitsFile must not be null")
+            return
+        }
         
         guard let hdu = file.HDUs[0] as? ImageHDU else {
             XCTFail("HDU must not be null")
@@ -47,7 +53,7 @@ final class FitsTests: XCTestCase {
         XCTAssertEqual(hdu.naxis,2)
         XCTAssertEqual(hdu.naxis(1), 512)
         XCTAssertEqual(hdu.naxis(1), 512)
-        XCTAssertEqual(hdu.dataSize, 512*512*2)
+        XCTAssertEqual(hdu.headerUnit.dataSize, 512*512*2)
         XCTAssertEqual(hdu.dataUnit?.count, 512*512*2)
         
     }
@@ -55,7 +61,10 @@ final class FitsTests: XCTestCase {
     func testReadTable() {
         
         let url = Bundle.module.url(forResource: "FGSf64y0106m_a1f", withExtension: "fits")
-        let file = try! FitsFile.read(from: url!)
+        guard let file = try! FitsFile.read(contentsOf: url!) else {
+            XCTFail("FitsFile must not be null")
+            return
+        }
         
         guard let hdu = file.HDUs[0] as? TableHDU else {
             XCTFail("HDU must not be null")
@@ -126,7 +135,10 @@ final class FitsTests: XCTestCase {
     func testReadBintable() {
         
         let url = Bundle.module.url(forResource: "IUElwp25637mxlo", withExtension: "fits")
-        let file = try! FitsFile.read(from: url!)
+        guard let file = try! FitsFile.read(contentsOf: url!) else {
+            XCTFail("FitsFile must not be null")
+            return
+        }
         
         guard let hdu = file.HDUs[0] as? BintableHDU else {
             XCTFail("HDU must not be null")
@@ -176,7 +188,10 @@ final class FitsTests: XCTestCase {
     func testReadGroups() {
         
         let url = Bundle.module.url(forResource: "DDTSUVDATA", withExtension: "fits")
-        let file = try! FitsFile.read(from: url!)
+        guard let file = try! FitsFile.read(contentsOf: url!) else {
+            XCTFail("FitsFile must not be null")
+            return
+        }
         
         XCTAssertEqual(file.prime.bitpix, BITPIX.FLOAT32)
         XCTAssertEqual(file.prime.gcount, 7956)

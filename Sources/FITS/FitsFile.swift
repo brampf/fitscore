@@ -66,89 +66,43 @@ extension FitsFile : CustomDebugStringConvertible {
 }
 
 //MARK:- Reader
-extension FitsFile : Reader {
+extension FitsFile {
     
+    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
     public static func read(from  url: URL, onError: ((Error) -> Void)?, onCompletion: (FitsFile) -> Void) {
         
-        guard var data = try? Data(contentsOf: url) else {
+        guard let data = try? Data(contentsOf: url) else {
             return
         }
-        do{
-            let file = try FitsFile(with: &data)
+        if let file = FitsFile.read(data) {
             onCompletion(file)
-        } catch{
-            onError?(error)
+        } else {
+            onError?(FitsFail.malformattedFile)
         }
     }
     
+    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
     public static func read(from data: inout Data) throws -> FitsFile {
       
-        return try FitsFile(with: &data)
-    }
-    
-    public static func read(from url: URL) throws -> FitsFile {
-        
-        guard var data = try? Data(contentsOf: url) else {
+        guard let file = FitsFile.read(data) else {
             throw FitsFail.malformattedFile
         }
         
-        return try FitsFile(with: &data)
+        return file
     }
     
-    /**
-    Parses a FITS file by sequencially reading the data provided.
-     
-     - Parameter data: the data sequence to read from
-     - Parameter onError: (Optional) callback for error logging
-     
-     - Throws: `FitsFail` for unrecoverable errors during reading of the file
-     */
-    public convenience init(with data: inout Data) throws {
+    @available(* , deprecated, message: "Obsolete with new FITSReader, removed soon")
+    public static func read(from url: URL) throws -> FitsFile {
         
-        let prime = try PrimaryHDU(with: &data)
-        
-        self.init(prime: prime)
-
-        if prime.hasExtensions == true {
-            // print("File has extensions")
-        }
-        try readExtensions(from: &data)
-    }
-    
-    func readExtensions(from data: inout Data) throws {
-        
-        while data.count > 0 {
-            
-            guard let block = String(data: data.subdata(in: 0..<CARD_LENGTH), encoding: .ascii) else {
-                // this is not supposed to happen
-                throw FitsFail.malformattedHDU
-            }
-            
-            // read the next card and check for extension
-            let card = HeaderBlock.parse(form: block, context: AnyHDU.self)
-            
-            var newHDU : AnyHDU
-            if !card.isXtension {
-                // also not supposed to happen
-                print("Missing extension keyword")
-                //print(card)
-                throw FitsFail.malformattedHDU
-            }
-            
-            if card.value?.description.contains("IMAGE   ") ?? false {
-                newHDU = try ImageHDU(with: &data)
-            } else if card.value?.description.contains("TABLE   ") ?? false {
-                newHDU = try TableHDU(with: &data)
-            } else if card.value?.description.contains("BINTABLE") ?? false {
-                newHDU = try BintableHDU(with: &data)
-            } else {
-                newHDU = try AnyHDU(with: &data)
-            }
-            
-            //print(newHDU.debugDescription)
-            self.HDUs.append(newHDU)
+        guard let data = try? Data(contentsOf: url) else {
+            throw FitsFail.malformattedFile
         }
         
+        guard let file = FitsFile.read(data) else {
+            throw FitsFail.malformattedFile
+        }
+        
+        return file
     }
     
 }

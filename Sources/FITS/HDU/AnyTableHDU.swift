@@ -38,15 +38,9 @@ open class AnyTableHDU<F: FIELD> : AnyHDU, Table {
         
     }
     
-    required public init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.initializeWrapper()
-    }
-    
     override func initializeWrapper() {
         super.initializeWrapper()
-        self._tfields.initialize(self)
+        self._tfields.initialize(self.headerUnit)
     }
     
 }
@@ -67,7 +61,7 @@ extension AnyTableHDU {
     /// adds a new column to the table
     public func addColumn(index: Int? = nil, TFORM: Field.FORM, TDISP: Field.DISP? = nil, TUNIT: String? = "", TTYPE: String = "", TNULL: String = "", _ fields: Field...) -> Column {
         
-        let column = Column(self, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, TNULL: TNULL, fields: fields)
+        let column = Column(self.headerUnit, (index ?? columns.count)+1, TDISP: TDISP, TFORM: TFORM, TUNIT: TUNIT, TTYPE: TTYPE, TNULL: TNULL, fields: fields)
     
         if let index = index {
             self.columns.insert(column, at: index)

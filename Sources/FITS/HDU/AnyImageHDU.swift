@@ -92,7 +92,7 @@ open class AnyImageHDU : AnyHDU {
             throw FitsFail.validationFailed("BITPIX \(ByteFormat.bitpix) incompatible with \(self.bitpix.debugDescription)")
         }
         
-        guard vector.count == self.dataSize else {
+        guard vector.count == headerUnit.dataSize else {
             throw FitsFail.validationFailed("Vector size \(vector.count) incompatible with image dimensions")
         }
         

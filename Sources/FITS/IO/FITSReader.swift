@@ -24,20 +24,29 @@
 
 import Foundation
 
-protocol Reader {
+protocol FITSReader {
     
-    /**
-     Initializes the element form the data provided
-     
-     - Parameter data: sequential data to read from
-
-     - Throws: `FitsFail` unrecoverable errror
-     */
-    init(with data: inout Data) throws
+    static func read(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> Self?
+    
 }
 
-protocol Parser {
+struct ReaderContext {
     
-    static func parse(_ from: String) -> Self?
+    let dataLenght : Int
+    var offset : Int
+    var primaryHeader : HeaderUnit?
+    var currentHeader : HeaderUnit?
+    var currentHDU : HDU.Type?
     
+    var msg : [String] = []
+    
+    mutating func move2CardEnd() {
+        
+        let factor : Double = Double(offset) / Double(DATA_BLOCK_LENGTH)
+        self.offset = DATA_BLOCK_LENGTH * Int(factor.rounded(.up))
+    }
+    
+    var hasBytes : Bool {
+        return offset < dataLenght
+    }
 }

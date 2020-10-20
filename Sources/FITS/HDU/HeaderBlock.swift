@@ -109,6 +109,8 @@ typealias Context = HDU.Type
 //MARK: - Reader
 extension HeaderBlock {
     
+    /// -ToDo: replace with improved parser
+    @available(*, deprecated, message: "Replace with new implementation")
     static func parse(form raw: String, context: Context? = nil) -> HeaderBlock {
     
         let keyword : HDUKeyword = HDUKeyword(rawValue: raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces))

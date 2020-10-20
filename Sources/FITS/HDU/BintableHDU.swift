@@ -36,13 +36,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     public var heap: Data? {
         
         let theap = self.theap ?? 0
-        return self.dataUnit?.subdata(in: theap..<self.dataSize)
-    }
-    
-    public required init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.buildTable()
+        return self.dataUnit?.subdata(in: theap..<headerUnit.dataSize)
     }
     
     /// initializes the a new HDU with all default headers
@@ -70,7 +64,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     override func initializeWrapper() {
         super.initializeWrapper()
-        self._theap.initialize(self)
+        self._theap.initialize(self.headerUnit)
     }
     
     /**
@@ -98,14 +92,14 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
             //let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
             
             if let tform = rawTFORM {
-                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
+                self.columns.append(TableColumn(self.headerUnit, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
                 format[col]  = (offset,tform.length)
                 offset = offset + tform.length
             }
         }
         
         guard var data = self.dataUnit, data.count >= rows * rowLength else {
-            print("Invalid data size \(dataUnit?.count ?? 0); Expected \(rows * rowLength)")
+            print("Invalid data size \(self.dataUnit?.count ?? 0); Expected \(rows * rowLength)")
             return
         }
         
@@ -165,7 +159,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         
         if  heapSize > 0 {
             // if there is no heap, there is no pcount
-            self.theap = self.dataArraySize
+            self.theap = headerUnit.dataArraySize
             self.pcount = rowSize * self.rows.count + heapSize
         }
         

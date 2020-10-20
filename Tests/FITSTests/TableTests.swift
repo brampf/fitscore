@@ -124,7 +124,7 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.naxis(2), 3)
         XCTAssertEqual(hdu.pcount, 0)
         XCTAssertEqual(hdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(hdu.dataSize, 111)
+        XCTAssertEqual(hdu.headerUnit.dataSize, 111)
         XCTAssertEqual(hdu.dataUnit, nil)
         
         XCTAssertEqual(hdu.columns[0][1], TFIELD.I(val: 333))
@@ -162,7 +162,7 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(thdu.naxis(2), 3)
         XCTAssertEqual(thdu.pcount, 0)
         XCTAssertEqual(thdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(thdu.dataSize, 111)
+        XCTAssertEqual(thdu.headerUnit.dataSize, 111)
         XCTAssertEqual(thdu.dataUnit?.count, 111)
         
         XCTAssertEqual(thdu.columns[0][0], hdu.columns[0][0])

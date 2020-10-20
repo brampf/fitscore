@@ -25,6 +25,7 @@
 let KEYWORD_LENGTH = 8
 let CARD_LENGTH = 80
 let BLOCK_LENGTH = 36
+let DATA_BLOCK_LENGTH = 2880
 
 public typealias Naxis = Int
 
