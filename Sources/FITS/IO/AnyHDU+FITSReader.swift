@@ -91,49 +91,114 @@ extension AnyHDU : FITSReader {
 
 extension TableHDU {
     
-    internal func readTable(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> DataUnit? {
+    /**
+        Reads the table structure from raw data
+     
+        Reads the `dataUnit` according to the header files
+     */
+    internal func readTable(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) {
         
         let fieldCount = context.currentHeader?[HDUKeyword.TFIELDS] ?? 0
         let rowLength = context.currentHeader?["NAXIS1"] ?? 1
         let rows = context.currentHeader?["NAXIS2"] ?? 0
         
-        for _ in 0..<rows {
-            // let row = data[context.offset..<context.offset+rowLength]
-            for columnIndex in 0..<fieldCount {
+        for columnIndex in 0..<fieldCount {
+            
+            if let tform : TFORM  = context.currentHeader?["TFORM\(columnIndex+1)"] {
+                let ttype : String? = context.currentHeader?["TTYPE\(columnIndex+1)"]
+                let tdisp : TDISP? = context.currentHeader?["TDISP\(columnIndex+1)"]
+                let tunit : String? = context.currentHeader?["TUNIT\(columnIndex+1)"]
+                let tbcol = context.currentHeader?["TBCOL\(columnIndex+1)"] ?? 1
+            
+                let column = TableColumn<TFIELD>(context.currentHeader!, (columnIndex+1), TDISP: tdisp, TFORM: tform, TUNIT: tunit, TTYPE: ttype ?? "")
+                self.columns.append(column)
                 
-                if let tform : TFORM  = context.currentHeader?["TFORM\(columnIndex+1)"] {
-                    let ttype : String? = context.currentHeader?["TTYPE\(columnIndex+1)"]
-                    let tdisp : TDISP? = context.currentHeader?["TDISP\(columnIndex+1)"]
-                    let tunit : String? = context.currentHeader?["TUNIT\(columnIndex+1)"]
-                    let tbcol = context.currentHeader?["TBCOL\(columnIndex+1)"] ?? 1
-                    // append the table column
-                    
-                    let column = TableColumn<TFIELD>(context.currentHeader!, (columnIndex+1), TDISP: tdisp, TFORM: tform, TUNIT: tunit, TTYPE: ttype ?? "")
-                    self.columns.append(column)
-                   
-                    let start = context.offset+tbcol-1
-                    let end = context.offset+tbcol+tform.length-1
+                for rowIndex in 0..<rows {
+                    let start = context.offset+(rowIndex*rowLength)+tbcol-1
+                    let end = start+tform.length
                     
                     //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(start)...\(end)")
                     let bytes = data[start..<end]
-                    var string = String(bytes: bytes, encoding: .ascii) ?? ""
                     
-                    string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if let tform = column.TFORM {
-                        let value = TFIELD.parse(string: string, type: tform)
-                        #if DEBUG
-                        value.raw = string
-                        #endif
-                        column.values.append(value)
-                    }
+                    let value = TFIELD.read(bytes, type: tform)
+                    #if DEBUG
+                    value.raw = String(bytes: bytes, encoding: .ascii) ?? ""
+                    #endif
+                    column.values.append(value)
                 }
             }
-            
-            context.offset += rowLength
         }
-        
-        
-        return nil
     }
+}
+
+
+extension BintableHDU {
     
+    /**
+        Reads the table structure from raw data
+     
+        Reads the `dataUnit` according to the header files
+     */
+    internal func readTable(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) {
+        
+        let fieldCount = self.headerUnit[HDUKeyword.TFIELDS] ?? 0
+        // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.
+        let rowLength = self.naxis(1) ?? 1
+        // The value field shall contain a non-negative integer, giving the number of rows in the table
+        let rows = self.naxis(2) ?? 0
+        
+        let theap = self.headerUnit["THEAP"] ?? 0
+        let heapStart = context.offset + theap
+        
+        var columnOffset : Int = 0
+        
+        for columnIndex in 0..<fieldCount {
+            
+            if let tform : BFORM = self.headerUnit["TFORM\(columnIndex+1)"] {
+                
+                let rawTDISP : BDISP? = self.headerUnit["TDISP\(columnIndex+1)"]
+                let rawTTYPE : String? = self.headerUnit["TTYPE\(columnIndex+1)"]
+                let rawTUNIT : String? = self.headerUnit["TUNIT\(columnIndex+1)"]
+                //let rawTSCAL : String? = self.headerUnit["TSCAL\(col+1)"]
+                
+                let column = TableColumn<BFIELD>(self.headerUnit, (columnIndex+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? "")
+                self.columns.append(column)
+                
+                for rowIndex in 0..<rows {
+                    
+                    let start = context.offset+(rowIndex*rowLength)+columnOffset
+                    let end = start+tform.length
+                    
+                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(start)...\(end)")
+                    let val = data[start..<end]
+                    
+                    if tform.heapLength > 0 {
+                        // Special treatment for varialbe arrays
+                        let desc = tform.varArray(val)
+                        
+                        let first = heapStart + desc.offset
+                        let last = first + desc.nelem * tform.heapSize
+                        
+                        //print("HEAP:\(rowIndex): \(tform): \(first)...\(last)")
+                        let dat = data[first..<last]
+                        
+                        let value = BFIELD.read(dat, type: tform)
+                        column.values.append(value)
+                        #if DEBUG
+                        value.raw = Data(val)
+                        #endif
+                        
+                    } else {
+                        let value = BFIELD.read(val, type: tform)
+                        column.values.append(value)
+                        #if DEBUG
+                        value.raw = Data(val)
+                        #endif
+                    }
+                }
+                columnOffset += tform.length
+            }
+            
+        }
+    }
 }

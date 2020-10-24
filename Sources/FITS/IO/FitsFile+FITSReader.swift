@@ -27,9 +27,9 @@ import Foundation
 extension FitsFile {
     
     
-    public static func read(contentsOf url: URL) throws -> FitsFile? {
+    public static func read(contentsOf url: URL, options: Data.ReadingOptions = []) throws -> FitsFile? {
         
-        let data = try Data(contentsOf: url)
+        let data = try Data(contentsOf: url, options: options)
         return self.read(data)
         
     }
@@ -80,12 +80,24 @@ extension FitsFile : FITSReader {
                 newHDU = ImageHDU.read(data, context: &context)
             } else if card.value?.description.contains("TABLE   ") ?? false {
                 if let new = TableHDU.read(data, context: &context) {
-                    new.readTable()
+                    
+                    //new.readTable()
+                    
+                    // move back the cursor to read the dataUnit as table
+                    context.offset -= context.currentHeader?.paddeddataSize ?? 0
+                    new.readTable(data, context: &context)
+                    context.offset += context.currentHeader?.paddeddataSize ?? 0
                     newHDU = new
                 }
             } else if card.value?.description.contains("BINTABLE") ?? false {
                 if let new = BintableHDU.read(data, context: &context) {
-                    new.buildTable()
+                    
+                    //new.buildTable()
+                    
+                    // move back the cursor to read the dataUnit as table
+                    context.offset -= context.currentHeader?.paddeddataSize ?? 0
+                    new.readTable(data, context: &context)
+                    context.offset += context.currentHeader?.paddeddataSize ?? 0
                     newHDU = new
                 }
             } else {

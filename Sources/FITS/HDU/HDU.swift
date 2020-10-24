@@ -25,7 +25,7 @@
 
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible{
+public protocol HDU : CustomDebugStringConvertible {
     
     var headerUnit : HeaderUnit {get}
     var dataUnit : DataUnit? {get}

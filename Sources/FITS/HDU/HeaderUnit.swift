@@ -42,8 +42,8 @@ public final class HeaderUnit : RandomAccessCollection {
         records[position]
     }
     
-    public subscript(range: Range<Int>) -> [HeaderBlock] {
-        Array(records[range])
+    public subscript(range: Range<Int>) -> Slice<HeaderUnit> {
+        Slice<HeaderUnit>(base: self, bounds: range)
     }
     
     public subscript<Value: HDUValue>(_ keyword: HDUKeyword) -> Value? {
@@ -140,6 +140,13 @@ extension HeaderUnit {
             return size
         }
     
+    }
+    
+    public var paddeddataSize : Int {
+        
+        let factor : Double = Double(dataSize) / Double(DATA_BLOCK_LENGTH)
+        return DATA_BLOCK_LENGTH * Int(factor.rounded(.up))
+        
     }
     
     public var headerSize : Int {

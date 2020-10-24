@@ -50,3 +50,10 @@ struct ReaderContext {
         return offset < dataLenght
     }
 }
+
+protocol HDUReader {
+    
+    func readHeader(_ data: UnsafeRawBufferPointer, context: inout ReaderContext)
+    
+    func readData(_ data: UnsafeRawBufferPointer, context: inout ReaderContext)
+}

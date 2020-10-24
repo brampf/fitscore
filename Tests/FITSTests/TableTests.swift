@@ -128,12 +128,13 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.dataUnit, nil)
         
         XCTAssertEqual(hdu.columns[0][1], TFIELD.I(val: 333))
+        XCTAssertEqual(hdu.columns[1][1], TFIELD.A(val: "World"))
         XCTAssertEqual(hdu.rows[1][2], TFIELD.E(val: 3939.3333))
         
         file.validate { message in
             print("VAL: \(message)")
         }
-        
+
         XCTAssertEqual(file.prime.isSimple, true)
         XCTAssertEqual(file.HDUs.count, 1)
         

@@ -25,13 +25,23 @@ import Foundation
 
 extension BFIELD {
     
-    static func parse(data: Data?, type: BFORM) -> BFIELD {
+    static func parse(data: Data, type: BFORM) -> BFIELD {
+        
+        //print("PARSE \(type): \(data?.base64EncodedString() ?? "NIL")")
+        
+        data.withUnsafeBytes{ ptr in
+            self.read(ptr[0..<data.count], type: type)
+        }
+    }
+    
+    
+    static func read(_ data: UnsafeRawBufferPointer.SubSequence?, type: BFORM) -> BFIELD {
         
         //print("PARSE \(type): \(data?.base64EncodedString() ?? "NIL")")
         
         switch type {
         case .L:
-            if let data = data, !data.isEmpty, var string = String(data: data, encoding: .ascii) {
+            if let data = data, !data.isEmpty, var string = String(bytes: data, encoding: .ascii) {
                 string = string.trimmingCharacters(in: .whitespacesAndNewlines)
                 let arr = string.reduce(into: [Bool](), { arr, char in
                     if char == "T" {
@@ -45,7 +55,11 @@ extension BFIELD {
                 return BFIELD.L(val: nil)
             }
         case .X:
-            return BFIELD.X(val: data)
+            if let data = data {
+                return BFIELD.X(val: Data(data))
+            } else {
+                return BFIELD.X(val: Data())
+            }
         case .B:
             if let data = data {
                 let values : [UInt8] = data.withUnsafeBytes { ptr in
@@ -116,7 +130,7 @@ extension BFIELD {
             
             // variable length array
         case .PL:
-            if let data = data, !data.isEmpty, var string = String(data: data, encoding: .ascii) {
+            if let data = data, !data.isEmpty, var string = String(bytes: data, encoding: .ascii) {
                 string = string.trimmingCharacters(in: .whitespacesAndNewlines)
                 let arr = string.reduce(into: [Bool](), { arr, char in
                     if char == "T" {
@@ -130,7 +144,11 @@ extension BFIELD {
                 return BFIELD.PL(val: nil)
             }
         case .PX:
-            return BFIELD.PX(val: data)
+            if let data = data {
+                return BFIELD.PX(val: Data(data))
+            } else {
+                return BFIELD.PX(val: Data())
+            }
         case .PB:
             if let data = data {
                 let values : [UInt8] = data.withUnsafeBytes { ptr in
@@ -202,5 +220,4 @@ extension BFIELD {
             return BFIELD.QM(val: nil)
         }
     }
-    
 }

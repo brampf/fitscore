@@ -53,68 +53,6 @@ public final class TableHDU : AnyTableHDU<TFIELD> {
         // Thevaluefieldshallcontainanon-negative integer representing the number of fields in each row. The max- imum permissible value is 999
         self.headerUnit.append(HeaderBlock(keyword: HDUKeyword.TFIELDS, value: 0, comment: "Number of fields in each row"))
     }
-    
-    /**
-     Reads the table structure from raw data
-     
-     Reads the `dataUnit` according to the header files
-     */
-    public func readTable() {
-        
-        let fieldCount = self.headerUnit[HDUKeyword.TFIELDS] ?? 0
-        
-        var format : [Int:(Int,Int)] = [:]
-        
-        // pre-fetch field properties
-        for col in 0..<fieldCount {
-            
-            let rawTBCOL : Int = self.headerUnit["TBCOL\(col+1)"] ?? 1
-            let rawTTYPE : String? = self.headerUnit["TTYPE\(col+1)"]
-            let rawTUNIT : String? = self.headerUnit["TUNIT\(col+1)"]
-            let rawTFORM : TFORM? = self.headerUnit["TFORM\(col+1)"]
-            let rawTDISP : TDISP? = self.headerUnit["TDISP\(col+1)"]
-
-            if let tform = rawTFORM {
-                self.columns.append(TableColumn(self.headerUnit, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
-                //_ = self.addColumnIMPL(index: col, TFORM: tform, TDISP: rawTDISP, TUNIT: rawTUNIT, TTYPE: rawTTYPE)
-                format[col]  = (rawTBCOL,tform.length)
-            }
-        }
-        
-         // read actual values
-        let rowLength = self.naxis(1) ?? 1
-        let rows = self.naxis(2) ?? 0
-        
-        guard var data = self.dataUnit , data.count >= rows * rowLength else {
-            //print("Invalid data size \(dataUnit?.count ?? 0); Expected \(rows * rowLength)")
-            return
-        }
-        
-        for _ in 0..<rows {
-            let row = data.subdata(in: 0..<rowLength)
-            for columnIndex in 0..<columns.count {
-                let column = columns[columnIndex]
-                if let tfrom  = format[columnIndex] {
-                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
-                    let val = row.subdata(in: tfrom.0-1..<tfrom.0+tfrom.1-1)
-                    var string = String(data: val, encoding: .ascii) ?? ""
-                    string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if let tform = column.TFORM {
-                        let value = TFIELD.parse(string: string, type: tform)
-                        #if DEBUG
-                        value.raw = string
-                        #endif
-                        column.values.append(value)
-                    }
-                }
-            }
-            if data.count > rowLength {
-                data = data.advanced(by: rowLength)
-            } else {
-                data = Data()
-            }
-        }
-    }
 
     public override func validate(onMessage: ((String) -> Void)? = nil) -> Bool {
         
