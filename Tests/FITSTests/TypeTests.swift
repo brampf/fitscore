@@ -131,8 +131,8 @@ class DemoHDU : AnyHDU {
     
     required init() {
         super.init()
-        self._test.initialize(self)
-        self._form.initialize(self)
+        self._test.initialize(self.headerUnit)
+        self._form.initialize(self.headerUnit)
     }
     
     required init(with data: inout Data) throws {

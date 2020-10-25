@@ -34,12 +34,6 @@ public final class PrimaryHDU : AnyImageHDU {
     
     @Keyword(HDUKeyword.EXTEND) public var hasExtensions: Bool?
     
-    public required init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.initializeWrapper()
-    }
-    
     required init() {
         super.init()
         // The value field shall contain a logical constant with the value T if the file conforms to this Standard
@@ -55,35 +49,9 @@ public final class PrimaryHDU : AnyImageHDU {
     override func initializeWrapper() {
         super.initializeWrapper()
         
-        self._isSimple.initialize(self)
-        self._hasGroups.initialize(self)
-        self._hasExtensions.initialize(self)
+        self._isSimple.initialize(self.headerUnit)
+        self._hasGroups.initialize(self.headerUnit)
+        self._hasExtensions.initialize(self.headerUnit)
     }
-    
-    override var dataSize: Int {
-        
-        if self.hasGroups ?? false {
-            
-            let axis = self.naxis ?? 0
-            
-            var groupSize = 0
-            if axis > 0 {
-                groupSize = 1
-                for naxis in 2...axis {
-                    groupSize = groupSize * (self.naxis(naxis) ?? 1)
-                }
-                
-            }
-            groupSize += self.pcount ?? 0
-            groupSize *= self.gcount ?? 1
-            groupSize *= abs(self.bitpix?.size ?? 1)
-            
-            return groupSize
-        } else {
-            return super.dataSize
-        }
-        
-    }
-
 
 }

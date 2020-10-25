@@ -49,9 +49,9 @@ final class TableTests: XCTestCase {
         let hdu = TableHDU()
         let col1 = hdu.addColumn(TFORM: TFORM.A(w: 4), TDISP: TDISP.A(w: 8), TTYPE: "Numbers" , TFIELD.A(val: "EINS"), TFIELD.A(val: "Zwei"),TFIELD.A(val: nil), TFIELD.A(val: "Vier"))
         
-        XCTAssertEqual(hdu.lookup("TFIELDS"),  1)
-        XCTAssertEqual(hdu.lookup("NAXIS1"),  4)
-        XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
+        XCTAssertEqual(hdu.headerUnit["TFIELDS"],  1)
+        XCTAssertEqual(hdu.headerUnit["NAXIS1"],  4)
+        XCTAssertEqual(hdu.headerUnit["NAXIS2"], 4)
         
         let _ = hdu.addColumn(TFORM: TFORM.I(w: 8), TDISP: TDISP.I(w: 4, m: 6), .I(val: 4123),.I(val: 1234),.I(val: 8977),.I(val: 5434))
         
@@ -59,10 +59,10 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.columns[0].values.count, 4)
         XCTAssertEqual(hdu.columns[1].values.count, 4)
         XCTAssertEqual(col1.TFORM, TFORM.A(w: 4))
-        XCTAssertEqual(hdu.lookup("TFORM1"), TFORM.A(w: 4))
-        XCTAssertEqual(hdu.lookup("TFIELDS"),  2)
-        XCTAssertEqual(hdu.lookup("NAXIS1"),  12)
-        XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
+        XCTAssertEqual(hdu.headerUnit["TFORM1"], TFORM.A(w: 4))
+        XCTAssertEqual(hdu.headerUnit["TFIELDS"],  2)
+        XCTAssertEqual(hdu.headerUnit["NAXIS1"],  12)
+        XCTAssertEqual(hdu.headerUnit["NAXIS2"], 4)
 
         
         _ = hdu.validate()
@@ -123,17 +123,18 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.naxis(1), 37)
         XCTAssertEqual(hdu.naxis(2), 3)
         XCTAssertEqual(hdu.pcount, 0)
-        XCTAssertEqual(hdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(hdu.dataSize, 111)
-        XCTAssertEqual(hdu.dataUnit, nil)
+        XCTAssertEqual(hdu.headerUnit[HDUKeyword.GCOUNT], 1)
+        XCTAssertEqual(hdu.headerUnit.dataSize, 111)
+        XCTAssertNil(hdu.dataUnit)
         
         XCTAssertEqual(hdu.columns[0][1], TFIELD.I(val: 333))
+        XCTAssertEqual(hdu.columns[1][1], TFIELD.A(val: "World"))
         XCTAssertEqual(hdu.rows[1][2], TFIELD.E(val: 3939.3333))
         
         file.validate { message in
             print("VAL: \(message)")
         }
-        
+
         XCTAssertEqual(file.prime.isSimple, true)
         XCTAssertEqual(file.HDUs.count, 1)
         
@@ -141,7 +142,7 @@ final class TableTests: XCTestCase {
         XCTAssertNoThrow(try file.write(to: &data))
         
         var new : FitsFile? = nil
-        XCTAssertNoThrow(new = try FitsFile.read(from: &data))
+        XCTAssertNoThrow(new = FitsFile.read(data))
         
         guard let parsed = new else {
             XCTFail("There must be a file")
@@ -161,8 +162,8 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(thdu.naxis(1), 37)
         XCTAssertEqual(thdu.naxis(2), 3)
         XCTAssertEqual(thdu.pcount, 0)
-        XCTAssertEqual(thdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(thdu.dataSize, 111)
+        XCTAssertEqual(thdu.headerUnit[HDUKeyword.GCOUNT], 1)
+        XCTAssertEqual(thdu.headerUnit.dataSize, 111)
         XCTAssertEqual(thdu.dataUnit?.count, 111)
         
         XCTAssertEqual(thdu.columns[0][0], hdu.columns[0][0])
@@ -174,14 +175,6 @@ final class TableTests: XCTestCase {
         }
         
     }
-    
-    
-    
-    
-    
-    
-    
-    
     
     //MARK:-
     

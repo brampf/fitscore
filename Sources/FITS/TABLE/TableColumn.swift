@@ -44,24 +44,24 @@ public class TableColumn<Field> : Identifiable where Field: FIELD  {
     public internal(set) var values : [Field] = []
     
     /// Internal initializer which does not override the header values
-    init(_ hdu: AnyTableHDU<Field>, _ col: Int, TDISP: Field.DISP?, TFORM: Field.FORM, TUNIT: String?, TTYPE: String) {
+    init(_ header: HeaderUnit, _ col: Int, TDISP: Field.DISP?, TFORM: Field.FORM, TUNIT: String?, TTYPE: String) {
         
         //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
-        self._TFORM = Keyword<Field.FORM>("TFORM\(col)", hdu)
-        self._TDISP = Keyword<Field.DISP>("TDISP\(col)", hdu)
-        self._TUNIT = Keyword<String>("TUNIT\(col)", hdu)
-        self._TTYPE = Keyword<String>( "TTYPE\(col)", hdu)
-        //self._TNULL = Keyword<String>( "TNULL\(col)", hdu)
+        self._TFORM = Keyword<Field.FORM>("TFORM\(col)", header)
+        self._TDISP = Keyword<Field.DISP>("TDISP\(col)", header)
+        self._TUNIT = Keyword<String>("TUNIT\(col)", header)
+        self._TTYPE = Keyword<String>( "TTYPE\(col)",header)
+        //self._TNULL = Keyword<String>( "TNULL\(col)", header)
     }
     
-    init(_ hdu: AnyTableHDU<Field>, _ col: Int, TDISP: Field.DISP?, TFORM: Field.FORM, TUNIT: String?, TTYPE: String, TNULL: String, fields: [Field])  {
+    init(_ header: HeaderUnit, _ col: Int, TDISP: Field.DISP?, TFORM: Field.FORM, TUNIT: String?, TTYPE: String, TNULL: String, fields: [Field])  {
         
         //print("Column \(col): TDISP\(col): \(TDISP) - TFORM\(col): \(TFORM)")
-        self._TFORM = Keyword<Field.FORM>(wrappedValue: TFORM, "TFORM\(col)", hdu)
-        self._TDISP = Keyword<Field.DISP>(wrappedValue: TDISP, "TDISP\(col)", hdu)
-        self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", hdu)
-        self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", hdu)
-        //self._TNULL = Keyword<String>(wrappedValue: TNULL, "TNULL\(col)", hdu)
+        self._TFORM = Keyword<Field.FORM>(wrappedValue: TFORM, "TFORM\(col)", header)
+        self._TDISP = Keyword<Field.DISP>(wrappedValue: TDISP, "TDISP\(col)", header)
+        self._TUNIT = Keyword<String>(wrappedValue: TUNIT, "TUNIT\(col)", header)
+        self._TTYPE = Keyword<String>(wrappedValue: TTYPE, "TTYPE\(col)", header)
+        //self._TNULL = Keyword<String>(wrappedValue: TNULL, "TNULL\(col)", header)
         
         self.values = fields
     }

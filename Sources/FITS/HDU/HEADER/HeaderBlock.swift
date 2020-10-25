@@ -106,47 +106,6 @@ extension HeaderBlock : CustomStringConvertible {
 
 typealias Context = HDU.Type
 
-//MARK: - Reader
-extension HeaderBlock {
-    
-    static func parse(form raw: String, context: Context? = nil) -> HeaderBlock {
-    
-        let keyword : HDUKeyword = HDUKeyword(rawValue: raw.prefix(KEYWORD_LENGTH).trimmingCharacters(in: CharacterSet.whitespaces))
-        let block = HeaderBlock(keyword: keyword, raw: raw)
-        
-        let remainer = raw.dropFirst(9).trimmingCharacters(in: CharacterSet.whitespaces)
-        
-        var isString = false
-        var value = ""
-        let comment = remainer.drop { char in
-            if char == "'" {
-                isString.toggle()
-            } else if char == "/" {
-                if !isString {return false} // end of sequence
-            }
-            value.append(char)
-            return true
-        }
-
-        switch keyword {
-            
-        case .COMMENT, .HISTORY :
-            block.comment = value
-            
-        default :
-            // default behavior : split value and comment
-            if isString {
-                block.value = value.trimmingCharacters(in: CharacterSet.init(arrayLiteral: "'").union(CharacterSet.whitespaces))
-            } else {
-                block.value = AnyHDUValue.parse(value,for: keyword, context: context) as? HDUValue
-            }
-            block.comment = comment.trimmingCharacters(in: CharacterSet.whitespaces.union(.init(arrayLiteral: "/")))
-        }
-        
-        return block
-    }
-}
-
 
 //MARK:- Writer
 extension HeaderBlock : Writer{

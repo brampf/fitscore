@@ -80,7 +80,21 @@ public class TFIELD : TField, _TField {
 
 extension TFIELD {
     
-    static func parse(string: String?, type: TFORM) -> TFIELD {
+    static func parse(string: String, type: TFORM) -> TFIELD {
+        
+        string.data(using: .ascii)?.withUnsafeBytes{ ptr in
+            self.read(ptr[0..<string.count], type: type)
+        } ?? TFIELD()
+    }
+    
+    static func read(_ data: UnsafeRawBufferPointer.SubSequence?, type: TFORM) -> TFIELD {
+        
+        let string : String?
+        if let data = data, let bytes = String(bytes: data, encoding: .ascii){
+            string = bytes.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            string = nil
+        }
         
         switch type {
         case .A:

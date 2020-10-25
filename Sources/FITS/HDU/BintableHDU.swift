@@ -33,18 +33,6 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     @Keyword(HDUKeyword.THEAP) public var theap : Int?
     
-    public var heap: Data? {
-        
-        let theap = self.theap ?? 0
-        return self.dataUnit?.subdata(in: theap..<self.dataSize)
-    }
-    
-    public required init(with data: inout Data) throws {
-        try super.init(with: &data)
-        
-        self.buildTable()
-    }
-    
     /// initializes the a new HDU with all default headers
     public required init() {
         super.init()
@@ -70,84 +58,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     
     override func initializeWrapper() {
         super.initializeWrapper()
-        self._theap.initialize(self)
-    }
-    
-    /**
-        Reads the table structure from raw data
-     
-        Reads the `dataUnit` according to the header files
-     */
-    public func buildTable() {
-        
-        let fieldCount = self.lookup(HDUKeyword.TFIELDS) ?? 0
-        // The value field shall contain a non-negative integer, giving the number of eight-bit bytes in each row of the table.
-        let rowLength = self.naxis(1) ?? 1
-        // The value field shall contain a non-negative integer, giving the number of rows in the table
-        let rows = self.naxis(2) ?? 0
-        
-        var format : [Int:(Int,Int)] = [:]
-        var offset : Int = 0
-        
-        // pre-fetch field properties
-        for col in 0..<fieldCount {
-            let rawTDISP : BDISP? = self.lookup("TDISP\(col+1)")
-            let rawTTYPE : String? = self.lookup("TTYPE\(col+1)")
-            let rawTUNIT : String? = self.lookup("TUNIT\(col+1)")
-            let rawTFORM : BFORM? = self.lookup("TFORM\(col+1)")
-            //let rawTSCAL : String? = self.lookup("TSCAL\(col+1)")
-            
-            if let tform = rawTFORM {
-                self.columns.append(TableColumn(self, (col+1), TDISP: rawTDISP, TFORM: tform, TUNIT: rawTUNIT, TTYPE: rawTTYPE ?? ""))
-                format[col]  = (offset,tform.length)
-                offset = offset + tform.length
-            }
-        }
-        
-        guard var data = self.dataUnit, data.count >= rows * rowLength else {
-            print("Invalid data size \(dataUnit?.count ?? 0); Expected \(rows * rowLength)")
-            return
-        }
-        
-        for _ in 0..<rows {
-            let row = data.subdata(in: 0..<rowLength)
-            for columnIndex in 0..<columns.count {
-                let column = columns[columnIndex]
-                if let tfrom  = format[columnIndex] {
-                    //print("\(rowIndex): \(column.TTYPE ?? "N/A"): \(column.TFORM) \(tfrom.0)...\(tfrom.0+tfrom.1)")
-                    let val = row.subdata(in: tfrom.0..<tfrom.0+tfrom.1)
-                    if let tform = column.TFORM {
-                        if tform.heapLength > 0 {
-                            // Special treatment
-                            let desc = tform.varArray(data: val)
-                            //if desc.offset < heap?.count ?? 0 && desc.offset+desc.nelem < heap?.count ?? 0 {
-                                //print("HEAP:\(rowIndex): \(tform): \(desc.offset)...\(desc.offset+desc.nelem*tform.heapSize)")
-                                let dat = self.heap?.subdata(in: desc.offset..<desc.offset+desc.nelem * tform.heapSize)
-                                
-                                let value = BFIELD.parse(data: dat, type: tform)
-                                column.values.append(value)
-                            #if DEBUG
-                                value.raw = val
-                            #endif
-                            //}
-                            
-                        } else {
-                            let value = BFIELD.parse(data: val, type: tform)
-                            column.values.append(value)
-                            #if DEBUG
-                            value.raw = val
-                            #endif
-                        }
-                    }
-                }
-            
-            }
-            if data.count > rowLength {
-                data = data.advanced(by: rowLength)
-            } else {
-                data = Data()
-            }
-        }
+        self._theap.initialize(self.headerUnit)
     }
     
     public override func validate(onMessage: ((String) -> Void)? = nil) -> Bool {
@@ -165,7 +76,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
         
         if  heapSize > 0 {
             // if there is no heap, there is no pcount
-            self.theap = self.dataArraySize
+            self.theap = headerUnit.dataArraySize
             self.pcount = rowSize * self.rows.count + heapSize
         }
         
@@ -199,6 +110,9 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     }
     
     public override var description: String {
-        return super.description.appending(" + \(self.heap?.count ?? 0) HEAP")
+        
+        let theap = self.theap ?? 0
+        let heapSize = headerUnit.dataSize - theap
+        return super.description.appending(" + \(heapSize) HEAP")
     }
 }

@@ -387,5 +387,30 @@ public enum BFORM : FORM {
         }
         return (nelem, offset)
     }
+    
+    func varArray(_ data: UnsafeRawBufferPointer.SubSequence) -> (nelem: Int,offset: Int) {
+        
+        var nelem: Int = 0 // the number of elements (array length) of the stored array
+        var offset: Int = 0 // followed by the zero-indexed byte offset of the first element of the array, measured from the start of the heap area.
+        
+        switch self {
+        case .PL, .PX, .PB, .PI, .PJ, .PK, .PA, .PE, .PC:            
+            let desc = data.withUnsafeBytes { ptr in
+                ptr.bindMemory(to: Int32.self).map{Int32.init(bigEndian: $0)}
+            }
+            nelem = Int(desc[0])
+            offset = Int(desc[1])
+        case .QD, .QM :
+            let desc = data.withUnsafeBytes { ptr in
+                ptr.bindMemory(to: Int64.self).map{Int64.init(bigEndian: $0)}
+            }
+            nelem = Int(desc[0])
+            offset = Int(desc[1])
+        default:
+            // nothing
+            break
+        }
+        return (nelem, offset)
+    }
 
 }

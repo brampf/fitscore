@@ -22,31 +22,31 @@
  
  */
 
-
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible {
+public protocol DataUnit : ContiguousBytes, CustomStringConvertible, CustomDebugStringConvertible {
     
-    var headerUnit : HeaderUnit {get}
-    var dataUnit : DataUnit? {get}
+    var hashValue : Int {get}
     
-    func validate(onMessage:( (String) -> Void)?) -> Bool
+    var count : Int {get}
 }
 
-extension HDU where Self: CustomDebugStringConvertible {
+extension DataUnit {
     
-    public var debugDescription: String {
-        
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
-        result.append(headerUnit.debugDescription)
-        result.append(String(repeating: "-", count: 80)+"\n")
-        if let data = dataUnit {
-            result.append("\(data.debugDescription)\n")
-        } else {
-            result.append("No Data Unit!\n")
+    /**
+     Interprets the dataUnit as sequence of provied `FITSByte` type and regards the range as such
+     
+     */
+    subscript<Byte: FITSByte>(_ range: Range<Int>) -> [Byte] {
+    
+        self.withUnsafeBytes { ptr in
+            Array(ptr.bindMemory(to: Byte.self)[range].map{$0.bigEndian})
         }
-        
-        return result
     }
+    
+}
+
+
+extension Data : DataUnit {
     
 }
