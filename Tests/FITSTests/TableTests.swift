@@ -125,7 +125,7 @@ final class TableTests: XCTestCase {
         XCTAssertEqual(hdu.pcount, 0)
         XCTAssertEqual(hdu.headerUnit[HDUKeyword.GCOUNT], 1)
         XCTAssertEqual(hdu.headerUnit.dataSize, 111)
-        XCTAssertEqual(hdu.dataUnit, nil)
+        XCTAssertNil(hdu.dataUnit)
         
         XCTAssertEqual(hdu.columns[0][1], TFIELD.I(val: 333))
         XCTAssertEqual(hdu.columns[1][1], TFIELD.A(val: "World"))
@@ -175,14 +175,6 @@ final class TableTests: XCTestCase {
         }
         
     }
-    
-    
-    
-    
-    
-    
-    
-    
     
     //MARK:-
     

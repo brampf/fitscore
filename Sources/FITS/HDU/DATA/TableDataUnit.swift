@@ -24,42 +24,28 @@
 
 import Foundation
 
-public protocol RandomGroup {
+struct TableDataUnit<Field: FIELD> : DataUnit {
     
-}
-
-public struct Group : RandomGroup {
-
-    public var hdu = PrimaryHDU()
+    let raw : Data
     
-    /// 
-    init(_ hdu: PrimaryHDU){
-        self.hdu = hdu
+    var hashValue: Int {
+        raw.hashValue
     }
     
-    
-    
-    public subscript<Byte: FITSByte>(_ group: Int) -> [Byte] {
-        
-        guard let axis = hdu.naxis, let gcount = hdu.gcount, group < gcount && group >= 0 else {
-            return []
-        }
-        
-        guard let data = hdu.dataUnit else {
-            return []
-        }
-        
-        var groupSize = 1
-        for dim in 2..<axis {
-            groupSize *= hdu.naxis(dim) ?? 1
-        }
-        //groupSize *= abs(Byte.bitpix.size)
-        
-        let start = groupSize * group + (hdu.pcount ?? 0)// * abs(Byte.bitpix.size)
-        let stop = start + groupSize
-        
-        print("Group \(group): \(start)...\(stop)")
-        
-        return data[start..<stop]
+    var count: Int {
+        raw.count
     }
+    
+    func withUnsafeBytes<R>(_ body: (UnsafeRawBufferPointer) throws -> R) rethrows -> R {
+        try raw.withUnsafeBytes(body)
+    }
+    
+    var description: String {
+        raw.description
+    }
+    
+    var debugDescription: String {
+        raw.debugDescription
+    }
+    
 }

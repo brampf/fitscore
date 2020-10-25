@@ -40,13 +40,14 @@ open class AnyImageHDU : AnyHDU {
             self.header("NAXIS\(3)", value: vectors.count, comment: "Channels")
         }
             
-        self.dataUnit = Data()
+        var new = Data()
         vectors.forEach { vector in
             let data = vector.withUnsafeBytes { ptr in
                 Data(buffer: ptr.bindMemory(to: ByteFormat.self))
             }
-            self.dataUnit?.append(data)
+            new.append(data)
         }
+        self.dataUnit = new
     }
     
     /**
@@ -60,13 +61,14 @@ open class AnyImageHDU : AnyHDU {
         self.header("NAXIS\(2)", value: height, comment: "Height")
         self.header("NAXIS\(3)", value: vectors.count, comment: "Channels")
         
-        self.dataUnit = Data()
+        var new = Data()
         vectors.forEach { vector in
             let data = vector.withUnsafeBytes { ptr in
                 Data(buffer: ptr.bindMemory(to: ByteFormat.self))
             }
-            self.dataUnit?.append(data)
+            new.append(data)
         }
+        self.dataUnit = new
     }
     
     /**
@@ -84,7 +86,7 @@ open class AnyImageHDU : AnyHDU {
     }
     
     /**
-     Appends the data from the  vector to the data unit  via memory copy
+     Appends the data from the  vector to the data unit via memory copy
      */
     public func add<ByteFormat: FITSByte>(vector: [ByteFormat]) throws {
         
@@ -99,7 +101,7 @@ open class AnyImageHDU : AnyHDU {
         let channels = self.naxis(3) ?? 0
         self.header("NAXIS\(3)", value: channels + 1, comment: nil)
         
-        if var data = self.dataUnit {
+        if var data = self.dataUnit as? Data {
             // append to data unit
             vector.withUnsafeBytes { ptr in
                 data.append(ptr.bindMemory(to: ByteFormat.self))
@@ -121,7 +123,7 @@ extension AnyImageHDU {
      */
     public func set<ByteFormat: FITSByte>(width: Int, height: Int, ptr: UnsafeBufferPointer<ByteFormat>){
         
-        if var data = self.dataUnit {
+        if var data = self.dataUnit as? Data {
             data.append(ptr)
         } else {
             self.dataUnit = Data(buffer: ptr)

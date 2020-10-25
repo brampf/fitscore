@@ -21,45 +21,29 @@
  SOFTWARE.
  
  */
-
 import Foundation
 
-public protocol RandomGroup {
-    
-}
+struct BinaryDataUnit<Byte: FITSByte> : DataUnit where Byte: Hashable {
 
-public struct Group : RandomGroup {
-
-    public var hdu = PrimaryHDU()
+    let data : [Byte] = []
     
-    /// 
-    init(_ hdu: PrimaryHDU){
-        self.hdu = hdu
+    var hashValue: Int {
+        data.hashValue
     }
     
+    var count: Int {
+        data.count
+    }
     
+    func withUnsafeBytes<R>(_ body: (UnsafeRawBufferPointer) throws -> R) rethrows -> R {
+        try data.withUnsafeBytes(body)
+    }
     
-    public subscript<Byte: FITSByte>(_ group: Int) -> [Byte] {
-        
-        guard let axis = hdu.naxis, let gcount = hdu.gcount, group < gcount && group >= 0 else {
-            return []
-        }
-        
-        guard let data = hdu.dataUnit else {
-            return []
-        }
-        
-        var groupSize = 1
-        for dim in 2..<axis {
-            groupSize *= hdu.naxis(dim) ?? 1
-        }
-        //groupSize *= abs(Byte.bitpix.size)
-        
-        let start = groupSize * group + (hdu.pcount ?? 0)// * abs(Byte.bitpix.size)
-        let stop = start + groupSize
-        
-        print("Group \(group): \(start)...\(stop)")
-        
-        return data[start..<stop]
+    var description: String {
+        data.description
+    }
+    
+    var debugDescription: String {
+        data.debugDescription
     }
 }

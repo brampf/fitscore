@@ -188,7 +188,9 @@ open class AnyHDU : HDU {
     internal func writeData(to: inout Data) throws {
         
         if let unit = dataUnit {
-            to.append(unit)
+            unit.withUnsafeBytes { ptr in
+                to.append(contentsOf: ptr)
+            }
         }
         
         // fill with zeros

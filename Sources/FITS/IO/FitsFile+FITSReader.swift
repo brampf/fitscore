@@ -38,6 +38,12 @@ extension FitsFile {
         
         var context = ReaderContext(dataLenght: data.count, offset: 0, primaryHeader: nil, currentHDU: nil, msg: [])
         
+        defer {
+            context.currentHDU = nil
+            context.currentHeader = nil
+            context.primaryHeader = nil
+        }
+        
         return data.withUnsafeBytes { bytes in
             FitsFile.read(bytes, context: &context)
         }

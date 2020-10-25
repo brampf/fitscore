@@ -167,7 +167,7 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(hdu.pcount, 0)
         XCTAssertEqual(hdu.headerUnit[HDUKeyword.GCOUNT], 1)
         XCTAssertEqual(hdu.headerUnit.dataSize, 114)
-        XCTAssertEqual(hdu.dataUnit, nil)
+        XCTAssertNil(hdu.dataUnit)
         
         file.validate { message in
             print("VAL: \(message)")
@@ -257,7 +257,7 @@ final class BintableTests: XCTestCase {
 
         XCTAssertEqual(bintable.headerUnit.dataArraySize, 68)
         XCTAssertEqual(bintable.headerUnit.dataSize, 68)
-        XCTAssertEqual(bintable.dataUnit, nil)
+        XCTAssertNil(bintable.dataUnit)
         
         _ = bintable.validate()
         

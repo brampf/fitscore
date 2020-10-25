@@ -112,7 +112,7 @@ public final class BintableHDU : AnyTableHDU<BFIELD> {
     public override var description: String {
         
         let theap = self.theap ?? 0
-        let heap = self.dataUnit?.subdata(in: theap..<headerUnit.dataSize)
-        return super.description.appending(" + \(heap?.count ?? 0) HEAP")
+        let heapSize = headerUnit.dataSize - theap
+        return super.description.appending(" + \(heapSize) HEAP")
     }
 }

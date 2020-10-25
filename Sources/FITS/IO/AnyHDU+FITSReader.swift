@@ -74,7 +74,7 @@ extension AnyHDU : FITSReader {
         return new
     }
     
-    internal static func readData(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> DataUnit? {
+    internal static func readData(_ data: UnsafeRawBufferPointer, context: inout ReaderContext) -> Data? {
         
         let endIndex = context.currentHeader?.dataSize ?? 0
         
