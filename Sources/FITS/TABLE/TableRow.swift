@@ -31,7 +31,7 @@ public class TableRow<Field> : Identifiable where Field: FIELD {
     private let table: AnyTableHDU<Field>
     private let rowIndex : Int
     
-    init(_ table: AnyTableHDU<Field>, _ index: Int){
+    init(_ table: AnyTableHDU<Field>, _ index: Int) {
         self.table = table
         self.rowIndex = index
     }

@@ -23,15 +23,10 @@
  */
 import Foundation
 
-protocol Initializable {
-    
-    func initialize(_ hdu: AnyHDU)
-}
-
 @propertyWrapper
-public class Keyword<Value : HDUValue> : Initializable, CustomStringConvertible{
+public class Keyword<Value : HDUValue> : CustomStringConvertible{
  
-    private var hdu : AnyHDU?
+    private var header : HeaderUnit?
     
     let keyword : HDUKeyword
     
@@ -40,17 +35,10 @@ public class Keyword<Value : HDUValue> : Initializable, CustomStringConvertible{
     public var wrappedValue : Value? {
         get {
             //print("GET \(keyword)")
-            
-            return hdu?.headerUnit.first(where: {$0.keyword == keyword})?.value as? Value
+            return header?[keyword]
         }
         set {
-            //print("SET \(keyword) to \(newValue)")
-            if let block = hdu?.headerUnit.first(where: {$0.keyword == keyword}) {
-                block.value = newValue
-            } else {
-                hdu?.headerUnit.append(HeaderBlock(keyword: keyword, value: newValue, comment: comment))
-            }
-            hdu?.modified = true
+            header?[keyword] = newValue
         }
     }
     
@@ -69,19 +57,19 @@ public class Keyword<Value : HDUValue> : Initializable, CustomStringConvertible{
         self.wrappedValue = wrappedValue
     }
     
-    init(wrappedValue: Value?, _ keyword : HDUKeyword, _ hdu: AnyHDU){
-        self.hdu = hdu
+    init(wrappedValue: Value?, _ keyword : HDUKeyword, _ header: HeaderUnit){
+        self.header = header
         self.keyword = keyword
         self.wrappedValue = wrappedValue
     }
     
-    init(_ keyword : HDUKeyword, _ hdu: AnyHDU){
-        self.hdu = hdu
+    init(_ keyword : HDUKeyword, _ header: HeaderUnit){
+        self.header = header
         self.keyword = keyword
     }
     
-    func initialize(_ hdu: AnyHDU){
-        self.hdu = hdu
+    func initialize(_ header: HeaderUnit){
+        self.header = header
     }
     
     public var description: String {

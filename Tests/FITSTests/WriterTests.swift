@@ -346,7 +346,7 @@ final class WriterTests: XCTestCase {
             // done
         }
         
-        let new = try! FitsFile.read(from: &data)
+        let new = FitsFile.read(data)!
         
         new.validate { msg in
             print(msg)

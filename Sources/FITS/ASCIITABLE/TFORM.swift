@@ -88,7 +88,7 @@ public enum TFORM : FORM {
     }
 }
 
-extension TFORM : Parser {
+extension TFORM {
     
     public static  func parse(_ string: String) -> TFORM? {
         

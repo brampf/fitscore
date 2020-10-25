@@ -19,13 +19,9 @@ final class SignatureTests: XCTestCase {
     func testFitsFile(){
     
         // Creation
-        XCSignature(FitsFile.init(prime:))
-        XCSignatureThrows(FitsFile.init(with:))
-        
+
         // Parsing
-        XCSignatureThrows(FitsFile.read(from: ))
-        XCSignature(FitsFile.read(from:onError:onCompletion:))
-        
+
         // Validation
         XCSignature(FitsFile.validate(onMessage:))
         
@@ -38,8 +34,6 @@ final class SignatureTests: XCTestCase {
     func testPrimaryHDU(){
         
         // Creation
-        XCSignatureThrows(PrimaryHDU.init(with:))
-        //XCSignature(signature: PrimaryHDU.init(width:height:vectors:))
         
         // Accessors
         XCSignature(PrimaryHDU.header(_:comment:))
@@ -72,8 +66,7 @@ final class SignatureTests: XCTestCase {
     func testTableHDU(){
         
         // Creation
-        XCSignatureThrows(TableHDU.init(with:))
-        
+
         // Accessors
         XCSignature(TableHDU.header(_:comment:))
         XCSignature(TableHDU.naxis(_:))

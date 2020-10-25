@@ -22,31 +22,30 @@
  
  */
 
-
 import Foundation
 
-public protocol HDU : CustomDebugStringConvertible {
+struct TableDataUnit<Field: FIELD> : DataUnit {
     
-    var headerUnit : HeaderUnit {get}
-    var dataUnit : DataUnit? {get}
+    let raw : Data
     
-    func validate(onMessage:( (String) -> Void)?) -> Bool
-}
-
-extension HDU where Self: CustomDebugStringConvertible {
+    var hashValue: Int {
+        raw.hashValue
+    }
     
-    public var debugDescription: String {
-        
-        var result = "-\(type(of: self))".padSuffix(toSize: 80, char: "-")+"\n"
-        result.append(headerUnit.debugDescription)
-        result.append(String(repeating: "-", count: 80)+"\n")
-        if let data = dataUnit {
-            result.append("\(data.debugDescription)\n")
-        } else {
-            result.append("No Data Unit!\n")
-        }
-        
-        return result
+    var count: Int {
+        raw.count
+    }
+    
+    func withUnsafeBytes<R>(_ body: (UnsafeRawBufferPointer) throws -> R) rethrows -> R {
+        try raw.withUnsafeBytes(body)
+    }
+    
+    var description: String {
+        raw.description
+    }
+    
+    var debugDescription: String {
+        raw.debugDescription
     }
     
 }

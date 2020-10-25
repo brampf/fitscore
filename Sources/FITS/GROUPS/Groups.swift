@@ -53,17 +53,13 @@ public struct Group : RandomGroup {
         for dim in 2..<axis {
             groupSize *= hdu.naxis(dim) ?? 1
         }
-        groupSize *= abs(Byte.bitpix.size)
+        //groupSize *= abs(Byte.bitpix.size)
         
-        let start = groupSize * group + (hdu.pcount ?? 0) * abs(Byte.bitpix.size)
+        let start = groupSize * group + (hdu.pcount ?? 0)// * abs(Byte.bitpix.size)
         let stop = start + groupSize
         
         print("Group \(group): \(start)...\(stop)")
         
-        var sub = data.subdata(in: start..<stop)
-        return sub.withUnsafeMutableBytes { mptr8 in
-            mptr8.bindMemory(to: Byte.self).map{$0.bigEndian}
-        }
-        
+        return data[start..<stop]
     }
 }

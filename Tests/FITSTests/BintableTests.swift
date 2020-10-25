@@ -89,9 +89,9 @@ final class BintableTests: XCTestCase {
         let col1 = hdu.addColumn(TFORM: BFORM.A(r: 4), TDISP: BDISP.A(w: 8), TTYPE: "Numbers" , BFIELD.A(val: "EINS"), BFIELD.A(val: "Zwei"), BFIELD.A(val: nil), BFIELD.A(val: "Vier"))
         let _ = hdu.addColumn(TFORM: BFORM.L(r: 4), TDISP: BDISP.L(w: 2), TTYPE: "Logic" , BFIELD.L(val: [true,false,true]), BFIELD.L(val: [true,false,true]), BFIELD.L(val: [true,false,true]), BFIELD.L(val: [true,false,true]))
         
-        XCTAssertEqual(hdu.lookup("TFIELDS"),  2)
-        XCTAssertEqual(hdu.lookup("NAXIS1"),  8)
-        XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
+        XCTAssertEqual(hdu.headerUnit["TFIELDS"],  2)
+        XCTAssertEqual(hdu.headerUnit["NAXIS1"],  8)
+        XCTAssertEqual(hdu.headerUnit["NAXIS2"], 4)
         
         let _ = hdu.addColumn(TFORM: BFORM.I(r: 8), TDISP: BDISP.I(w: 4, m: 6), .I(val: [4123]),.I(val: [1234]),.I(val: [8977]),.I(val: [5434]))
         
@@ -99,10 +99,10 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(hdu.columns[0].values.count, 4)
         XCTAssertEqual(hdu.columns[1].values.count, 4)
         XCTAssertEqual(col1.TFORM, BFORM.A(r: 4))
-        XCTAssertEqual(hdu.lookup("TFORM1"), BFORM.A(r: 4))
-        XCTAssertEqual(hdu.lookup("TFIELDS"),  3)
-        XCTAssertEqual(hdu.lookup("NAXIS1"),  24)
-        XCTAssertEqual(hdu.lookup("NAXIS2"), 4)
+        XCTAssertEqual(hdu.headerUnit["TFORM1"], BFORM.A(r: 4))
+        XCTAssertEqual(hdu.headerUnit["TFIELDS"],  3)
+        XCTAssertEqual(hdu.headerUnit["NAXIS1"],  24)
+        XCTAssertEqual(hdu.headerUnit["NAXIS2"], 4)
         
         
         _ = hdu.validate()
@@ -165,9 +165,9 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(hdu.naxis(1), 38)
         XCTAssertEqual(hdu.naxis(2), 3)
         XCTAssertEqual(hdu.pcount, 0)
-        XCTAssertEqual(hdu.lookup(HDUKeyword.GCOUNT), 1)
-        XCTAssertEqual(hdu.dataSize, 114)
-        XCTAssertEqual(hdu.dataUnit, nil)
+        XCTAssertEqual(hdu.headerUnit[HDUKeyword.GCOUNT], 1)
+        XCTAssertEqual(hdu.headerUnit.dataSize, 114)
+        XCTAssertNil(hdu.dataUnit)
         
         file.validate { message in
             print("VAL: \(message)")
@@ -180,7 +180,7 @@ final class BintableTests: XCTestCase {
         XCTAssertNoThrow(try file.write(to: &data))
         
         var new : FitsFile? = nil
-        XCTAssertNoThrow(new = try FitsFile.read(from: &data))
+        XCTAssertNoThrow(new = FitsFile.read(data))
         
         guard let parsed = new else {
             XCTFail("There must be a file")
@@ -201,7 +201,7 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(thdu.naxis(2), 3)
         XCTAssertEqual(thdu.pcount, 0)
         XCTAssertEqual(thdu.gcount, 1)
-        XCTAssertEqual(thdu.dataSize, 114)
+        XCTAssertEqual(thdu.headerUnit.dataSize, 114)
         XCTAssertEqual(thdu.dataUnit?.count, 114)
         
         
@@ -255,9 +255,9 @@ final class BintableTests: XCTestCase {
         XCTAssertEqual(bintable.pcount, 0)
         XCTAssertEqual(bintable.gcount, 1)
 
-        XCTAssertEqual(bintable.dataArraySize, 68)
-        XCTAssertEqual(bintable.dataSize, 68)
-        XCTAssertEqual(bintable.dataUnit, nil)
+        XCTAssertEqual(bintable.headerUnit.dataArraySize, 68)
+        XCTAssertEqual(bintable.headerUnit.dataSize, 68)
+        XCTAssertNil(bintable.dataUnit)
         
         _ = bintable.validate()
         
@@ -275,7 +275,7 @@ final class BintableTests: XCTestCase {
         
         // -----------------------------------
         
-        let new = try! FitsFile.read(from: &data)
+        let new = FitsFile.read(data)!
         
         new.validate { msg in
             print(msg)
@@ -287,8 +287,8 @@ final class BintableTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(btable.dataArraySize, 68)
-        XCTAssertEqual(btable.dataSize, 150)
+        XCTAssertEqual(btable.headerUnit.dataArraySize, 68)
+        XCTAssertEqual(btable.headerUnit.dataSize, 150)
         
         XCTAssertEqual(btable.pcount, 82)
         XCTAssertEqual(btable.theap, 68)
