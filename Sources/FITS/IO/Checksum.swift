@@ -48,42 +48,6 @@ public struct Checksum : HDUValue, FITSSTRING {
         
     }
     
-    /**
-     - ToDo: translate standard implementation into swift
-
-     let mask : [UInt32] = [0xff000000, 0xff0000, 0xff00, 0xff]
-     for i in 0..<4 {
-         var ch : [UInt8] = .init(repeating: 0, count: 4)
-         /* each byte becomes four */
-         let byte : UInt8 = UInt8(self & mask[i] >> ((3 - i) * 8))
-         let quotient = byte / 4 + offset
-         let remainder = byte % 4
-         for j in 0..<4 {
-             ch[j] = quotient
-         }
-         ch[0] += remainder
-     
-         var check = 1
-         while (check > 0 ){
-             check = 0
-             for k in 0..<13 {
-                 for j in stride(from:0, to: 4, by: 2){
-                     if ch[j]==exclude[k] || ch[j+1]==exclude[k] {
-                         ch[j] = ch[j] + 1
-                         ch[j+1] = ch[j+1] - 1
-                         check += 1
-                     }
-                 }
-             }
-         }
-         
-         for j in 0..<4 {
-             ascii[4*j+i] = ch[j]
-         }
-
-     }
-     
-     */
     public var toString: String {
         
         let exclude : [UInt8] = [0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 0x60]
@@ -128,34 +92,4 @@ public struct Checksum : HDUValue, FITSSTRING {
         return complement
     }
     
-}
-
-extension DataProtocol where Self : ContiguousBytes, Index == Int {
-    
-    internal var crc : UInt32 {
-        
-        guard self.count % 4 == 0 else {
-            return 0
-        }
-        
-        var hi : UInt32 = (0 >> 16);
-        var lo : UInt32 = 0 & 0xFFFF;
-        
-        for idx in stride(from: 0, to: self.count, by: 4) {
-            hi &+= (UInt32(self[idx]) << 8) + UInt32(self[idx+1])
-            lo &+= (UInt32(self[idx+2]) << 8) + UInt32(self[idx+3])
-        }
-        
-        var hicarry = hi >> 16;
-        var locarry = lo >> 16;
-        
-        while (hicarry != 0 || locarry != 0) {
-            hi = (hi & 0xFFFF) + locarry;
-            lo = (lo & 0xFFFF) + hicarry;
-            hicarry = hi >> 16;
-            locarry = lo >> 16;
-        }
-        
-        return (hi << 16) + lo;
-    }
 }

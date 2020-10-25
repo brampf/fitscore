@@ -176,6 +176,8 @@ final class ChecksumTests: XCTestCase {
         
         let raw = try! Data(contentsOf: url)
         XCTAssertEqual(raw.datasum, ~0, "checksum is supposed to be 0 for an undamaged HDU")
+        
+        let file = try! FitsFile.read(from: url)
     }
     
     /// Tests computation and validation of the checksum for a HDU with empty data Unit

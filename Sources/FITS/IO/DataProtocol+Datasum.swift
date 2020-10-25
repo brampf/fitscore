@@ -68,3 +68,63 @@ extension DataProtocol where Self : ContiguousBytes {
     }
     
 }
+
+extension DataProtocol where Self : ContiguousBytes, Index == Int {
+    
+    internal var crc : UInt32 {
+        
+        guard self.count % 4 == 0 else {
+            return 0
+        }
+        
+        var hi : UInt32 = (0 >> 16);
+        var lo : UInt32 = 0 & 0xFFFF;
+        
+        for idx in stride(from: 0, to: self.count, by: 4) {
+            hi &+= (UInt32(self[idx]) << 8) + UInt32(self[idx+1])
+            lo &+= (UInt32(self[idx+2]) << 8) + UInt32(self[idx+3])
+        }
+        
+        var hicarry = hi >> 16;
+        var locarry = lo >> 16;
+        
+        while (hicarry != 0 || locarry != 0) {
+            hi = (hi & 0xFFFF) + locarry;
+            lo = (lo & 0xFFFF) + hicarry;
+            hicarry = hi >> 16;
+            locarry = lo >> 16;
+        }
+        
+        return (hi << 16) + lo;
+    }
+}
+
+extension DataProtocol where Self : ContiguousBytes, Index == Int {
+    
+    internal func crcsum(sum: inout UInt32) {
+        
+        guard self.count % 4 == 0 else {
+            return
+        }
+        
+        var hi : UInt32 = (sum >> 16);
+        var lo : UInt32 = sum & 0xFFFF;
+        
+        for idx in stride(from: 0, to: self.count, by: 4) {
+            hi &+= (UInt32(self[idx]) << 8) + UInt32(self[idx+1])
+            lo &+= (UInt32(self[idx+2]) << 8) + UInt32(self[idx+3])
+        }
+        
+        var hicarry = hi >> 16;
+        var locarry = lo >> 16;
+        
+        while (hicarry != 0 || locarry != 0) {
+            hi = (hi & 0xFFFF) + locarry;
+            lo = (lo & 0xFFFF) + hicarry;
+            hicarry = hi >> 16;
+            locarry = lo >> 16;
+        }
+        
+        sum = (hi << 16) + lo;
+    }
+}

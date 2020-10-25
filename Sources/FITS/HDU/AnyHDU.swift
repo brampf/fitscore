@@ -213,12 +213,28 @@ open class AnyHDU : HDU, Reader {
      */
     required public init(with data: inout Data) throws {
         
+        // CHECKSUM
+        var chksum : UInt32 = 0
+        
         // read header block
         while readHeader(data: &data) {
+            data.subdata(in: 0..<2880).crcsum(sum: &chksum)
             data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
         }
+        data.subdata(in: 0..<2880).crcsum(sum: &chksum)
         data = data.advanced(by: CARD_LENGTH * BLOCK_LENGTH)
 
+        if let datasum : String = lookup(HDUKeyword.DATASUM), let dsum = UInt32(datasum) {
+            print("Datasum found : \(datasum)")
+            
+            if let checksum : String = lookup(HDUKeyword.CHECKSUM) {
+                print("Checksum found : \(checksum)")
+                
+                let test = chksum &+ dsum
+                print("Computed cheksum: \(test) (\(~test))")
+            }
+        }
+        
         // initilize the wrappers
         self.initializeWrapper()
         
