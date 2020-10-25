@@ -29,6 +29,8 @@ public protocol DataUnit : ContiguousBytes, CustomStringConvertible, CustomDebug
     var hashValue : Int {get}
     
     var count : Int {get}
+    
+    var datasum : UInt32 {get}
 }
 
 extension DataUnit {

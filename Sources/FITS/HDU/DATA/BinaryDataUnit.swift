@@ -46,4 +46,12 @@ struct BinaryDataUnit<Byte: FITSByte> : DataUnit where Byte: Hashable {
     var debugDescription: String {
         data.debugDescription
     }
+    
+    var datasum: UInt32 {
+        
+        data.withUnsafeBytes { ptr in
+            ptr.datasum
+        }
+
+    }
 }

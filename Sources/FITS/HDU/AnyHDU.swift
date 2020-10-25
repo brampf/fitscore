@@ -194,6 +194,9 @@ open class AnyHDU : HDU {
                 to.append(contentsOf: ptr)
             }
         }
+        
+        // fill with zeros
+        self.pad(&to, by: CARD_LENGTH*BLOCK_LENGTH, with: 0)
     }
     
     func padded(value: Int, to: Int) -> Int {

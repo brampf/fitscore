@@ -48,4 +48,9 @@ struct TableDataUnit<Field: FIELD> : DataUnit {
         raw.debugDescription
     }
     
+    var datasum: UInt32 {
+        raw.withUnsafeBytes{ ptr in
+            ptr.datasum
+        }
+    }
 }

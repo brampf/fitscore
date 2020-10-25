@@ -30,11 +30,11 @@ final class ChecksumTests: XCTestCase {
         
         // read file
         let url = Bundle.module.url(forResource: "aeff_P6_v1_diff_back", withExtension: "fits")!
-        let file = try! FitsFile.read(from: url)
+        let file = try! FitsFile.read(contentsOf: url)!
         
        
-        XCTAssertEqual(file.prime.lookup(HDUKeyword.CHECKSUM), "3cMdAZKb3aKbAYKb")
-        XCTAssertEqual(file.prime.lookup(HDUKeyword.DATASUM), "         0")
+        XCTAssertEqual(file.prime.headerUnit[HDUKeyword.CHECKSUM], "3cMdAZKb3aKbAYKb")
+        XCTAssertEqual(file.prime.headerUnit[HDUKeyword.DATASUM], "         0")
         
         var dat = Data()
         file.prime.headerUnit.forEach{ block in
@@ -51,8 +51,8 @@ final class ChecksumTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(bintable.lookup(HDUKeyword.CHECKSUM), "IpAMIo5LIoALIo5L")
-        XCTAssertEqual(bintable.lookup(HDUKeyword.DATASUM), "340004495")
+        XCTAssertEqual(bintable.headerUnit[HDUKeyword.CHECKSUM], "IpAMIo5LIoALIo5L")
+        XCTAssertEqual(bintable.headerUnit[HDUKeyword.DATASUM], "340004495")
         
         var data = Data()
         try? bintable.writeData(to: &data)
@@ -110,8 +110,8 @@ final class ChecksumTests: XCTestCase {
         sample.prime.header(HDUKeyword.CHECKSUM, value: Checksum(checksum).toString, comment: "Checksum \(date)")
         
         XCTAssertEqual(sample.prime.headerUnit.count, 10)
-        XCTAssertEqual(sample.prime.lookup(HDUKeyword.DATASUM), "134142435")
-        XCTAssertEqual(sample.prime.lookup(HDUKeyword.CHECKSUM), "kq4Snn1Skn1Skn1S")
+        XCTAssertEqual(sample.prime.headerUnit[HDUKeyword.DATASUM], "134142435")
+        XCTAssertEqual(sample.prime.headerUnit[HDUKeyword.CHECKSUM], "kq4Snn1Skn1Skn1S")
         
         var complete = Data()
         try! sample.prime.write(to: &complete)
@@ -133,7 +133,7 @@ final class ChecksumTests: XCTestCase {
         
         XCTAssertEqual(dataUnit.count, 2160000)
         
-        XCTAssertEqual(sample.prime.dataSize, 2160000)
+        XCTAssertEqual(sample.prime.headerUnit.dataSize, 2160000)
         XCTAssertEqual(sample.prime.dataUnit!.count, 2160000)
             
         XCTAssertEqual(sample.prime.dataUnit?.datasum, 2328857295)
@@ -156,8 +156,8 @@ final class ChecksumTests: XCTestCase {
         
         sample.prime.header(HDUKeyword.CHECKSUM, value: Checksum(hdusum).toString)
         
-        XCTAssertEqual(sample.prime.lookup(HDUKeyword.DATASUM), "2328857295")
-        XCTAssertEqual(sample.prime.lookup(HDUKeyword.CHECKSUM), "FhdnIhbkFhbkFhbk")
+        XCTAssertEqual(sample.prime.headerUnit[HDUKeyword.DATASUM], "2328857295")
+        XCTAssertEqual(sample.prime.headerUnit[HDUKeyword.CHECKSUM], "FhdnIhbkFhbkFhbk")
         
         
         let desktop = try! FileManager.default.url(for: .desktopDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
@@ -177,7 +177,8 @@ final class ChecksumTests: XCTestCase {
         let raw = try! Data(contentsOf: url)
         XCTAssertEqual(raw.datasum, ~0, "checksum is supposed to be 0 for an undamaged HDU")
         
-        let file = try! FitsFile.read(from: url)
+        //let file = try! FitsFile.read(contentsOf: url)
+        
     }
     
     /// Tests computation and validation of the checksum for a HDU with empty data Unit
