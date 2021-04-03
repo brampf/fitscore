@@ -49,7 +49,12 @@ public final class HeaderUnit : RandomAccessCollection {
     public subscript<Value: HDUValue>(_ keyword: HDUKeyword) -> Value? {
         get {
             if let value = records.first(where: {$0.keyword == keyword})?.value {
-                return value as? Value
+                //print("\(value) (\(type(of: value))) as \(Value.self)")
+                if let intval = value as? Int {
+                    return Value.init(i: intval)
+                } else {
+                    return value as? Value
+                }
             } else {
                 //print("\(keyword) not found")
                 return nil

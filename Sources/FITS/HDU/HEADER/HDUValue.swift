@@ -32,6 +32,8 @@ public protocol HDUValue : CustomStringConvertible {
     var hashable : AnyHashable { get }
     
     var toString : String { get }
+    
+    init?<F: FixedWidthInteger>(i: F)
 }
 
 struct AnyHDUValue {
@@ -152,6 +154,10 @@ extension HDUValue where Self : Equatable {
 
 extension String : HDUValue {
     
+    public init?<F: FixedWidthInteger>(i: F){
+        self.init("\(i)")
+    }
+    
     public var description: String {
         return "'\(self)'"
     }
@@ -170,6 +176,10 @@ extension Bool : HDUValue {
     public var toString : String {
         return self ? "T" : "F"
     }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        self.init(i == 1)
+    }
 }
 
 extension Float : HDUValue {
@@ -182,6 +192,9 @@ extension Float : HDUValue {
         return "\(self)"
     }
     
+    public init?<F: FixedWidthInteger>(i: F) {
+        self.init(i)
+    }
 }
 
 extension Int : HDUValue {
@@ -192,6 +205,10 @@ extension Int : HDUValue {
     
     public var toString : String {
         return "\(self)"
+    }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        self.init(i)
     }
 }
 
@@ -204,6 +221,10 @@ extension FITSComplex : HDUValue {
     public var toString : String {
         return "\(self)"
     }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        return nil
+    }
 }
 
 extension BITPIX : HDUValue {
@@ -214,6 +235,10 @@ extension BITPIX : HDUValue {
     
     public var toString : String {
         return "\(self)"
+    }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        self.init(rawValue: Int(i))
     }
 }
 
@@ -226,6 +251,10 @@ extension Date : HDUValue {
     public var toString : String {
         return "\(self)"
     }
+    
+    public init<F: FixedWidthInteger>(i: F) {
+        self.init(timeIntervalSinceNow: Double(i))
+    }
 }
 
 extension BFORM : HDUValue {
@@ -234,12 +263,19 @@ extension BFORM : HDUValue {
         return "'\(self)'"
     }
     
+    public init?<F: FixedWidthInteger>(i: F) {
+        return nil
+    }
 }
 
 extension TFORM : HDUValue {
     
     public var toString : String {
         return "'\(self)'"
+    }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        return nil
     }
 }
 
@@ -248,12 +284,20 @@ extension BDISP : HDUValue {
     public var toString : String {
         return "'\(self)'"
     }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        return nil
+    }
 }
 
 extension TDISP : HDUValue {
     
     public var toString : String {
         return "'\(self)'"
+    }
+    
+    public init?<F: FixedWidthInteger>(i: F) {
+        return nil
     }
 }
 
@@ -283,5 +327,7 @@ extension Optional : HDUValue, CustomStringConvertible where Wrapped : HDUValue 
         }
     }
     
-    
+    public init?<F: FixedWidthInteger>(i: F) {
+        self = Wrapped.init(i: i)
+    }
 }
