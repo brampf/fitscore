@@ -23,7 +23,7 @@
  */
 import Foundation
 
-struct BinaryDataUnit<Byte: FITSByte> : DataUnit where Byte: Hashable {
+struct BinaryDataUnit<Byte: FITSByte> : DataUnit {
 
     let data : [Byte] = []
     
