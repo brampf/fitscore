@@ -37,15 +37,24 @@ extension DataUnit {
      Interprets the dataUnit as sequence of provied `FITSByte` type and regards the range as such
      
      */
-    subscript<Byte: FITSByte>(_ range: Range<Int>) -> [Byte] {
+    public subscript<Byte: FITSByte>(_ range: Range<Int>) -> [Byte] {
     
         self.withUnsafeBytes { ptr in
             Array(ptr.bindMemory(to: Byte.self)[range].map{$0.bigEndian})
         }
     }
     
+    /**
+     Interprets the dataUnit as sequence of provied `FITSByte` type and regards the range as such
+     
+     */
+    public subscript<Byte: FITSByte>(_ offset: Int) -> Byte {
+        
+        self.withUnsafeBytes { ptr in
+            ptr.bindMemory(to: Byte.self)[offset].bigEndian
+        }
+    }
 }
-
 
 extension Data : DataUnit {
     
