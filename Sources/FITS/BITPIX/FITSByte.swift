@@ -35,7 +35,9 @@ import Foundation
  - -64      IEEE double-precision floating point
  
  */
-public protocol FITSByte : ExpressibleByIntegerLiteral, AdditiveArithmetic, Comparable, Hashable {
+public protocol FITSByte : ExpressibleByIntegerLiteral, AdditiveArithmetic, Strideable, Hashable {
+    
+    
     static var bytes : Int {get}
     static var bits : Int {get}
     static var bitpix : BITPIX {get}
@@ -44,11 +46,19 @@ public protocol FITSByte : ExpressibleByIntegerLiteral, AdditiveArithmetic, Comp
     static var min : Self {get}
     var littleEndian : Self {get}
     var bigEndian : Self {get}
+
+    init(_ int: Int)
     
     /// normalizes this value to a floating point in the range betweeen 0 and 1
     func normalize(_ bzero: Float, _ bscale: Float, _ min: Self, _ max: Self) -> Float
     var float : Float {get}
     static var range : Float {get}
+    
+    /// Expose basic Arithmetic stuff
+    static func + (lhs: Self, rhs: Self) -> Self
+    static func - (lhs: Self, rhs: Self) -> Self
+    static func * (lhs: Self, rhs: Self) -> Self
+    static func / (lhs: Self, rhs: Self) -> Self
 }
 
 /**
@@ -210,19 +220,8 @@ extension FITSByte_D : FITSByte {
     }
     
     public var float: Float {
-        Float(self)
+        Float(self.bigEndian)
     }
     
     public static var range: Float = Float(UInt64.max)
-}
-
-
-extension Array where Element : FITSByte {
-    
-    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: Element = .min, _ max: Element = .max) -> Float {
-        return (self.reduce(into: 0.0) { sum, val in
-            sum += bzero + val.float
-        } * bscale) / Float(self.count) / Element.range
-    }
-    
 }
