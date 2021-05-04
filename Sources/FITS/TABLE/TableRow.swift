@@ -42,7 +42,7 @@ public class TableRow<Field> : Identifiable where Field: FIELD {
         }
     }
     
-    subscript(_ col: Int) -> Field {
+    public subscript(_ col: Int) -> Field {
         get{
             table.columns[col][rowIndex]
         }
@@ -55,11 +55,11 @@ public class TableRow<Field> : Identifiable where Field: FIELD {
         }
     }
     
-    func TFORM(_ col: Int) -> Field.FORM? {
+    public func TFORM(_ col: Int) -> Field.FORM? {
         return table.columns[col].TFORM
     }
     
-    func TDISP(_ col: Int) -> Field.DISP? {
+    public func TDISP(_ col: Int) -> Field.DISP? {
         return table.columns[col].TDISP
     }
     

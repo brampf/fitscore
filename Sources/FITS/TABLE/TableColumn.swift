@@ -66,7 +66,7 @@ public class TableColumn<Field> : Identifiable where Field: FIELD  {
         self.values = fields
     }
     
-    subscript(_ row: Int) -> Field {
+    public subscript(_ row: Int) -> Field {
         get {
             return values[row]
         }
