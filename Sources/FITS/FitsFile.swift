@@ -31,7 +31,7 @@ import Foundation
  */
 public final class FitsFile {
     
-    public internal(set) var prime : PrimaryHDU
+    public var prime : PrimaryHDU
     public var HDUs : [AnyHDU] = []
     
     public init(prime: PrimaryHDU) {

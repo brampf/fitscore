@@ -35,7 +35,9 @@ import Foundation
  - -64      IEEE double-precision floating point
  
  */
-public protocol FITSByte : Equatable {
+public protocol FITSByte : ExpressibleByIntegerLiteral, AdditiveArithmetic, Strideable, Hashable {
+    
+    
     static var bytes : Int {get}
     static var bits : Int {get}
     static var bitpix : BITPIX {get}
@@ -44,6 +46,19 @@ public protocol FITSByte : Equatable {
     static var min : Self {get}
     var littleEndian : Self {get}
     var bigEndian : Self {get}
+
+    init(_ int: Int)
+    
+    /// normalizes this value to a floating point in the range betweeen 0 and 1
+    func normalize(_ bzero: Float, _ bscale: Float, _ min: Self, _ max: Self) -> Float
+    var float : Float {get}
+    static var range : Float {get}
+    
+    /// Expose basic Arithmetic stuff
+    static func + (lhs: Self, rhs: Self) -> Self
+    static func - (lhs: Self, rhs: Self) -> Self
+    static func * (lhs: Self, rhs: Self) -> Self
+    static func / (lhs: Self, rhs: Self) -> Self
 }
 
 /**
@@ -56,6 +71,16 @@ extension FITSByte_8 : FITSByte {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 8
     public static var bitpix: BITPIX = .UINT8
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_8 = .min, _ max: FITSByte_8 = .max) -> Float {
+        return (bzero + Float(self) * bscale) / Self.range
+    }
+    
+    public var float: Float {
+        Float(self)
+    }
+    
+    public static let range : Float = Float(UInt8.max)
 }
 
 /**
@@ -68,6 +93,17 @@ extension FITSByte_16 : FITSByte {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 16
     public static var bitpix: BITPIX = .INT16
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_16 = .min, _ max: FITSByte_16 = .max) -> Float {
+        
+        return (bzero + Float(self) * bscale) / Self.range
+    }
+    
+    public var float: Float {
+        Float(self)
+    }
+    
+    public static let range : Float = Float(UInt16.max)
 }
 
 /**
@@ -80,6 +116,16 @@ extension FITSByte_32 : FITSByte {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 32
     public static var bitpix: BITPIX = .INT32
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_32 = .min, _ max: FITSByte_32 = .max) -> Float {
+        return (bzero + Float(self) * bscale) / Self.range
+    }
+    
+    public var float: Float {
+        Float(self)
+    }
+    
+    public static let range : Float = Float(UInt32.max)
 }
 
 /**
@@ -92,6 +138,16 @@ extension FITSByte_64 : FITSByte {
     public static var bytes: Int = MemoryLayout<Self>.size
     public static var bits: Int = 64
     public static var bitpix: BITPIX = .INT64
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_64 = .min, _ max: FITSByte_64 = .max) -> Float {
+        return (bzero + Float(self) * bscale) / Self.range
+    }
+    
+    public var float: Float {
+        Float(self)
+    }
+    
+    public static var range: Float = Float(UInt64.max)
 }
 
 /**
@@ -120,6 +176,16 @@ extension FITSByte_F : FITSByte {
     public var bigEndian : FITSByte_F {
         return Float(bitPattern: self.bitPattern.bigEndian)
     }
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_F = .min, _ max: FITSByte_F = .max) -> Float {
+        return (bzero + Float(self) * bscale) / Float(max - min)
+    }
+    
+    public var float: Float {
+        Float(self)
+    }
+    
+    public static var range: Float = Float(UInt32.max)
 }
 
 /**
@@ -148,4 +214,14 @@ extension FITSByte_D : FITSByte {
     public var bigEndian : FITSByte_D {
         return Double(bitPattern: self.bitPattern.bigEndian)
     }
+    
+    public func normalize(_ bzero: Float = 0, _ bscale: Float = 1, _ min: FITSByte_D = .min, _ max: FITSByte_D = .max) -> Float {
+        return (bzero + Float(self) * bscale) / Float(max - min)
+    }
+    
+    public var float: Float {
+        Float(self.bigEndian)
+    }
+    
+    public static var range: Float = Float(UInt64.max)
 }
