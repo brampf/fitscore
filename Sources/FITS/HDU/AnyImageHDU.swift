@@ -42,7 +42,8 @@ open class AnyImageHDU : AnyHDU {
             
         var new = Data()
         vectors.forEach { vector in
-            let data = vector.withUnsafeBytes { ptr in
+            // and don't foret the bigEndian here or data is screwed (Fixing issue #14)
+            let data = vector.bigEndian.withUnsafeBytes { ptr in
                 Data(buffer: ptr.bindMemory(to: ByteFormat.self))
             }
             new.append(data)
@@ -63,7 +64,8 @@ open class AnyImageHDU : AnyHDU {
         
         var new = Data()
         vectors.forEach { vector in
-            let data = vector.withUnsafeBytes { ptr in
+            // and don't foret the bigEndian here or data is screwed (Fixing issue #14)
+            let data = vector.bigEndian.withUnsafeBytes { ptr in
                 Data(buffer: ptr.bindMemory(to: ByteFormat.self))
             }
             new.append(data)
@@ -103,12 +105,14 @@ open class AnyImageHDU : AnyHDU {
         
         if var data = self.dataUnit as? Data {
             // append to data unit
-            vector.withUnsafeBytes { ptr in
+            // and don't foret the bigEndian here or data is screwed (Fixing issue #14)
+            vector.bigEndian.withUnsafeBytes { ptr in
                 data.append(ptr.bindMemory(to: ByteFormat.self))
             }
         } else {
             // set data unit
-            self.dataUnit = vector.withUnsafeBytes{ ptr in
+            // and don't foret the bigEndian here or data is screwed (Fixing issue #14)
+            self.dataUnit = vector.bigEndian.withUnsafeBytes{ ptr in
                 Data(buffer: ptr.bindMemory(to: ByteFormat.self))
             }
             
